@@ -32,6 +32,15 @@ Add it as a dependency using the direct GitHub repo and tag version approach, re
 
 Then install it: `npm install`.
 
+## Installation copies files into parent package
+
+When you install this package via npm, the `postinstall` script automatically runs and:
+
+1. Copies the `_tools` and `_webpack` folders from this package to the root of your project
+2. Creates `.gitignore` files in both copied folders to prevent tracking their contents
+3. Creates a `gulpfile.js` in the root of the parent package that imports the full source of `_tools/gulpfile.js`
+4. Creates a log file (`electric-book-modules-install.log`) for debugging purposes if there are any errors.
+
 ### Updating to a new version
 
 This dependency approach can result in `npm install` not correctly updating the package when changing the version. To fix this, use the following inside your Electric Book Template after changing the version:

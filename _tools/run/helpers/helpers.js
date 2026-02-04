@@ -16,7 +16,7 @@ const childProcess = require('child_process') // creates child processes
 const JSZip = require('jszip') // epub-friendly zip utility
 const buildReferenceIndex = require('./reindex/build-reference-index.js')
 const buildSearchIndex = require('./reindex/build-search-index.js')
-const merge = require('./merge')
+const merge = require('./merge/index.js')
 const options = require('./options.js').options
 const slugify = require('../../gulp/helpers/utilities.js').ebSlugify
 const htmlFilePaths = require('./paths/htmlFilePaths.js')
@@ -279,7 +279,7 @@ async function webpack (argv) {
     }
 
     // Create an array of arguments to pass to spawn()
-    const webpackConfig = require.resolve('../../../webpack/webpack.config.js')
+    const webpackConfig = require.resolve('../../../_webpack/webpack.config.js')
     const webpackSpawnArgs = ['--config', webpackConfig, '--mode=production']
 
     if (argv.debugjs) {

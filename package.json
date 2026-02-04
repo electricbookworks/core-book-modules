@@ -2,8 +2,13 @@
   "name": "@electricbookworks/electric-book-modules",
   "version": "1.0.22",
   "description": "A distributable repository of modules used in the Electric Book Template and derivations thereof.",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "node install.js",
+    "manual-install": "node manual-install.js",
     "first-release": "npx standard-version --first-release  && git push --follow-tags",
     "release": "standard-version && git push --follow-tags",
     "watch": "nodemon --exec \"yalc push\""

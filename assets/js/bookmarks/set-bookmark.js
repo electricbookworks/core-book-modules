@@ -1,6 +1,7 @@
 /* global localStorage */
 
-import { ebTruncatedString, ebSlugify, ebNearestPrecedingSibling } from '../utilities'
+import ebSlugify from '../../../_tools/utilities/slugify'
+import { ebTruncatedString, ebNearestPrecedingSibling } from '../utilities'
 import ebBookmarksSessionDate from './session-date'
 import ebBookmarksCheckForBookmarks from './check-for-bookmarks'
 import ebBookmarksSave from './save'

@@ -5,9 +5,9 @@ const { imageSettings } = require('./paths.js')
 const { book } = require('./args.js')
 
 // Load utilities from elsewhere in this repo
-const { ebSlugify } = require('../../../assets/js/utilities.js')
+const ebSlugify = require('../../utilities/slugify')
 if (!ebSlugify) {
-  console.log('Could not load ebSlugify from utilities.js')
+  console.log('Could not load ebSlugify from _tools/utilities/slugify')
 }
 
 // Function for checking if an image should be processed

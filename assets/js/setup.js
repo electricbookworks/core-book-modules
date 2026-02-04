@@ -1,4 +1,4 @@
-import { ebSlugify } from './utilities'
+import ebSlugify from '../../_tools/utilities/slugify'
 
 // Setup tasks on pages
 

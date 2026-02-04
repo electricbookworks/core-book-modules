@@ -1,5 +1,6 @@
 /* global NodeFilter */
-import { ebSlugify, ebDecodeHtmlEntitiesPreservingTags } from './utilities'
+import ebSlugify from '../../_tools/utilities/slugify'
+import { ebDecodeHtmlEntitiesPreservingTags } from './utilities'
 import marked from './marked'
 
 // This script helps create dynamic book indexes.

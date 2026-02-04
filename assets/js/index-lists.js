@@ -1,4 +1,4 @@
-import { ebSlugify } from './utilities'
+import ebSlugify from '../../_tools/utilities/slugify'
 
 // Check the page for reference indexes.
 // If we find any, look up each list item
