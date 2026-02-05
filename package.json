@@ -1,6 +1,6 @@
 {
   "name": "@electricbookworks/electric-book-modules",
-  "version": "1.0.22",
+  "version": "1.1.0",
   "description": "A distributable repository of modules used in the Electric Book Template and derivations thereof.",
   "engines": {
     "node": "20.x"
