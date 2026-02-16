@@ -1,7 +1,7 @@
-#! /usr/bin/env -S node -r esm
+#!/usr/bin/env node
 
 // This script is adapted from
-// https://github.com/mathjax/MathJax-demos-node/blob/master/component/tex2mml-page
+// https://github.com/mathjax/MathJax-demos-node/blob/master/cjs/component/tex2mml
 // The main adaptation is that it accepts an extra argument
 // path for path of the converted file
 
@@ -11,7 +11,7 @@ const fs = require('fs')
  *
  *  component/tex2mml-page
  *
- *  Uses MathJax v3 to convert all TeX in an HTML document to MathML.
+ *  Uses MathJax v4 to convert all TeX in an HTML document to MathML.
  *
  * ----------------------------------------------------------------------
  *
@@ -29,7 +29,7 @@ const fs = require('fs')
  */
 
 //  The default TeX packages to use
-const PACKAGES = 'base, autoload, ams, newcommand, require'
+const PACKAGES = 'base, ams, newcommand, textmacros, require, autoload'
 
 //  Get the command-line arguments
 const argv = require('yargs')
@@ -47,7 +47,7 @@ const argv = require('yargs')
     dist: {
       boolean: true,
       default: false,
-      describe: 'true to use webpacked version, false to use MathJax source files'
+      describe: 'true to use webpacked version, false to use source files'
     }
   })
   .argv
@@ -60,23 +60,24 @@ const outputFilePath = argv._[1]
 
 //  A renderAction to take the place of typesetting.
 //  It renders the output to MathML instead.
-function actionMML (math, doc) {
+function renderMathML (math, doc) {
   const adaptor = doc.adaptor
   const mml = MathJax.startup.toMML(math.root)
   math.typesetRoot = adaptor.firstChild(adaptor.body(adaptor.parse(mml, 'text/html')))
 }
 
 //  Configure MathJax
-MathJax = {
+global.MathJax = {
   loader: {
-    paths: { mathjax: 'mathjax-full/es5' },
-    source: (argv.dist ? {} : require('mathjax-full/components/src/source.js').source),
+    failed: (err) => console.error(err),
+    paths: { mathjax: '@mathjax/src/bundle' },
+    source: (argv.dist ? {} : require('@mathjax/src/components/js/source.js').source),
     require,
-    load: ['input/tex-full', 'adaptors/liteDOM']
+    load: ['adaptors/liteDOM', 'input/tex']
   },
   options: {
     renderActions: {
-      typeset: [150, (doc) => { for (const math of doc.math) actionMML(math, doc) }, actionMML]
+      typeset: [150, (doc) => { for (const math of doc.math) renderMathML(math, doc) }, renderMathML]
     }
   },
   tex: {
@@ -86,12 +87,16 @@ MathJax = {
     fontSize: argv.em
   },
   startup: {
-    document: htmlfile
+    typeset: true,
+    document: htmlfile,
+    ready() {
+      MathJax.startup.defaultReady()
+    }
   }
 }
 
 //  Load the MathJax startup module
-require('mathjax-full/' + (argv.dist ? 'es5' : 'components/src/startup') + '/startup.js')
+require('@mathjax/src/' + (argv.dist ? 'bundle' : 'components/js') + '/startup/startup.js')
 
 //  Wait for MathJax to start up, and then render the math.
 //  Then output the resulting HTML file.

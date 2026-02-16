@@ -1,10 +1,7 @@
 {
   "name": "@electricbookworks/electric-book-modules",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "A distributable repository of modules used in the Electric Book Template and derivations thereof.",
-  "engines": {
-    "node": "20.x"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "node install.js",
@@ -60,7 +57,7 @@
     "jszip": "^3.10.1",
     "mark.js": "^8.11.1",
     "marked": "^15.0.12",
-    "mathjax-full": "^3.2.0",
+    "@mathjax/src": "^4.0.0",
     "node-pandoc": "^0.3.0",
     "open": "^8.4.0",
     "path": "^0.12.7",

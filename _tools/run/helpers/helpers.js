@@ -602,7 +602,7 @@ async function renderMathjax (argv, options) {
           console.log('Rendering maths in ' + path)
           mathJaxProcess = spawn(
             'node',
-            ['-r', 'esm', mathJaxScript, path, path, argv.format]
+            [mathJaxScript, path, path]
           )
           await logProcess(mathJaxProcess, 'Rendering MathJax')
         }
