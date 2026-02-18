@@ -54,7 +54,6 @@ function isXMLMode () {
 // It duplicates much of what index-targets.js does. So, if you
 // update it, you may need to update index-targets.js as well.
 async function renderIndexCommentsAsTargets (done) {
-  'use strict'
   const paths = await htmlFilePaths(null, null, { allFiles: true })
   gulp.src(paths, { base: './', allowEmpty: true })
     .pipe(cheerio({
@@ -224,7 +223,6 @@ async function renderIndexCommentsAsTargets (done) {
 // It duplicates much of what index-lists.js does. So, if you
 // update it, you may need to update index-lists.js as well.
 async function renderIndexListReferences (done) {
-  'use strict'
   const paths = await htmlFilePaths(null, null, { allFiles: true })
   gulp.src(paths, { base: './', allowEmpty: true })
     .pipe(cheerio({

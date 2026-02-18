@@ -27,8 +27,6 @@ const filetypes = 'jpg,jpeg,gif,png,tif,tiff'
 
 // Convert source images for print-pdf
 function imagesPrintPDF (done) {
-  'use strict'
-
   // Options
   const outputFormat = 'print-pdf'
   const colorProfile = 'PSOcoated_v3.icc'
@@ -88,8 +86,6 @@ function imagesPrintPDF (done) {
 // Convert and optimise source images
 // for screen-pdf, web, epub, and app
 function imagesScreenPDF (done) {
-  'use strict'
-
   // Set default variables for files,
   // which can be modified during gulp process.
   // Cannot be reset globally because all tasks
@@ -155,8 +151,6 @@ function imagesScreenPDF (done) {
 // Convert and optimise source images
 // for screen-pdf, web, epub, and app
 function imagesEpub (done) {
-  'use strict'
-
   // Set default variables for files,
   // which can be modified during gulp process.
   // Cannot be reset globally because all tasks
@@ -228,8 +222,6 @@ function imagesEpub (done) {
 // Convert and optimise source images
 // for screen-pdf, web, epub, and app
 function imagesApp (done) {
-  'use strict'
-
   // Set default variables for files,
   // which can be modified during gulp process.
   // Cannot be reset globally because all tasks
@@ -301,8 +293,6 @@ function imagesApp (done) {
 // Convert and optimise source images
 // for screen-pdf, web, epub, and app
 function imagesWeb (done) {
-  'use strict'
-
   // Set default variables for files,
   // which can be modified during gulp process.
   // Cannot be reset globally because all tasks
@@ -373,8 +363,6 @@ function imagesWeb (done) {
 
 // Make small images for web use in srcset
 function imagesSmall (done) {
-  'use strict'
-
   // Set default variables for files,
   // which can be modified during gulp process.
   // Cannot be reset globally because all tasks
@@ -446,8 +434,6 @@ function imagesSmall (done) {
 
 // Make medium images for web use in srcset
 function imagesMedium (done) {
-  'use strict'
-
   // Set default variables for files,
   // which can be modified during gulp process.
   // Cannot be reset globally because all tasks
@@ -519,8 +505,6 @@ function imagesMedium (done) {
 
 // Make large images for web use in srcset
 function imagesLarge (done) {
-  'use strict'
-
   // Set default variables for files,
   // which can be modified during gulp process.
   // Cannot be reset globally because all tasks
@@ -592,8 +576,6 @@ function imagesLarge (done) {
 
 // Make extra-large images for web use in srcset
 function imagesXLarge (done) {
-  'use strict'
-
   // Set default variables for files,
   // which can be modified during gulp process.
   // Cannot be reset globally because all tasks
@@ -665,8 +647,6 @@ function imagesXLarge (done) {
 
 // Make full-quality images in RGB
 function imagesMax (done) {
-  'use strict'
-
   // Set default variables for files,
   // which can be modified during gulp process.
   // Cannot be reset globally because all tasks

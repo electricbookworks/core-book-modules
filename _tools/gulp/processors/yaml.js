@@ -11,8 +11,6 @@ const { paths } = require('../helpers/paths.js')
 
 // Validate yaml files
 function yaml (done) {
-  'use strict'
-
   gulp.src(paths.yaml.src)
     .pipe(tap(function (file) {
       try {

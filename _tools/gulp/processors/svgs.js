@@ -46,71 +46,73 @@ function svgProcess (outputFormat) {
         .replace(/-/g, '_')
         .replace(/\./g, '_')
     }))
-    .pipe(debug({ title: 'Processing SVG ' }))
+    .pipe(debug({ title: 'Processing SVG' }))
 
     // For EpubCheck-safe SVGs, we remove data- attributes
     // and don't strip defaults like <style "type=text/css">
     .pipe(gulpif(modifyImage, svgmin({
-      // The plugins list is the full list of plugins
-      // to use. The default list is ignored.
-      full: true,
-      plugins: [
-        // This first pass only runs minifyStyles, to remove CDATA from
-        // <style> elements and give later access to inlineStyles.
-        'minifyStyles'
-      ]
-    })))
-    .pipe(gulpif(modifyImage, svgmin({
-      // Note: `full: true` is a gulp-svgmin option
-      // (https://www.npmjs.com/package/gulp-svgmin#options)
-      // meaning the plugins list is the full list of plugins
-      // to use. The default list is ignored.
-      // The `present-default` is the default set of plugins
-      // from SVGO: https://svgo.dev/docs/preset-default/
-      full: true,
       plugins: [
         {
           name: 'preset-default',
           params: {
             overrides: {
-              cleanupIDs: { prefix: prefix + '-', minify: true },
+              cleanupAttrs: false,
+              cleanupEnableBackground: false,
+              cleanupIDs: false,
+              cleanupNumericValues: false,
+              collapseGroups: false,
+              convertColors: false,
+              convertEllipseToCircle: false,
+              convertPathData: false,
               convertShapeToPath: false,
+              convertTransform: false,
+              inlineStyles: false,
+              mergePaths: false,
+              mergeStyles: false,
+              moveElemsAttrsToGroup: false,
+              moveGroupAttrsToElems: false,
+              removeComments: false,
+              removeDesc: false,
+              removeDoctype: false,
+              removeEditorsNSData: false,
+              removeEmptyAttrs: false,
+              removeEmptyContainers: false,
+              removeEmptyText: false,
+              removeHiddenElems: false,
+              removeMetadata: false,
+              removeNonInheritableGroupAttrs: false,
+              removeTitle: false,
+              removeUnknownsAndDefaults: false,
+              removeUnusedNS: false,
+              removeUselessDefs: false,
+              removeUselessStrokeAndFill: false,
+              removeViewBox: false,
+              removeXMLProcInst: false,
+              sortDefsChildren: false
+            }
+          }
+        }
+      ]
+    })))
+    .pipe(gulpif(modifyImage, svgmin({
+      plugins: [
+        {
+          name: 'preset-default',
+          params: {
+            overrides: {
+              cleanupEnableBackground: true,
+              cleanupIDs: { prefix: prefix + '-', minify: true },
+              cleanupListOfValues: true,
+              convertShapeToPath: false,
+              convertStyleToAttrs: true,
               inlineStyles: { onlyMatchedOnce: false },
               removeAttrs: { attrs: 'data.*' },
               removeDesc: false,
+              removeDimensions: true,
               removeTitle: false,
               removeUnknownsAndDefaults: { defaultAttrs: false },
               removeViewBox: false
             }
-          }
-        },
-        'cleanupEnableBackground',
-        {
-          name: 'cleanupIDs',
-          params: {
-            prefix: prefix + '-',
-            minify: true
-          }
-        },
-        'cleanupListOfValues',
-        'convertStyleToAttrs',
-        {
-          name: 'inlineStyles',
-          params: {
-            onlyMatchedOnce: false
-          }
-        },
-        {
-          name: 'removeAttrs',
-          params: {
-            attrs: 'data.*'
-          }
-        },
-        'removeDimensions',
-        {
-          name: 'removeUnknownsAndDefaults',
-          params: {
-            defaultAttrs: false
           }
         }
       ]
