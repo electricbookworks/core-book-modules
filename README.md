@@ -49,7 +49,7 @@ This dependency approach can result in `npm install` not correctly updating the 
 rm -rf node_modules/@electricbookworks/electric-book-modules && rm package-lock.json && npm install
 ```
 
-Your template should also have shortcut command for this: `npm run update-modules`.
+Your template should also have a shortcut command for this: `npm run update-modules`.
 
 # Using [yalc](https://github.com/wclr/yalc) for local development
 
