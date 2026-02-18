@@ -62,7 +62,7 @@ const outputFilePath = argv._[1]
 //  It renders the output to MathML instead.
 function renderMathML (math, doc) {
   const adaptor = doc.adaptor
-  const mml = MathJax.startup.toMML(math.root)
+  const mml = global.MathJax.startup.toMML(math.root)
   math.typesetRoot = adaptor.firstChild(adaptor.body(adaptor.parse(mml, 'text/html')))
 }
 
@@ -89,8 +89,8 @@ global.MathJax = {
   startup: {
     typeset: true,
     document: htmlfile,
-    ready() {
-      MathJax.startup.defaultReady()
+    ready () {
+      global.MathJax.startup.defaultReady()
     }
   }
 }
@@ -100,9 +100,9 @@ require('@mathjax/src/' + (argv.dist ? 'bundle' : 'components/js') + '/startup/s
 
 //  Wait for MathJax to start up, and then render the math.
 //  Then output the resulting HTML file.
-MathJax.startup.promise.then(() => {
-  const adaptor = MathJax.startup.adaptor
-  const html = MathJax.startup.document
+global.MathJax.startup.promise.then(() => {
+  const adaptor = global.MathJax.startup.adaptor
+  const html = global.MathJax.startup.document
   html.render()
 
   // Log the convert doc to the console
@@ -110,7 +110,44 @@ MathJax.startup.promise.then(() => {
   // console.log(adaptor.outerHTML(adaptor.root(html.document)))
 
   // Write the converted HTML file
-  const outputFileContents = adaptor.outerHTML(adaptor.root(html.document))
+  let outputFileContents = adaptor.outerHTML(adaptor.root(html.document))
+
+  // Prince doesn't compute the default MathML accent attribute
+  // from the operator dictionary, causing accents like tildes
+  // to render too high above base characters. This explicitly
+  // sets accent="true" on <mover> elements where MathJax outputs
+  // a non-stretchy <mo> (indicating an accent like ~ ^ etc.).
+  outputFileContents = outputFileContents.replace(
+    /<mover(?![^>]*accent)>((?:(?!<\/mover>)[\s\S])*?<mo stretchy="false">)/g,
+    '<mover accent="true">$1'
+  )
+
+  // Prince also positions accents at a uniform height regardless
+  // of the base character (e.g. tilde over z sits as high as over F).
+  // For single-character bases, replace <mover> with combining
+  // Unicode characters so the font handles correct per-character
+  // accent height positioning.
+  const combiningAccents = {
+    '~': '\u0303',
+    '^': '\u0302'
+  }
+  outputFileContents = outputFileContents.replace(
+    /<mover accent="true"[^>]*>\s*<mi([^>]*)>(.)<\/mi>\s*<mo stretchy="false">(.)<\/mo>\s*<\/mover>/g,
+    function (match, miAttrs, base, accent) {
+      const combining = combiningAccents[accent]
+      if (combining) {
+        // Adding the combining character makes <mi> multi-character,
+        // which MathML renders upright. Force italic to match the
+        // original single-char <mi> default styling.
+        const variantAttr = miAttrs.includes('mathvariant')
+          ? ''
+          : ' mathvariant="italic"'
+        return '<mi' + variantAttr + miAttrs + '>' + base + combining + '</mi>'
+      }
+      return match
+    }
+  )
+
   fs.writeFile(outputFilePath, outputFileContents, (err) => {
     if (err) throw err
   })
