@@ -67,13 +67,21 @@ Publish this package to your local machine store, by running this in the root of
 yalc publish
 ```
 
-Then, inside the template repo that is consuming this package, run:
+Inside the template that is consuming this package, run:
 
 ```
 yalc link @electricbookworks/electric-book-modules
 ```
 
-To push changes the book server template consuming it, run this inside this repo:
+Add this `postyalc` property to `scripts` inside the consuming template's package.json:
+
+```
+"scripts": {
+  "postyalc": "node node_modules/@electricbookworks/electric-book-modules/install.js"
+}
+```
+
+To push changes to the book server template consuming it, run this inside this repo:
 
 ```
 yalc push
