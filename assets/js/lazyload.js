@@ -1,3 +1,5 @@
+/* global IntersectionObserver, MutationObserver */
+
 import SVGInject from '@iconfu/svg-inject'
 const settings = process.env.settings
 

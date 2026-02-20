@@ -29,7 +29,7 @@ function ebNavProcessMarkdown (text) {
  */
 function ebNavCreateLink (item, basePath) {
   const link = document.createElement('a')
-  const linkPath = item.file ? `${basePath}/${item.file}.html${item.id ? '#' + item.id : ''}` : '#'
+  const linkPath = item.file ? `${basePath ? basePath + '/' : ''}${item.file}.html${item.id ? '#' + item.id : ''}` : '#'
   link.href = linkPath
   link.innerHTML = ebNavProcessMarkdown(item.label)
   if (!item.file) {
@@ -233,7 +233,8 @@ function ebNavBuildBookChapters () {
         const navTree = translationNode?.products?.[format]?.nav || translationNode[activeVariant]?.products?.[format]?.nav || translationNode?.default?.products?.[format]?.nav
         if (navTree) {
           jsNavCont.innerHTML = ''
-          const items = ebNavBuildTreeRecursive(navTree, workPathBase, false)
+          const basePath = process.env.output === 'app' ? null : workPathBase
+          const items = ebNavBuildTreeRecursive(navTree, basePath, false)
           items.forEach(item => jsNavCont.appendChild(item))
         }
       }
@@ -333,8 +334,64 @@ function ebNavBehaviour () {
   }
 }
 
+function ebNavKeyboardAccess () {
+  // All of the links that are always visible are keyboard accessible
+  const firstOrderLinks = document.querySelectorAll('#nav li.has-children > a')
+  firstOrderLinks.forEach(function (link) {
+    link.setAttribute('tabindex', '0')
+  })
+
+  // Make all of the visually hidden sublinks inacccessible
+  const submenuLinks = document.querySelectorAll('#nav li.has-children ol a')
+  submenuLinks.forEach(function (link) {
+    link.setAttribute('tabindex', '-1')
+  })
+
+  // then, when the sublist is visible, make the relevant links accessible
+  firstOrderLinks.forEach(function (link) {
+    link.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        const thisMenu = link.closest('li.has-children')
+        thisMenu.querySelector('ol').classList.toggle('visuallyhidden')
+
+        const thisMenusButton = thisMenu.querySelector('button[data-toggle]')
+        thisMenusButton.classList.toggle('show-children')
+
+        const theseSubMenuLinks = thisMenu.querySelectorAll('li ol a')
+        theseSubMenuLinks.forEach(function (sublink) {
+          if (sublink.hasAttribute('tabindex')) {
+            sublink.removeAttribute('tabindex')
+          } else {
+            sublink.setAttribute('tabindex', '-1')
+          }
+        })
+      }
+    })
+  })
+
+  // need to have the same thing happen when the toggle button is used
+  const toggleButtons = document.querySelectorAll('#nav li.has-children.no-link button[data-toggle]')
+  toggleButtons.forEach(function (button) {
+    button.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        const thisMenu = button.closest('li.has-children')
+        const theseSubMenuLinks = thisMenu.querySelectorAll('li ol a')
+
+        theseSubMenuLinks.forEach(function (sublink) {
+          if (sublink.hasAttribute('tabindex')) {
+            sublink.removeAttribute('tabindex')
+          } else {
+            sublink.setAttribute('tabindex', '-1')
+          }
+        })
+      }
+    })
+  })
+}
+
 export default function ebNav () {
   ebNavBuildBookList()
   ebNavBuildBookChapters()
   ebNavBehaviour()
+  ebNavKeyboardAccess()
 }

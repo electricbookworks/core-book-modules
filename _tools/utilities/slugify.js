@@ -16,9 +16,9 @@ function ebSlugify (string) {
   }
 
   // Allowed word character ranges - add more as needed
-  // E.g. const KOREAN_CHARS = '\\u1100-\\u11FF\\u3130-\\u318F\\uA960-\\uA97F\\uAC00-\\uD7AF\\uD7B0-\\uD7FF'
+  const KOREAN_CHARS = '\\u1100-\\u11FF\\u3130-\\u318F\\uA960-\\uA97F\\uAC00-\\uD7AF\\uD7B0-\\uD7FF'
   const LATIN_CHARS = '-A-Za-z0-9'
-  const allowedChars = `[^${LATIN_CHARS}]+`
+  const allowedChars = '[^' + LATIN_CHARS + KOREAN_CHARS + ']+'
 
   return ret.join('').trim().replace(new RegExp(allowedChars, 'g'), '-').toLowerCase()
 }

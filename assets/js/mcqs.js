@@ -1,3 +1,5 @@
+/* global XMLHttpRequest */
+
 import { locales, pageLanguage } from './locales'
 const settings = process.env.settings
 

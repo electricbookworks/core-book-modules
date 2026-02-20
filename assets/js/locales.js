@@ -105,15 +105,34 @@ function localiseText (pageLanguage) {
     searchPageHeading.insertAdjacentElement('afterend', searchNotice)
   }
 
-  // To do: localise the nav/TOC on search pages. This is tricky since
-  // the root search page always uses the parent-language.
+  // We cannot localise the nav/TOC, since the root search page
+  // always uses the parent-language. So we replace the nav
+  // on the search page with a back button instead.
+  // In case we have a back button (`$nav-bar-back-button-hide; true` in scss)
+  // hide that one.
+  const searchNavButtonToReplace = document.querySelector('.search-page [href="#nav"]')
+  const searchNavDivToReplace = document.querySelector('.search-page #nav')
+  const navBackButton = document.querySelector('.nav-back-button')
+  if (searchNavButtonToReplace && navBackButton) {
+    if (document.referrer !== '' || window.history.length > 0) {
+      navBackButton.remove()
+      searchNavButtonToReplace.innerHTML = locales[pageLanguage].nav.back
+      searchNavButtonToReplace.addEventListener('click', function (ev) {
+        ev.preventDefault()
+        // console.log('Going back...');
+        window.history.back()
+      })
+    };
+  };
+  if (searchNavDivToReplace) {
+    searchNavDivToReplace.innerHTML = ''
+  }
 
   // If no results with GSE, translate 'No results' phrase
   window.addEventListener('load', function (event) {
     const noResultsGSE = document.querySelector('.gs-no-results-result .gs-snippet')
     if (noResultsGSE) {
-      noResultsGSE.innerHTML = locales[pageLanguage].search['results-for-none'] +
-        ' ‘' + searchTerm + '’'
+      noResultsGSE.innerHTML = locales[pageLanguage].search['results-for-none'] + ' ‘' + searchTerm + '’'
     }
   })
 
@@ -135,8 +154,7 @@ function ebCheckLanguageAndLocalise () {
   // and that language is defined in locales,
   // and it is not already the page language,
   // localise the page with it.
-  if (requestedPagePanguage &&
-        locales[requestedPagePanguage]) {
+  if (requestedPagePanguage && locales[requestedPagePanguage]) {
     localiseText(requestedPagePanguage)
   }
 }

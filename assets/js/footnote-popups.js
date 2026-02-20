@@ -17,50 +17,101 @@ function ebFootnotePopups () {
 
   // Loop through footnotes
   footnoteLinks.forEach(function (current) {
-    // Get the target ID
+    // get the target ID
     const targetHash = current.hash
     const targetID = current.hash.replace('#', '')
 
-    // Escape it with double backslashes, for querySelector
+    // escape it with double backslashes, for querySelector
     const sanitisedTargetHash = targetHash.replace(':', '\\:')
 
-    // Find the li with the ID from the .footnote's href
+    // find the li with the ID from the .footnote's href
     const targetReference = document.querySelector(sanitisedTargetHash)
 
-    // Make a div.reference
+    // make a div.reference
     const footnoteContainer = document.createElement('div')
     footnoteContainer.classList.add('footnote-detail')
     footnoteContainer.classList.add('visuallyhidden')
     footnoteContainer.setAttribute('data-bookmarkable', 'no')
+    footnoteContainer.setAttribute('role', 'doc-footnote')
     footnoteContainer.id = 'inline-' + targetID
 
-    // The a, up to the sup
+    // the a, up to the sup
     const theSup = current.parentNode
     const theContainingElement = current.parentNode.parentNode
 
     // add the reference div after the footnote reference
     theSup.insertAdjacentElement('afterend', footnoteContainer)
 
-    // Move the li contents inside the div.reference
+    // move the li contents inside the div.reference
     footnoteContainer.innerHTML = targetReference.innerHTML
 
-    // Show on hover
-    // Note: 'click' event does not work here.
-    theSup.addEventListener('mouseup', function (ev) {
-      // If this is indeed a footnote, show the
-      // footnote-detail container.
+    // now that we have duplicated the contents of the footnote, remove the
+    // duplicated ID to improve accessibility
+    const footnoteElements = footnoteContainer.querySelectorAll('[id]')
+    footnoteElements.forEach(function (element) {
+      if (element.getAttribute('id')) {
+        element.removeAttribute('id')
+      }
+    })
+
+    // The superscript is given role=doc-noteref by kramdown, but this needs
+    // to be removed as it is deprecated
+    if (theSup.getAttribute('role', 'doc-noteref') &&
+            theSup.querySelector('a')) {
+      theSup.removeAttribute('role', 'doc-noteref')
+    }
+
+    // show on hover
+    theSup.addEventListener('mouseover', function (ev) {
       if (ev.target.classList.contains('footnote')) {
         footnoteContainer.classList.remove('visuallyhidden')
       }
     })
+    // Make superscript keyboard focusable
+    theSup.setAttribute('tabindex', 0)
+    // Make contents of footnote not keyboard focusable initially
+    const tabbableElements = footnoteContainer.querySelectorAll('a')
+    tabbableElements.forEach(function (el) {
+      el.setAttribute('tabindex', '-1')
+    })
 
-    // Add a class to the parent
+    // Open footnote when focused and Enter is pressed
+    theSup.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter') {
+        footnoteContainer.classList.toggle('visuallyhidden')
+        tabbableElements.forEach(function (el) {
+          el.removeAttribute('tabindex')
+        })
+      }
+    })
+
+    // add a class to the parent
     theContainingElement.parentNode.classList.add('contains-footnote')
+
+    // if we mouseleave footnoteContainer, hide it
+    // (mouseout also fires on mouseout of children, so we use mouseleave)
+    footnoteContainer.addEventListener('mouseleave', function (ev) {
+      if (ev.target === this) {
+        setTimeout(function () {
+          footnoteContainer.classList.add('visuallyhidden')
+        }, 1000)
+      }
+    })
+    // Close footnote if Esc key is pressed
+    window.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' &&
+                !footnoteContainer.classList.contains('visuallyhidden')) {
+        footnoteContainer.classList.add('visuallyhidden')
+        tabbableElements.forEach(function (el) {
+          el.setAttribute('tabindex', '-1')
+        })
+      }
+    })
 
     // Clicking on the reverseFootnote link closes the footnote
     const reverseFootnote = footnoteContainer.querySelector('.reversefootnote')
 
-    // Remove the contents since we're using
+    // remove the contents since we're using
     // CSS and :before to show a close button marker
     reverseFootnote.innerText = ''
 
@@ -75,9 +126,10 @@ function ebFootnotePopups () {
       footnoteContainer.classList.add('visuallyhidden')
     })
 
-    // Remove the href to avoiding jumping down the page
+    // remove the href to avoiding jumping down the page
     current.removeAttribute('href')
   })
+
   // Format the footnotes at the bottom of the page
   const footnoteItems = document.querySelectorAll('.footnotes a.reversefootnote')
   const reverseFootnoteAlt = locales[pageLanguage].footnotes['reversefootnote-alt']
@@ -85,9 +137,9 @@ function ebFootnotePopups () {
   function reverseFootnoteSVGElement () {
     const reversefootnoteArrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     reversefootnoteArrow.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
-    reversefootnoteArrow.setAttribute('viewBox', '0 0 28 15')
+    reversefootnoteArrow.setAttribute('viewBox', '0 0 28 24.12')
     reversefootnoteArrow.setAttribute('width', '28')
-    reversefootnoteArrow.setAttribute('height', '25')
+    reversefootnoteArrow.setAttribute('height', '24.12')
     reversefootnoteArrow.setAttribute('class', 'reverse-footnote-arrow')
     reversefootnoteArrow.innerHTML = '<title>' + reverseFootnoteAlt + '</title><path d="M2.69 14L8.6 8.09V13h10.28A4.21 4.21 0 0022 11.7a4.24 4.24 0 001.28-3.1A4.24 4.24 0 0022 5.5a4.21 4.21 0 00-3.11-1.29h-.33v-2h.33a6.14 6.14 0 014.54 1.88 6.17 6.17 0 011.86 4.51 6.17 6.17 0 01-1.87 4.53A6.14 6.14 0 0118.88 15H8.6v4.9z" fill="gray"/>'
     return reversefootnoteArrow
@@ -96,6 +148,16 @@ function ebFootnotePopups () {
   footnoteItems.forEach(function (reverseFootnoteLink) {
     reverseFootnoteLink.innerHTML = ''
     reverseFootnoteLink.appendChild(reverseFootnoteSVGElement())
+  })
+
+  // Kramdown is adding role=doc-endnote to the list items
+  // but this is deprecated and needs to be removed
+
+  const footnoteLIs = document.querySelectorAll('div.footnotes li')
+  footnoteLIs.forEach(function (li) {
+    if (li.getAttribute('role', 'doc-endnote')) {
+      li.removeAttribute('role', 'doc-endnote')
+    }
   })
 }
 

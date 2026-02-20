@@ -1,9 +1,15 @@
-/* global Node, ActiveXObject, XMLHttpRequest */
+/* global Node, ActiveXObject, XMLHttpRequest, DOMParser */
 
+const settings = process.env.settings
+
+// Current page URL
 let currentUrlPath = null
 if (typeof window !== 'undefined') {
-  // currentUrlPath = new URL(window.location.href).pathname
   currentUrlPath = window.location.pathname
+  if (process.env.config.output === 'app') {
+    const currentUrlPathApp = currentUrlPath.split('/www')[1]
+    currentUrlPath = currentUrlPathApp || currentUrlPath
+  }
 }
 
 // Utility functions
@@ -274,13 +280,73 @@ function ebToggleClickout (modalElement, callback) {
   }
 }
 
-// This lets us use a function from here in Node (e.g. gulp).
-// This must only run in Node, hence the `window` check.
-// if (typeof window === 'undefined') {
-//   module.exports.ebSlugify = ebSlugify
-// }
+// Strip html from text
+function ebStripHtml (text) {
+  const doc = new DOMParser().parseFromString(text, 'text/html')
+  return doc.body.textContent || ''
+}
+
+// In some instances, we need to replace the canonical URL for the production
+// server with that for the staging server, so that login behaviour works on
+// staging. This is done with utility JS, rather than with a variable in config,
+// so that we do not rebuild the staging HTML before it is copied to the
+// production server.
+function ebReplaceCanonicalURL (anchor) {
+  const thisOrigin = window.location.origin
+  const canonicalURL = settings.site.canonicalUrl
+
+  let href = anchor.href
+  if (settings.site.build === 'live' && thisOrigin !== canonicalURL) {
+    href = href.replace(canonicalURL, thisOrigin)
+    anchor.setAttribute('href', href)
+  }
+
+  return anchor
+}
+
+// If we've got a live build on a non-production server, use the staging images
+// on CloudFront rather than the production ones
+function ebReplaceRemoteImageURL () {
+  const allImages = document.querySelectorAll('img')
+  allImages.forEach(function (image) {
+    // Replace the live CloudFront subdomain with the staging CloudFront subdomain
+    // Need to do so in src, src-set, data-src, data-srcset
+    const attrs = ['src', 'src-set', 'data-src', 'data-srcset']
+    attrs.forEach(function (attr) {
+      if (image.getAttribute(attr)) {
+        image.setAttribute(attr, image.getAttribute(attr).replaceAll(
+          settings.remoteMedia.cloudFrontLive,
+          settings.remoteMedia.cloudFrontStaging
+        ))
+      }
+    })
+  })
+}
+
+// Check whether we're using remote media on a live build. If we are, and we're
+// not on the production server, we need to use the staging remote images.
+// Only run this in a browser, not in Node, hence `window` check.
+// This will fail in Node because `settings` is not global there,
+// where we are importing ebSlugify from this file as is.
+if (typeof window !== 'undefined') {
+  if (settings.site.build === 'live' && settings.remoteMedia.live) {
+    // Check that we are not on the production server
+    if (window.location.origin !== settings.site.canonicalUrl) {
+      ebReplaceRemoteImageURL()
+    }
+  }
+}
+
+function ebInIframe () {
+  try {
+    return window.self !== window.top
+  } catch (e) {
+    return true
+  }
+}
 
 export {
+  currentUrlPath,
   ebDecodeHtmlEntitiesPreservingTags,
   ebGetParameterByName,
   ebCheckForPage,
@@ -291,5 +357,7 @@ export {
   ebLastIndexOfRegex,
   ebTruncatedString,
   ebToggleClickout,
-  currentUrlPath
+  ebStripHtml,
+  ebReplaceCanonicalURL,
+  ebInIframe
 }
