@@ -6,7 +6,7 @@ function filesInProjectNav () {
   return new Promise(function (resolve) {
     const files = []
     const projectNav = yaml.load(fs.readFileSync(process.cwd() + '/_data/nav.yml', 'utf8'))
-    if (Object.entries(projectNav)) {
+    if (projectNav && Object.entries(projectNav)) {
       Object.entries(projectNav).forEach(function (entry) {
         if (entry[1]) {
           entry[1].forEach(function (item) {

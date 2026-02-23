@@ -87,14 +87,111 @@ class WorksDataPlugin {
       const worksDir = path.resolve(process.cwd(), this.options.worksDir)
       const works = await this.scanWorksDirectory(worksDir)
 
+      // Prune works data to only include properties used by
+      // nav.js and search-results.js, reducing bundle size.
+      const output = process.env.output || 'web'
+      const prunedWorks = this.pruneWorksData(works, output)
+
       // Use the class property for the log message
       console.log(`✓ Generated works data for environment variable: ${this.envVarKey}`)
 
-      return works
+      return prunedWorks
     } catch (error) {
       console.error('Error generating works data:', error)
       throw error
     }
+  }
+
+  // Keys to strip from all levels of the data
+  static excludedKeys = new Set(['glossary', 'bibliography'])
+
+  /**
+   * Prune works data to only include properties consumed by client code.
+   * Keeps: title, published, and products limited to the current output
+   * and 'web' (fallback), each with only nav, start-page, and files.
+   * Also strips glossary and bibliography at all levels.
+   */
+  pruneWorksData (works, output) {
+    if (!works) return works
+
+    const pruned = {}
+    for (const [bookName, bookData] of Object.entries(works)) {
+      pruned[bookName] = this.pruneBookData(bookData, output)
+    }
+
+    // Deep-strip excluded keys from all levels, including inside nav trees
+    return this.deepStripKeys(pruned)
+  }
+
+  pruneBookData (bookData, output) {
+    if (!bookData || typeof bookData !== 'object') return bookData
+
+    const pruned = {}
+    for (const [key, value] of Object.entries(bookData)) {
+      if (WorksDataPlugin.excludedKeys.has(key)) continue
+
+      if (value && typeof value === 'object' && !Array.isArray(value)) {
+        // If this entry has 'products' or 'title', it's variant data
+        if ('products' in value || 'title' in value) {
+          pruned[key] = this.pruneVariantData(value, output)
+        } else {
+          // It's a language directory containing variant objects
+          pruned[key] = this.pruneBookData(value, output)
+        }
+      } else {
+        pruned[key] = value
+      }
+    }
+    return pruned
+  }
+
+  /**
+   * Recursively remove excluded keys from any level of a data structure.
+   */
+  deepStripKeys (data) {
+    if (Array.isArray(data)) {
+      return data.map(item => this.deepStripKeys(item))
+    }
+    if (data && typeof data === 'object') {
+      const cleaned = {}
+      for (const [key, value] of Object.entries(data)) {
+        if (WorksDataPlugin.excludedKeys.has(key)) continue
+        cleaned[key] = this.deepStripKeys(value)
+      }
+      return cleaned
+    }
+    return data
+  }
+
+  pruneVariantData (variantData, output) {
+    const pruned = {}
+
+    // Keep only title and published
+    if (variantData.title !== undefined) pruned.title = variantData.title
+    if (variantData.published !== undefined) pruned.published = variantData.published
+
+    // Keep only relevant products with only nav, start-page, and files
+    if (variantData.products) {
+      pruned.products = {}
+      const productKeys = new Set([output, 'web'])
+      for (const productKey of productKeys) {
+        if (variantData.products[productKey]) {
+          pruned.products[productKey] = this.pruneProductData(variantData.products[productKey])
+        }
+      }
+    }
+
+    return pruned
+  }
+
+  pruneProductData (productData) {
+    if (!productData || typeof productData !== 'object') return productData
+
+    const pruned = {}
+    if (productData.nav !== undefined) pruned.nav = productData.nav
+    if (productData['start-page'] !== undefined) pruned['start-page'] = productData['start-page']
+    if (productData.files !== undefined) pruned.files = productData.files
+    return pruned
   }
 
   async scanWorksDirectory (worksDir) {
