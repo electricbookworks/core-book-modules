@@ -68,6 +68,11 @@ async function install () {
           continue // Skip this folder but continue with others
         }
 
+        // Empty the destination folder before copying
+        if (await fs.pathExists(destPath)) {
+          await fs.emptyDir(destPath)
+        }
+
         // Copy the folder
         await fs.copy(sourcePath, destPath, {
           overwrite: true,
@@ -87,6 +92,21 @@ async function install () {
         log(`Error processing ${folder}: ${folderError.message}`, 'error')
         // Continue with other folders instead of exiting
       }
+    }
+
+    // Copy in custom tools from parent
+    try {
+      const customToolsPath = path.join(parentRoot, '_tools-custom')
+      const toolsDestPath = path.join(parentRoot, '_tools')
+      if (await fs.pathExists(customToolsPath)) {
+        await fs.copy(customToolsPath, toolsDestPath, {
+          overwrite: true,
+          preserveTimestamps: true,
+          errorOnExist: false
+        })
+      }
+    } catch (customError) {
+      log(`Error copying _tools-custom: ${customError.message}`, 'error')
     }
 
     // Create gulpfile.js in parent root

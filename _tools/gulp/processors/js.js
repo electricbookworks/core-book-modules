@@ -12,8 +12,6 @@ const { paths } = require('../helpers/paths.js')
 // Minify JS files to make them smaller,
 // using the drop_console option to remove console logging
 function js (done) {
-  'use strict'
-
   if (paths.js.src.length > 0) {
     console.log('Minifying Javascript')
     gulp.src(paths.js.src)

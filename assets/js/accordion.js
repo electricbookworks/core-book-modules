@@ -640,11 +640,9 @@ function ebPrepareForAccordion () {
   }
 }
 
-function ebAccordion () {
+export default function ebAccordion () {
   window.onload = ebPrepareForAccordion()
 }
-
-export default ebAccordion
 
 export {
   ebAccordionListenForAnchorClicks

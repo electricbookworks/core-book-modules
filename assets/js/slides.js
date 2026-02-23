@@ -79,27 +79,40 @@ const ebSlidesBuildNav = function (slidelines) {
         slideNavigationInsert += ' nav-slides-many-many'
       }
     }
-    slideNavigationInsert += '">'
+    slideNavigationInsert += '" '
+    const slidelineID = slideline.getAttribute('id')
+    slideNavigationInsert += 'aria-label="' + slidelineID + ' thumbnails"'
+    slideNavigationInsert += '>'
 
     slideNavigationInsert += '<ol>'
 
     figures.forEach(function (figure) {
       slideNavigationInsert += '<li>'
-      slideNavigationInsert += '<a href="#' + figure.id + '">'
 
       // add thumbnail
 
       // if no image, use the figure title
       if (figure.querySelector('.figure-images img')) {
+        slideNavigationInsert += '<a href="#' + figure.id + '" aria-label="' + figure.id + ' thumbnail">'
         const thumb = figure.querySelector('.figure-images img').cloneNode()
         thumb.removeAttribute('srcset')
         thumb.removeAttribute('sizes')
-        thumb.setAttribute('alt', '')
         slideNavigationInsert += thumb.outerHTML
       } else {
-        console.log('Adding thumbnail image for ' + figure.querySelector('.figure-reference').innerText)
-        let thumbText = figure.querySelector('.figure-body .title').innerText
-        thumbText = ebTruncateText(thumbText, 8)
+        slideNavigationInsert += '<a href="#' + figure.id + '" class="slide-nav-text-link">'
+        // If the user has set text to show in the nav
+        let thumbText
+
+        if (figure.querySelector('.slide-nav-text')) {
+          const textPlaceholder = figure.querySelector('.slide-nav-text')
+          thumbText = textPlaceholder.innerText
+          // Delete the placeholder element from the figure
+          textPlaceholder.remove()
+        } else {
+          thumbText = figure.querySelector('.figure-body .title').innerText
+          thumbText = ebTruncateText(thumbText, 8)
+        }
+
         slideNavigationInsert += '<span class="slide-thumbnail-text">'
         slideNavigationInsert += thumbText
         slideNavigationInsert += '</span>'
@@ -170,7 +183,7 @@ const ebSlidesShow = function (slidelines) {
     return
   }
 
-  const sanitisedTargetHash = decodeURIComponent(window.location.hash.replace(':', '\\:'))
+  let sanitisedTargetHash = decodeURIComponent(window.location.hash.replace(':', '\\:'))
   // check if it starts with a number, after the #
   // (which means querySelector(sanitisedTargetHash) will return an error)
   if (!isNaN(sanitisedTargetHash[1])) {
@@ -183,6 +196,12 @@ const ebSlidesShow = function (slidelines) {
     if (!slideline.querySelector(sanitisedTargetHash)) {
       ebSlidesShowFirstInSlideline(slideline)
       return
+    } else if (!slideline.querySelector('.nav-slides [href="' + sanitisedTargetHash + '"]')) {
+      // The hash might belong to a figure caption or title within the slideline
+      // Look for the nearest parent figure div and use its hash to open up the slide
+      const element = document.querySelector(sanitisedTargetHash)
+      const ancestor = element.closest('div.figure')
+      sanitisedTargetHash = '#' + ancestor.getAttribute('id')
     }
 
     // show the target slideline
@@ -214,23 +233,43 @@ const ebSlidesKeyDown = function () {
     const keyCode = ev.key || ev.which
     const clickedElement = ev.target || ev.srcElement
 
-    if (document.querySelector('.slides ' + clickedElement.hash)) {
-      if ((keyCode === 'ArrowLeft' ||
-                    keyCode === 37 ||
-                    keyCode === 'ArrowUp' ||
-                    keyCode === 38) &&
-                    clickedElement.parentNode.previousElementSibling) {
-        ev.preventDefault()
-        clickedElement.parentNode.previousElementSibling
-          .querySelector('a').click()
-      } else if ((keyCode === 'ArrowRight' ||
-                    keyCode === 39 ||
-                    keyCode === 'ArrowDown' ||
-                    keyCode === '40') &&
-                    clickedElement.parentNode.nextElementSibling) {
-        ev.preventDefault()
-        clickedElement.parentNode.nextElementSibling
-          .querySelector('a').click()
+    // first check whether this element is in a slideline
+    if (clickedElement.closest('.slides')) {
+      if (document.querySelector('.slides ' + decodeURIComponent(clickedElement.hash))) {
+        // Add a check for RTL
+        if (document.documentElement.hasAttribute('dir') && document.documentElement.getAttribute('dir') === 'rtl') {
+          if ((keyCode === 'ArrowRight' ||
+              keyCode === 39 ||
+              keyCode === 'ArrowUp' ||
+              keyCode === 38) &&
+              clickedElement.parentNode.previousElementSibling) {
+            ev.preventDefault()
+            clickedElement.parentNode.previousElementSibling.querySelector('a').click()
+          } else if ((keyCode === 'ArrowLeft' ||
+                      keyCode === 37 ||
+                      keyCode === 'ArrowDown' ||
+                      keyCode === '40') &&
+                      clickedElement.parentNode.nextElementSibling) {
+            ev.preventDefault()
+            clickedElement.parentNode.nextElementSibling.querySelector('a').click()
+          }
+        } else {
+          if ((keyCode === 'ArrowLeft' ||
+              keyCode === 37 ||
+              keyCode === 'ArrowUp' ||
+              keyCode === 38) &&
+              clickedElement.parentNode.previousElementSibling) {
+            ev.preventDefault()
+            clickedElement.parentNode.previousElementSibling.querySelector('a').click()
+          } else if ((keyCode === 'ArrowRight' ||
+                      keyCode === 39 ||
+                      keyCode === 'ArrowDown' ||
+                      keyCode === '40') &&
+                      clickedElement.parentNode.nextElementSibling) {
+            ev.preventDefault()
+            clickedElement.parentNode.nextElementSibling.querySelector('a').click()
+          }
+        }
       }
     }
   })

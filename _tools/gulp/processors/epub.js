@@ -17,8 +17,6 @@ const epubTransformations = require('require-all')(fsPath.join(__dirname, '/../t
 
 // Run epub transformations from scripts in transformations/epub
 function runEpubTransformations (done) {
-  'use strict'
-
   gulp.src([paths.epub.src], { base: './' })
     .pipe(cheerio({
       run: function ($) {
@@ -39,8 +37,6 @@ function runEpubTransformations (done) {
 // Convert all file names in internal links from .html to .xhtml.
 // This is required for epub output to avoid EPUBCheck warnings.
 function epubXhtmlLinks (done) {
-  'use strict'
-
   let opfFile = '_site/' + book + '/package.opf'
   if (language) {
     opfFile = '_site/' + book + '/' + language + '/package.opf'
@@ -60,11 +56,13 @@ function epubXhtmlLinks (done) {
     .pipe(cheerio({
       run: function ($) {
         let target, asciiTarget, newTarget
-        $('[href*=".html"], [src*=".html"], [id], [href^="#"]').each(function () {
+        $('[href*=".html"], [src*=".html"], [id], [href^="#"], [aria-labelledby]').each(function () {
           if ($(this).attr('href')) {
             target = $(this).attr('href')
           } else if ($(this).attr('src')) {
             target = $(this).attr('src')
+          } else if ($(this).attr('aria-labelledby')) {
+            target = $(this).attr('aria-labelledby')
           } else if ($(this).attr('id')) {
             target = $(this).attr('id')
           } else {
@@ -86,6 +84,8 @@ function epubXhtmlLinks (done) {
               $(this).attr('href', newTarget)
             } else if ($(this).attr('src')) {
               $(this).attr('src', newTarget)
+            } else if ($(this).attr('aria-labelledby')) {
+              $(this).attr('aria-labelledby', newTarget)
             } else if ($(this).attr('id')) {
               $(this).attr('id', newTarget)
             }
@@ -106,8 +106,6 @@ function epubXhtmlLinks (done) {
 // Creates a copy of the file that must then be cleaned out
 // with the subsequent gulp task `epubCleanHtmlFiles``
 function epubXhtmlFiles (done) {
-  'use strict'
-
   console.log('Renaming *.html to *.xhtml in ' + paths.epub.src)
   gulp.src(paths.epub.src)
     .pipe(debug({ title: 'Renaming ' }))
@@ -120,7 +118,6 @@ function epubXhtmlFiles (done) {
 
 // Clean out renamed .html files
 function epubCleanHtmlFiles () {
-  'use strict'
   console.log('Removing old *.html files in ' + paths.epub.src)
   return del(paths.epub.src)
 }

@@ -1,3 +1,5 @@
+/* globals MathJax */
+
 import { locales, pageLanguage } from './locales'
 
 // --------------------------

@@ -6,8 +6,8 @@ import { locales, pageLanguage } from './locales'
 // Ensure your webserver is sending all traffic to https.
 
 // Set default button text.
-const ebCopyToClipboardButtonText = locales[pageLanguage].copy.copy
-const ebCopyToClipboardSuccessText = locales[pageLanguage].copy.copied
+let ebCopyToClipboardButtonText = locales[pageLanguage].copy.copy
+let ebCopyToClipboardSuccessText = locales[pageLanguage].copy.copied
 const ebCopyToClipboardFailText = locales[pageLanguage].copy['copy-failed']
 
 // Show that copying was done
@@ -31,6 +31,25 @@ function ebCopyToClipboard (element, button) {
   let text = element.textContent
   if (element.hasAttribute('data-copy-text')) {
     text = element.getAttribute('data-copy-text')
+  }
+
+  // Figure "Copy Link" buttons
+  if (element.classList.contains('figure-link')) {
+    // Reset variables for special case
+    ebCopyToClipboardButtonText = locales[pageLanguage].figures['copy-button']
+    ebCopyToClipboardSuccessText = locales[pageLanguage].figures['copied-button']
+
+    const id = element.getAttribute('data-id')
+
+    // Check whether we are in a website or an app
+    if (navigator.userAgent.includes('Android') || navigator.userAgent.includes('Electron')) {
+      // In apps, copy the link to the figure on the live website
+      // This URL is contructed in _includes/figure to make use of jekyll variables
+      text = element.textContent
+    } else {
+      // Else, copy the link to the figure on the current domain
+      text = window.location.href + '#' + id
+    }
   }
 
   navigator.clipboard.writeText(text).then(function () {

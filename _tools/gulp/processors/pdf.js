@@ -13,8 +13,6 @@ const pdfTransformations = require('require-all')(fsPath.join(__dirname, '/../tr
 
 // Run transformations from scripts in transformations/pdf
 function runPDFTransformations (done) {
-  'use strict'
-
   // Are we processing one merged.html file,
   // or each text path separately?
   // Not that the true/false value for merged
