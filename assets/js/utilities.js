@@ -307,20 +307,22 @@ function ebReplaceCanonicalURL (anchor) {
 // If we've got a live build on a non-production server, use the staging images
 // on CloudFront rather than the production ones
 function ebReplaceRemoteImageURL () {
-  const allImages = document.querySelectorAll('img')
-  allImages.forEach(function (image) {
+  if (settings?.remoteMedia?.cloudFrontLive && settings?.remoteMedia?.cloudFrontStaging) {
+    const allImages = document.querySelectorAll('img')
+    allImages.forEach(function (image) {
     // Replace the live CloudFront subdomain with the staging CloudFront subdomain
     // Need to do so in src, src-set, data-src, data-srcset
-    const attrs = ['src', 'src-set', 'data-src', 'data-srcset']
-    attrs.forEach(function (attr) {
-      if (image.getAttribute(attr)) {
-        image.setAttribute(attr, image.getAttribute(attr).replaceAll(
-          settings.remoteMedia.cloudFrontLive,
-          settings.remoteMedia.cloudFrontStaging
-        ))
-      }
+      const attrs = ['src', 'src-set', 'data-src', 'data-srcset']
+      attrs.forEach(function (attr) {
+        if (image.getAttribute(attr)) {
+          image.setAttribute(attr, image.getAttribute(attr).replaceAll(
+            settings.remoteMedia.cloudFrontLive,
+            settings.remoteMedia.cloudFrontStaging
+          ))
+        }
+      })
     })
-  })
+  }
 }
 
 // Check whether we're using remote media on a live build. If we are, and we're
@@ -329,7 +331,7 @@ function ebReplaceRemoteImageURL () {
 // This will fail in Node because `settings` is not global there,
 // where we are importing ebSlugify from this file as is.
 if (typeof window !== 'undefined') {
-  if (settings.site.build === 'live' && settings.remoteMedia.live) {
+  if (settings?.site?.build === 'live' && settings?.remoteMedia?.live) {
     // Check that we are not on the production server
     if (window.location.origin !== settings.site.canonicalUrl) {
       ebReplaceRemoteImageURL()
