@@ -293,10 +293,10 @@ function ebStripHtml (text) {
 // production server.
 function ebReplaceCanonicalURL (anchor) {
   const thisOrigin = window.location.origin
-  const canonicalURL = settings.site.canonicalUrl
+  const canonicalURL = process.env.config['canonical-url']
 
   let href = anchor.href
-  if (settings.site.build === 'live' && thisOrigin !== canonicalURL) {
+  if (process.env.config.build === 'live' && thisOrigin !== canonicalURL) {
     href = href.replace(canonicalURL, thisOrigin)
     anchor.setAttribute('href', href)
   }
@@ -333,7 +333,7 @@ function ebReplaceRemoteImageURL () {
 if (typeof window !== 'undefined') {
   if (settings?.site?.build === 'live' && settings?.remoteMedia?.live) {
     // Check that we are not on the production server
-    if (window.location.origin !== settings.site.canonicalUrl) {
+    if (window.location.origin !== process.env.config['canonical-url']) {
       ebReplaceRemoteImageURL()
     }
   }

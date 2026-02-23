@@ -1,7 +1,5 @@
 /* global Prince */
 
-// Lint with JS Standard
-
 function ebAlignToGrid (querySelectorToAlign, querySelectorToLeave) {
   // Get all elements we want aligned with baseline grid.
   // Note that unlike InDesign we do not force elements
