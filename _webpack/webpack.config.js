@@ -18,9 +18,6 @@ module.exports = {
     main: path.resolve(process.cwd(), 'assets/js/main.js'),
     ...(isWebAppOutput && fs.existsSync(path.resolve(process.cwd(), 'assets/js/search.js')) && {
       search: path.resolve(process.cwd(), 'assets/js/search.js')
-    }),
-    ...(fs.existsSync(path.resolve(process.cwd(), 'assets/js/indexing.js')) && {
-      indexing: path.resolve(process.cwd(), 'assets/js/indexing.js')
     })
   },
   target: isPrinceOutput ? ['web', 'es5'] : 'web',
