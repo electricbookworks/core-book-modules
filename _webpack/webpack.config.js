@@ -1,3 +1,4 @@
+const fs = require('fs')
 const path = require('path')
 const webpack = require('webpack')
 const yargs = require('yargs')
@@ -15,10 +16,12 @@ module.exports = {
   mode,
   entry: {
     main: path.resolve(process.cwd(), 'assets/js/main.js'),
-    ...(isWebAppOutput && {
+    ...(isWebAppOutput && fs.existsSync(path.resolve(process.cwd(), 'assets/js/search.js')) && {
       search: path.resolve(process.cwd(), 'assets/js/search.js')
     }),
-    indexing: path.resolve(process.cwd(), 'assets/js/indexing.js')
+    ...(fs.existsSync(path.resolve(process.cwd(), 'assets/js/indexing.js')) && {
+      indexing: path.resolve(process.cwd(), 'assets/js/indexing.js')
+    })
   },
   target: isPrinceOutput ? ['web', 'es5'] : 'web',
   output: {
