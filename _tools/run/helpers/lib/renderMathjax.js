@@ -42,17 +42,16 @@ async function renderMathjax (argv, options) {
       '/_tools/run/helpers/mathjax/tex2mml-page.js'
 
       // Process MathJax
-      let mathJaxProcess
-      inputFiles.forEach(async function (path) {
+      for (const path of inputFiles) {
         if (pathExists(path)) {
-          console.log('Rendering maths in ' + path)
-          mathJaxProcess = spawn(
+          console.log('Rendering maths in ' + path + ' using script ' + mathJaxScript)
+          const mathJaxProcess = spawn(
             'node',
             [mathJaxScript, path, path]
           )
           await logProcess(mathJaxProcess, 'Rendering MathJax')
         }
-      })
+      }
       return true
     } else {
       return true

@@ -16,7 +16,7 @@ function qrCodes ($) {
 
   // Ensure that path exists
   if (!fs.existsSync(imageLocation)) {
-    fs.mkdirSync(imageLocation)
+    fs.mkdirSync(imageLocation, { recursive: true })
   }
 
   // Generate code images
