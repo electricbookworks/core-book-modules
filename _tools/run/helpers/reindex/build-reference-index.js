@@ -57,7 +57,10 @@ async function buildReferenceIndex (outputFormat, filesData) {
 
     // Go to the page path.
     // Puppeteer requires the protocol (file://) on unix.
-    await page.goto('file://' + path)
+    await page.goto('file://' + path, {
+      waitUntil: 'domcontentloaded',
+      timeout: 120000
+    })
 
     // Check if the page has index targets.
     const hasIndexTargets = await page.$('[data-index-targets]')
