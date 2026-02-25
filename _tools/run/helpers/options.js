@@ -93,7 +93,7 @@ const options = {
     alias: 'o',
     default: 'android',
     defaultDescription: 'android',
-    choices: ['android', 'ios', 'windows'],
+    choices: ['android', 'ios', 'windows', 'electron'],
     type: 'string',
     implies: ['format'],
     nargs: 1

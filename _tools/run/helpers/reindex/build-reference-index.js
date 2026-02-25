@@ -58,7 +58,6 @@ async function buildReferenceIndex (outputFormat, filesData) {
     // Go to the page path.
     // Puppeteer requires the protocol (file://) on unix.
     await page.goto('file://' + path, {
-      waitUntil: 'domcontentloaded',
       timeout: 120000
     })
 

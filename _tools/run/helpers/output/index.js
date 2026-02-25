@@ -25,7 +25,8 @@ const {
   renderIndexLinks,
   renderMathjax,
   runPrince,
-  webpack
+  webpack,
+  electron
 } = require('../helpers.js')
 const htmlFilePaths = require('../paths/htmlFilePaths.js')
 const pathExists = require('../paths/pathExists.js')
@@ -156,26 +157,37 @@ async function app (argv) {
     await fs.emptyDir(process.cwd() + '/_site')
     !argv.skipwebpack && await webpack(argv)
     await jekyll(argv)
+
     await fsPromises.mkdir(process.cwd() + '/_site/app/www')
     await assembleApp()
 
-    if (argv['app-build']) {
-      await cordova(['platform', 'add', argv['app-os']])
-      await cordova(['platform', 'prepare', argv['app-os']])
-
-      // Build the app
-      if (argv['app-release']) {
-        await cordova(['build', argv['app-os'], '--release'])
+    // Electron is used for MacOS, Windows
+    // Cordova is used for Android
+    if (argv['app-os'] === 'electron') {
+      if (argv['app-build']) {
+        await electron(['make'])
       } else {
-        await cordova(['build', argv['app-os']])
-      }
-
-      // Run emulator
-      if (argv['app-emulate']) {
-        await cordova(['emulate', argv['app-os']])
+        await electron(['start'])
       }
     } else {
-      console.log('App folders ready in _site/app.')
+      if (argv['app-build']) {
+        await cordova(['platform', 'add', argv['app-os']])
+        await cordova(['platform', 'prepare', argv['app-os']])
+
+        // Build the app
+        if (argv['app-release']) {
+          await cordova(['build', argv['app-os'], '--release'])
+        } else {
+          await cordova(['build', argv['app-os']])
+        }
+
+        // Run emulator
+        if (argv['app-emulate']) {
+          await cordova(['emulate', argv['app-os']])
+        }
+      } else {
+        console.log('App folders ready in _site/app.')
+      }
     }
   } catch (error) {
     console.log(error)
