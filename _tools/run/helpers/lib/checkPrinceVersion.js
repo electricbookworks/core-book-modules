@@ -33,29 +33,32 @@ function checkPrinceVersion () {
         } else {
           // ... or else check the global PATH
           const binaries = ['prince', 'prince-books']
+          let binaryPath = null
           binaries.forEach(function (binary) {
-            which(binary, function (error, filename) {
+            which(binary, function (error, path) {
+              if (!error) {
+                binaryPath = path
+              }
+            })
+          })
+          if (!binaryPath) {
+            reject(new Error('Prince binary not found in global PATH'))
+          } else {
+            childProcess.execFile(binaryPath, ['--version'], function (error, stdout, stderr) {
               if (error) {
-                console.log('Prince not found in PATH:\n')
+                console.log('Could not get Prince version:\n')
                 reject(error)
                 return
               }
-              childProcess.execFile(filename, ['--version'], function (error, stdout, stderr) {
-                if (error !== null) {
-                  console.log('Could not get Prince version:\n')
-                  reject(error)
-                  return
-                }
-                const m = stdout.match(/^Prince\s+(\d+(?:\.\d+)?)/)
-                if (!(m !== null && typeof m[1] !== 'undefined')) {
-                  error = 'Prince version check returned unexpected output:\n' + stdout + stderr
-                  reject(error)
-                  return
-                }
-                resolve(m[1])
-              })
+              const m = stdout.match(/^Prince\s+(\d+(?:\.\d+)?)/)
+              if (!(m !== null && typeof m[1] !== 'undefined')) {
+                error = 'Prince version check returned unexpected output:\n' + stdout + stderr
+                reject(error)
+                return
+              }
+              resolve(m[1])
             })
-          })
+          }
         }
       })
     }
