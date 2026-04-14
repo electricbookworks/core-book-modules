@@ -16,13 +16,16 @@ async function convertHTMLtoWord (argv) {
   // But if we've merged the HTML files,
   // use the merged file.
   if (argv.merged) {
-    // Check if a merged.html exists
+    // Check if a format-specific merged HTML exists.
+    // The filename includes the format so that print-pdf and screen-pdf
+    // merged files don't overwrite each other.
+    const mergedFilename = 'merged-' + argv.format + '.html'
     let mergedFilePath = fsPath.normalize(process.cwd() +
-      '/_site/' + argv.book + '/merged.html')
+      '/_site/' + argv.book + '/' + mergedFilename)
 
     if (argv.language) {
       mergedFilePath = fsPath.normalize(process.cwd() +
-      '/_site/' + argv.book + '/' + argv.language + '/merged.html')
+      '/_site/' + argv.book + '/' + argv.language + '/' + mergedFilename)
     }
 
     const mergedFileExists = pathExists(mergedFilePath)

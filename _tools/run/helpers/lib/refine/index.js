@@ -41,16 +41,18 @@ async function refine (argv) {
 // --- Prince-native approach ---
 
 async function refinePrince (argv) {
-  // 1. Find the merged HTML
+  // 1. Find the merged HTML. The filename includes the format so that
+  // print-pdf and screen-pdf merged files don't overwrite each other.
+  const mergedFilename = 'merged-' + argv.format + '.html'
   let mergedPath
   if (argv.language) {
     mergedPath = fsPath.normalize(
       process.cwd() + '/_site/' + argv.book + '/' +
-      argv.language + '/merged.html'
+      argv.language + '/' + mergedFilename
     )
   } else {
     mergedPath = fsPath.normalize(
-      process.cwd() + '/_site/' + argv.book + '/merged.html'
+      process.cwd() + '/_site/' + argv.book + '/' + mergedFilename
     )
   }
 

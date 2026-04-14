@@ -35,11 +35,14 @@ async function runPrince (argv, options) {
     // Get the HTML file to render. If we are merging
     // input files, we only pass the merged file to Prince.
     // Unless `--merged false` was passed at the command line.
+    // The filename includes the format so that print-pdf and screen-pdf
+    // merged files don't overwrite each other.
+    const mergedFilename = 'merged-' + argv.format + '.html'
     let inputFiles = fsPath.normalize(process.cwd() +
-      '/_site/' + argv.book + '/merged.html')
+      '/_site/' + argv.book + '/' + mergedFilename)
     if (argv.language) {
       inputFiles = fsPath.normalize(process.cwd() +
-      '/_site/' + argv.book + '/' + argv.language + '/merged.html')
+      '/_site/' + argv.book + '/' + argv.language + '/' + mergedFilename)
     }
 
     if (argv.merged === false) {

@@ -3,7 +3,7 @@
 // Import modules
 const fs = require('fs')
 const yaml = require('js-yaml')
-const { book, language } = require('./args.js')
+const { book, language, format } = require('./args.js')
 
 // Load scripts from elsewhere in this repo
 const pathToJsAssetsSrc = `${process.cwd()}/_indexes/`
@@ -83,7 +83,9 @@ const paths = {
   },
   text: {
     src: '_site/' + book + language + '/*.html',
-    merged: ['_site/' + book + language + '/merged.html'],
+    // Format-specific merged filename prevents print-pdf and screen-pdf
+    // merged files from overwriting each other.
+    merged: ['_site/' + book + language + '/merged-' + format + '.html'],
     dest: '_site/' + book + language + '/'
   },
   epub: {

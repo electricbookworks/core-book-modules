@@ -132,13 +132,16 @@ async function merge (argv) {
       let fileCounter = 1
       let mergedDom
 
+      // Use a format-specific filename so that print-pdf and screen-pdf
+      // merged files don't overwrite each other.
+      const mergedFilename = 'merged-' + argv.format + '.html'
       let destination
       if (argv.language) {
         destination = fsPath.normalize(process.cwd() +
-          '/_site/' + argv.book + '/' + argv.language + '/merged.html')
+          '/_site/' + argv.book + '/' + argv.language + '/' + mergedFilename)
       } else {
         destination = fsPath.normalize(process.cwd() +
-          '/_site/' + argv.book + '/merged.html')
+          '/_site/' + argv.book + '/' + mergedFilename)
       }
 
       filePaths.forEach(async function (filePath) {
