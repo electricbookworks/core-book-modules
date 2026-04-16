@@ -31,6 +31,7 @@ const {
 const htmlFilePaths = require('../paths/htmlFilePaths.js')
 const pathExists = require('../paths/pathExists.js')
 const merge = require('../merge')
+const pdfPipeline = require('../lib/pdfPipeline.js')
 
 // Web output
 async function web (argv) {
@@ -41,18 +42,15 @@ async function web (argv) {
   } catch (error) {
     console.log(error)
   }
-}// PDF output
+}
+
+// PDF output
 async function pdf (argv) {
   try {
     await fs.emptyDir(process.cwd() + '/_site')
     !argv.skipwebpack && await webpack(argv)
     await jekyll(argv)
-    await processContent(argv)
-    await renderIndexComments(argv)
-    await renderIndexLinks(argv)
-    await merge(argv)
-    await renderMathjax(argv)
-    await pdfHTMLTransformations(argv)
+    await pdfPipeline(argv)
     await runPrince(argv)
     openOutputFile(argv)
   } catch (error) {

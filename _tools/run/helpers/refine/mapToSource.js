@@ -5,7 +5,7 @@
 const fs = require('fs-extra')
 const fsPath = require('path')
 const yaml = require('js-yaml')
-const ebSlugify = require('../../../../utilities/slugify')
+const ebSlugify = require('../../../utilities/slugify')
 
 // Normalize text for comparison: collapse whitespace,
 // strip markdown formatting, lowercase.
@@ -33,7 +33,9 @@ function extractMarkdownParagraphs (content) {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
-    const trimmed = line.trim()
+    // Strip blockquote prefixes (one or more leading '> ') so that
+    // blockquote paragraphs match the plain text Prince sees in the DOM.
+    const trimmed = line.trim().replace(/^(>\s*)+/, '')
 
     // Skip YAML frontmatter
     if (i === 0 && trimmed === '---') {

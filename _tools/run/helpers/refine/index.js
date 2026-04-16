@@ -1,4 +1,4 @@
-// Refine PDF layout by detecting widows, orphans, and
+// Refine PDF layout by detecting lone lines and short lines,
 // other layout issues, then applying tighten/loosen classes
 // to the source markdown files.
 //
@@ -20,8 +20,10 @@ const { loadSourceFiles, mapIssuesToSource } = require('./mapToSource.js')
 const { applyClasses } = require('./applyClasses.js')
 const { injectRefineScript, removeRefineScript } = require('./injectScript.js')
 const { parseManifest } = require('./parseManifest.js')
-const runPrince = require('../runPrince.js')
-const outputFilename = require('../outputFilename.js')
+const runPrince = require('../lib/runPrince.js')
+const outputFilename = require('../lib/outputFilename.js')
+const jekyll = require('../lib/jekyll.js')
+const pdfPipeline = require('../lib/pdfPipeline.js')
 
 async function refine (argv) {
   'use strict'
@@ -41,6 +43,15 @@ async function refine (argv) {
 // --- Prince-native approach ---
 
 async function refinePrince (argv) {
+  // 0. Rebuild the merged HTML from current source markdown so that
+  // the detection starts from a clean baseline. Without this, stale
+  // tighten/loosen classes from a previous refine run could be baked
+  // into the cached merged HTML under _site/.
+  console.log('Rebuilding merged HTML from source (incremental)...')
+  const freshArgv = Object.assign({}, argv, { incremental: true })
+  await jekyll(freshArgv)
+  await pdfPipeline(freshArgv)
+
   // 1. Find the merged HTML. The filename includes the format so that
   // print-pdf and screen-pdf merged files don't overwrite each other.
   const mergedFilename = 'merged-' + argv.format + '.html'
@@ -57,13 +68,42 @@ async function refinePrince (argv) {
   }
 
   if (!fs.existsSync(mergedPath)) {
-    console.error(
-      'Merged HTML not found at ' + mergedPath + '\n' +
-      'Run `eb output --format ' + argv.format +
-      ' --book ' + argv.book + '` first to generate the HTML,\n' +
-      'or use --refine-method=pdfjs to analyse an existing PDF.'
-    )
-    process.exit(1)
+    // Fall back to screen-pdf if print-pdf merged HTML is missing
+    if (argv.format === 'print-pdf') {
+      const fallbackFormat = 'screen-pdf'
+      const fallbackFilename = 'merged-' + fallbackFormat + '.html'
+      const fallbackPath = argv.language
+        ? fsPath.normalize(process.cwd() + '/_site/' + argv.book + '/' +
+            argv.language + '/' + fallbackFilename)
+        : fsPath.normalize(process.cwd() + '/_site/' + argv.book + '/' +
+            fallbackFilename)
+      if (fs.existsSync(fallbackPath)) {
+        console.warn(
+          'No merged HTML found for print-pdf. ' +
+          'Falling back to screen-pdf merged HTML.\n' +
+          'Run `eb output --format print-pdf --book ' + argv.book +
+          '` to refine the print PDF instead.'
+        )
+        argv.format = fallbackFormat
+        mergedPath = fallbackPath
+      } else {
+        console.error(
+          'Merged HTML not found at ' + mergedPath + '\n' +
+          'Run `eb output --format ' + argv.format +
+          ' --book ' + argv.book + '` first to generate the HTML,\n' +
+          'or use --refine-method=pdfjs to analyse an existing PDF.'
+        )
+        process.exit(1)
+      }
+    } else {
+      console.error(
+        'Merged HTML not found at ' + mergedPath + '\n' +
+        'Run `eb output --format ' + argv.format +
+        ' --book ' + argv.book + '` first to generate the HTML,\n' +
+        'or use --refine-method=pdfjs to analyse an existing PDF.'
+      )
+      process.exit(1)
+    }
   }
 
   // 2. Inject the refine script
@@ -78,10 +118,13 @@ async function refinePrince (argv) {
 
   try {
     await runPrince(argv, {
-      maxPasses: 5,
+      maxPasses: 8,
       onStdout: function (line) {
         princeOutput += line + '\n'
-        if (!line.startsWith('REFINE_')) {
+        if (line.startsWith('REFINE_DEBUG') || line.startsWith('REFINE_CHANGE')) {
+          // Pass debug and change lines through to the console
+          console.log(line)
+        } else if (!line.startsWith('REFINE_')) {
           console.log(line)
         }
       }
@@ -99,14 +142,14 @@ async function refinePrince (argv) {
   )
 
   if (manifest.changes.length === 0) {
-    console.log('No widows, orphans, or short lines detected. Layout looks good!')
+    console.log('No lone lines or short lines detected. Layout looks good!')
     return
   }
 
   // 6. Convert manifest changes to issue format for source mapping
   const issues = manifest.changes.map(function (change) {
     return {
-      type: change.reason,
+      type: change.reason, // 'lone-line-top', 'lone-line-bottom', or 'short-line'
       severity: change.severity,
       pageNumber: change.pageNum,
       recto: change.recto,
@@ -145,6 +188,21 @@ async function refinePrince (argv) {
       'Applied ' + result.applied + ' class(es) to markdown, ' +
       'skipped ' + result.skipped + '.'
     )
+
+    // Rebuild the PDF with the refined classes applied.
+    // We skip emptyDir and webpack (expensive) and use Jekyll's
+    // --incremental flag so only changed files are rebuilt.
+    const refinedFilename = outputFilename(argv).replace('.pdf', '-refined.pdf')
+    const refinedArgv = Object.assign({}, argv, {
+      incremental: true,
+      outputFilename: refinedFilename
+    })
+    console.log('\nRebuilding HTML with refined classes (incremental)...')
+    await jekyll(refinedArgv)
+    await pdfPipeline(refinedArgv)
+    console.log('Rendering refined PDF...')
+    await runPrince(refinedArgv)
+    console.log('Refined PDF saved to _output/' + refinedFilename)
   }
 
   reportIssues(issues)
@@ -190,7 +248,7 @@ async function refinePdfjs (argv) {
   const issues = detectIssues(pages)
 
   if (issues.length === 0) {
-    console.log('No widows or orphans detected. Layout looks good!')
+    console.log('No lone lines detected. Layout looks good!')
     return
   }
 
@@ -232,23 +290,31 @@ async function refinePdfjs (argv) {
 
 // Print a summary table of detected issues.
 function reportIssues (issues) {
-  // Sort worst-first (highest severity first),
-  // then by page number within the same severity.
+  // Sort by source file and line number (markdown order),
+  // falling back to page number for unmapped issues (listed last).
   var sorted = issues.slice().sort(function (a, b) {
-    if (b.severity !== a.severity) return b.severity - a.severity
+    var aFile = a.sourceFile || ''
+    var bFile = b.sourceFile || ''
+    // Unmapped issues (no source file) go last
+    if (aFile && !bFile) return -1
+    if (!aFile && bFile) return 1
+    if (aFile !== bFile) return aFile < bFile ? -1 : 1
+    var aLine = a.sourceLineNumber || 0
+    var bLine = b.sourceLineNumber || 0
+    if (aLine !== bLine) return aLine - bLine
     return (a.pageNumber || 0) - (b.pageNumber || 0)
   })
 
-  console.log('\n--- Layout issues (sorted worst-first) ---\n')
+  console.log('\n--- Layout issues (in source order) ---\n')
 
   const severityLabels = {
     1: 'SHORT-LINE',
-    2: 'WIDOW (verso)',
-    3: 'WIDOW (recto)',
-    4: 'ORPHAN wide (recto)',
-    5: 'ORPHAN wide (verso)',
-    6: 'ORPHAN narrow (recto)',
-    7: 'ORPHAN narrow (verso)'
+    2: 'LONE-LINE-BOTTOM (verso)',
+    3: 'LONE-LINE-BOTTOM (recto)',
+    4: 'LONE-LINE-TOP wide (recto)',
+    5: 'LONE-LINE-TOP wide (verso)',
+    6: 'LONE-LINE-TOP narrow (recto)',
+    7: 'LONE-LINE-TOP narrow (verso)'
   }
 
   sorted.forEach(function (issue, index) {

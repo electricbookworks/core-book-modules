@@ -3,7 +3,7 @@
 
 // Modules
 
-const refine = require('../helpers/lib/refine')
+const refine = require('../helpers/refine')
 
 // Exports
 

@@ -1,0 +1,847 @@
+// Prince-side script for detecting and fixing lone lines and short lines.
+// This script runs inside Prince's JavaScript environment during PDF rendering.
+//
+// It uses registerPostLayoutFunc to inspect the layout after each pass,
+// detect issues, add tighten/loosen classes to the DOM, and trigger
+// re-layout. It logs a structured manifest of every change so that
+// the Node.js orchestrator can apply the same changes to the markdown.
+//
+// Severity scoring (from electricbookworks/electric-book#162):
+//   0 = no issues
+//   1 = short-line (paragraph ends with <= 5 characters)
+//   2 = lone-line-bottom on a left-hand (verso) page (first line alone at page bottom)
+//   3 = lone-line-bottom on a right-hand (recto) page (first line alone at page bottom)
+//   4 = wide lone-line-top (> half measure) on recto (last line alone at page top)
+//   5 = wide lone-line-top (> half measure) on verso (last line alone at page top)
+//   6 = narrow lone-line-top (<= half measure) on recto (last line alone at page top)
+//   7 = narrow lone-line-top (<= half measure) on verso (last line alone at page top)
+
+Prince.trackBoxes = true
+
+// Maximum tighten/loosen value we'll ever apply.
+// Values above 12/1000 em are generally noticeable to readers.
+var MAX_TIGHTEN = 12
+
+// Track how many passes we've done and what we've changed
+var refinePass = 0
+var changesThisPass = 0
+var allChanges = []
+
+// Track the last fix applied so we can verify whether it
+// resolved the issue on the next pass. If not, we escalate
+// or give up (undo the fix and skip that issue).
+var lastFixInfo = null
+var skippedElements = []
+
+// Is this a recto (right-hand, odd-numbered) page?
+function isRecto (pageNum) {
+  return pageNum % 2 === 1
+}
+
+// --- Fingerprinting (replicates setup.js logic for Prince) ---
+
+// Slugify: strip special characters, lowercase, collapse spaces to hyphens.
+// Simplified version of ebSlugify for Prince's ES5 environment.
+function slugify (str) {
+  var special = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç'{}´-+¿?.,;:[]*¨¡!=()&%$#/\"_"
+  var result = ''
+  for (var i = 0; i < str.length; i++) {
+    var c = str.charAt(i)
+    if (special.indexOf(c) >= 0) {
+      result += ' '
+    } else {
+      result += c
+    }
+  }
+  return result.trim().replace(/[^A-Za-z0-9-]+/g, '-').toLowerCase()
+}
+
+// Get the index of an element among its parent's children (1-based).
+function getSiblingIndex (element) {
+  var parent = element.parentNode
+  if (!parent) return 1
+  var children = parent.children || parent.childNodes
+  for (var i = 0; i < children.length; i++) {
+    if (children[i] === element) return i + 1
+  }
+  return 1
+}
+
+// Compute a fingerprint for a given element, matching setup.js format:
+// ANCESTOR_TAG-INDEX-ELEMENT_TAG-INDEX-openingslug-closingslug
+function computeFingerprint (element) {
+  // Get ancestor info (immediate parent)
+  var parent = element.parentNode
+  var ancestorPart = ''
+  if (parent && parent.tagName) {
+    ancestorPart = parent.tagName + '-' + getSiblingIndex(parent) + '-'
+  }
+
+  // Element's own tag and sibling index
+  var elementPart = element.tagName + '-' + getSiblingIndex(element) + '-'
+
+  // Opening and closing text slugs
+  var text = element.textContent || ''
+  var opening = slugify(text.substring(0, 20)).replace(/-/g, '')
+  var closing = slugify(text.substring(text.length - 20)).replace(/-/g, '')
+
+  return ancestorPart + elementPart + opening + '-' + closing
+}
+
+// Walk the box tree depth-first, calling fn(box) on each box.
+function walkBoxes (box, fn) {
+  fn(box)
+  if (box.children) {
+    for (var i = 0; i < box.children.length; i++) {
+      walkBoxes(box.children[i], fn)
+    }
+  }
+}
+
+// Get all boxes for a given element, grouped by page.
+// Returns an object: { pageNum: { lineCount, height, boxes: [] } }
+function getElementPageInfo (element) {
+  var boxes = element.getPrinceBoxes()
+  var pages = {}
+  for (var i = 0; i < boxes.length; i++) {
+    var box = boxes[i]
+    var pn = box.pageNum
+    if (!pages[pn]) {
+      pages[pn] = { lineCount: 0, height: 0, boxes: [] }
+    }
+    pages[pn].boxes.push(box)
+    pages[pn].height += box.h
+  }
+
+  // Count lines by walking each box's children for LINE types
+  for (var i = 0; i < boxes.length; i++) {
+    var box = boxes[i]
+    var pn = box.pageNum
+    if (box.type === 'LINE') {
+      pages[pn].lineCount++
+    }
+    // Also walk children for LINE boxes
+    if (box.children) {
+      for (var j = 0; j < box.children.length; j++) {
+        if (box.children[j].type === 'LINE') {
+          pages[pn].lineCount++
+        }
+      }
+    }
+  }
+
+  return pages
+}
+
+// Count LINE boxes in a box tree (recursive).
+function countLines (box) {
+  var count = 0
+  if (box.type === 'LINE') count++
+  if (box.children) {
+    for (var i = 0; i < box.children.length; i++) {
+      count += countLines(box.children[i])
+    }
+  }
+  return count
+}
+
+// Get the width of the last LINE box in a box tree.
+function getLastLineWidth (box) {
+  var lastLine = null
+  function findLines (b) {
+    if (b.type === 'LINE') lastLine = b
+    if (b.children) {
+      for (var i = 0; i < b.children.length; i++) {
+        findLines(b.children[i])
+      }
+    }
+  }
+  findLines(box)
+  return lastLine ? lastLine.w : 0
+}
+
+// Preferred tighten value: aggressive enough to work on most
+// paragraphs, but visually acceptable. We start here and only
+// go to MAX_TIGHTEN if this doesn't resolve the issue.
+var PREFERRED_TIGHTEN = 8
+
+// Return the preferred starting tighten value.
+// All paragraphs start at PREFERRED_TIGHTEN; on failure we
+// jump directly to MAX_TIGHTEN (two-step escalation).
+function estimateTighten (lineCount) {
+  return PREFERRED_TIGHTEN
+}
+
+// Estimate a loosen value based on line count.
+// Loosening is less effective than tightening, so we use
+// a higher preferred value.
+function estimateLoosen (lineCount) {
+  return Math.min(10, MAX_TIGHTEN)
+}
+
+// Check if an element still has a lone-line-bottom issue
+// (first page has only 1 line of this element).
+function checkLoneLineBottom (el) {
+  var boxes = el.getPrinceBoxes()
+  if (!boxes || boxes.length === 0) return false
+  var firstPage = Infinity
+  var lastPage = -Infinity
+  for (var i = 0; i < boxes.length; i++) {
+    if (boxes[i].pageNum < firstPage) firstPage = boxes[i].pageNum
+    if (boxes[i].pageNum > lastPage) lastPage = boxes[i].pageNum
+  }
+  if (firstPage === lastPage) return false
+  var linesOnFirst = 0
+  for (var i = 0; i < boxes.length; i++) {
+    if (boxes[i].pageNum === firstPage) linesOnFirst += countLines(boxes[i])
+  }
+  return linesOnFirst === 1
+}
+
+// Check if an element still has a lone-line-top issue
+// (last page has only 1 line of this element).
+function checkLoneLineTop (el) {
+  var boxes = el.getPrinceBoxes()
+  if (!boxes || boxes.length === 0) return false
+  var firstPage = Infinity
+  var lastPage = -Infinity
+  for (var i = 0; i < boxes.length; i++) {
+    if (boxes[i].pageNum < firstPage) firstPage = boxes[i].pageNum
+    if (boxes[i].pageNum > lastPage) lastPage = boxes[i].pageNum
+  }
+  if (firstPage === lastPage) return false
+  var linesOnLast = 0
+  for (var i = 0; i < boxes.length; i++) {
+    if (boxes[i].pageNum === lastPage) linesOnLast += countLines(boxes[i])
+  }
+  return linesOnLast === 1
+}
+
+// Remove the tracking class from an element and delete
+// its entries from allChanges. Called when giving up on
+// a fix that did not resolve the target issue.
+function undoFix (el) {
+  var info = getTrackingInfo(el)
+  if (info) {
+    var cls = el.className || ''
+    el.className = cls.replace(info.fullClass, '').replace(/\s{2,}/g, ' ').trim()
+  }
+  var fp = computeFingerprint(el)
+  for (var r = allChanges.length - 1; r >= 0; r--) {
+    if (allChanges[r].fingerprint === fp) {
+      allChanges.splice(r, 1)
+    }
+  }
+}
+
+// Check if an element already has a tighten or loosen class.
+function hasTrackingClass (element) {
+  var cls = element.className || ''
+  return cls.match(/\b(tighten|loosen)-\d+/)
+}
+
+// Extract the current tracking class details from an element.
+// Returns { type: 'tighten'|'loosen', value: N } or null.
+function getTrackingInfo (element) {
+  var cls = element.className || ''
+  var match = cls.match(/\b(tighten|loosen)-(\d+)/)
+  if (!match) return null
+  return { type: match[1], value: parseInt(match[2], 10), fullClass: match[0] }
+}
+
+// Add a class to an element and record the change.
+// If the element already has a tracking class of the SAME type
+// (tighten or loosen), escalate to the higher value.
+// If it has a tracking class of a DIFFERENT type, skip
+// (don't replace tighten with loosen or vice versa).
+function addClass (element, className, reason, pageNum, severity) {
+  var existing = getTrackingInfo(element)
+
+  if (existing) {
+    // Parse the requested class
+    var reqMatch = className.match(/^(tighten|loosen)-(\d+)$/)
+    if (!reqMatch) return false
+    var reqType = reqMatch[1]
+    var reqValue = parseInt(reqMatch[2], 10)
+
+    // Don't switch between tighten and loosen
+    if (existing.type !== reqType) return false
+
+    // Only escalate (increase), never decrease
+    if (reqValue <= existing.value) return false
+
+    // Cap at MAX_TIGHTEN
+    if (reqValue > MAX_TIGHTEN) return false
+
+    // Replace the old class with the new higher value
+    var oldClass = element.className || ''
+    element.className = oldClass.replace(existing.fullClass, className)
+  } else {
+    var existingClass = element.className || ''
+    element.className = existingClass ? existingClass + ' ' + className : className
+  }
+
+  changesThisPass++
+  var fp = computeFingerprint(element)
+  var change = {
+    className: className,
+    reason: reason,
+    severity: severity,
+    pageNum: pageNum,
+    recto: isRecto(pageNum),
+    elementTag: element.tagName,
+    elementId: element.id || '',
+    fingerprint: fp,
+    textPreview: (element.textContent || '').substring(0, 80).replace(/\n/g, ' ')
+  }
+  allChanges.push(change)
+
+  return true
+}
+
+// Main detection function, called after each layout pass.
+function detectAndFix () {
+  refinePass++
+  changesThisPass = 0
+
+  var pages = PDF.pages
+  if (!pages || pages.length === 0) return
+
+  // Only refine elements that are descendants of .content,
+  // excluding those inside generated/unmappable containers
+  // like figures, ToCs, navigation, headers, and footers.
+  // This ensures every candidate element can be mapped back
+  // to a source markdown paragraph.
+  var allParagraphs = document.querySelectorAll(
+    '.content p, .content li'
+  )
+
+  // Filter out elements inside containers that can't be
+  // mapped to markdown source.
+  var unmappableSelectors = [
+    '.caption',
+    '.contains-footnote',
+    '.copyright-page',
+    '.figure',
+    '.footnotes',
+    '.half-title-page',
+    '.nav',
+    '.nav-list',
+    '.reference-index',
+    '.reference-index-manual',
+    '.title-page',
+    '.toc',
+    '.toc-list',
+    '.verse',
+    'figcaption',
+    'footer',
+    'header',
+    'nav'
+  ]
+
+  // Walk up the DOM tree to check if an element is inside
+  // any of the unmappable containers (replaces closest() for
+  // compatibility with Prince's JS environment).
+  function isInsideUnmappable (el) {
+    var node = el.parentNode
+    while (node && node !== document) {
+      var tag = (node.tagName || '').toLowerCase()
+      // Split className into individual tokens for reliable matching.
+      var classes = (node.className || '').split(/\s+/)
+      for (var s = 0; s < unmappableSelectors.length; s++) {
+        var sel = unmappableSelectors[s]
+        if (sel.charAt(0) === '.') {
+          // Class selector: check each class token
+          var targetClass = sel.slice(1)
+          for (var c = 0; c < classes.length; c++) {
+            if (classes[c] === targetClass) return true
+          }
+        } else {
+          // Tag selector
+          if (tag === sel.toLowerCase()) return true
+        }
+      }
+      node = node.parentNode
+    }
+    return false
+  }
+
+  // Build a plain array of candidate elements using a simple loop,
+  // which is more reliable than Array.prototype.filter.call on a NodeList
+  // in Prince's JS environment.
+  var candidates = []
+  for (var f = 0; f < allParagraphs.length; f++) {
+    if (!isInsideUnmappable(allParagraphs[f])) {
+      candidates.push(allParagraphs[f])
+    }
+  }
+
+  // Phase 1: Collect layout data for every candidate paragraph.
+  // Include already-classed elements so they remain visible in
+  // the search space (for findOpportunity to skip past or escalate).
+  // Phase 2 will skip them as detection targets unless they can be
+  // escalated by findOpportunity/findLoosenOpportunity.
+  var paragraphInfos = []
+  for (var i = 0; i < candidates.length; i++) {
+    var el = candidates[i]
+    var textSnippet = (el.textContent || '').substring(0, 50).replace(/\n/g, ' ')
+
+    var boxes = el.getPrinceBoxes()
+    if (!boxes || boxes.length === 0) {
+      // DEBUG: log elements with no boxes
+      if (textSnippet.indexOf('sure can') >= 0 || textSnippet.indexOf('Gerontion') >= 0) {
+        console.log('REFINE_DEBUG|NO_BOXES|' + el.tagName + '|' + textSnippet)
+      }
+      continue
+    }
+
+    // Group boxes by page
+    var byPage = {}
+    var pageNums = []
+    for (var b = 0; b < boxes.length; b++) {
+      var pn = boxes[b].pageNum
+      if (!byPage[pn]) {
+        byPage[pn] = []
+        pageNums.push(pn)
+      }
+      byPage[pn].push(boxes[b])
+    }
+    pageNums.sort(function (a, b) { return a - b })
+
+    // Count total lines across all pages
+    var totalLines = 0
+    for (var b = 0; b < boxes.length; b++) {
+      totalLines += countLines(boxes[b])
+    }
+
+    // Get last line width and measure (column width for this element).
+    // Use the element's own BLOCK box width as the measure, rather
+    // than the full page width. This correctly reflects each element's
+    // actual column width, accounting for varying layouts (sidebars,
+    // pull quotes, frontmatter pages, etc.).
+    var lastPage = pageNums[pageNums.length - 1]
+    var lastPageBoxes = byPage[lastPage]
+    var lastLineW = 0
+    for (var b = 0; b < lastPageBoxes.length; b++) {
+      var w = getLastLineWidth(lastPageBoxes[b])
+      if (w > lastLineW) lastLineW = w
+    }
+    var measure = 0
+    for (var b = 0; b < boxes.length; b++) {
+      if (boxes[b].w > measure) measure = boxes[b].w
+    }
+    if (measure === 0) measure = 500
+
+    // DEBUG: log detailed info for elements of interest,
+    // and a compact summary for all multi-page elements.
+    var isInteresting = textSnippet.indexOf('sure can') >= 0 ||
+      textSnippet.indexOf('Gerontion') >= 0 ||
+      textSnippet.indexOf('Thou hast nor') >= 0 ||
+      textSnippet.indexOf('dry brain') >= 0
+    if (isInteresting) {
+      console.log('REFINE_DEBUG|DETAIL|' + el.tagName + '|lines=' + totalLines +
+        '|pages=[' + pageNums.join(',') + ']|lastLineW=' + Math.round(lastLineW) +
+        '|measure=' + Math.round(measure) + '|boxes=' + boxes.length +
+        '|text=' + textSnippet)
+      // Log box types for this element
+      for (var b = 0; b < boxes.length; b++) {
+        var childTypes = []
+        if (boxes[b].children) {
+          for (var ch = 0; ch < boxes[b].children.length; ch++) {
+            childTypes.push(boxes[b].children[ch].type)
+          }
+        }
+        console.log('REFINE_DEBUG|BOX|' + b + '|type=' + boxes[b].type +
+          '|page=' + boxes[b].pageNum + '|w=' + Math.round(boxes[b].w) +
+          '|children=[' + childTypes.join(',') + ']')
+      }
+    }
+    if (pageNums.length > 1) {
+      // Log all multi-page elements compactly
+      var linesPerPage = []
+      for (var p = 0; p < pageNums.length; p++) {
+        var pgBoxes = byPage[pageNums[p]]
+        var pgLines = 0
+        for (var b = 0; b < pgBoxes.length; b++) {
+          pgLines += countLines(pgBoxes[b])
+        }
+        linesPerPage.push('p' + pageNums[p] + ':' + pgLines)
+      }
+      console.log('REFINE_DEBUG|MULTIPAGE|' + el.tagName + '|lines=' + totalLines +
+        '|' + linesPerPage.join('|') + '|text=' + textSnippet)
+    }
+
+    paragraphInfos.push({
+      element: el,
+      pageNums: pageNums,
+      firstPage: pageNums[0],
+      lastPage: lastPage,
+      totalLines: totalLines,
+      lastLineWidth: lastLineW,
+      measure: measure,
+      byPage: byPage
+    })
+  }
+
+  // Find the nearest preceding paragraph that can realistically save
+  // a line by tightening, given the paragraph's length.
+  //
+  // Rule of thumb: tighten-N saves approximately N/TIGHTEN_CHARS_PER_STEP
+  // characters per line, so a paragraph of L lines with tighten-N saves
+  // N*L/TIGHTEN_CHARS_PER_STEP characters total. A full line holds roughly
+  // CHARS_PER_LINE characters, so the last line of a candidate paragraph
+  // contains lastLineWidth/measure * CHARS_PER_LINE characters. The tighten
+  // is only viable if characters-saved >= characters in the last line.
+  function findOpportunity (loneIdx, lonePage) {
+    // How many pages back to search for an opportunity paragraph.
+    var LOOKBACK_PAGES = 4
+    // Approximate characters in a full line of body text.
+    var CHARS_PER_LINE = 60
+    // Estimated characters saved per tighten step per line.
+    // Rule of thumb: tighten-N saves N/TIGHTEN_CHARS_PER_STEP chars per line,
+    // so total chars saved = tightenN * totalLines / TIGHTEN_CHARS_PER_STEP.
+    var TIGHTEN_CHARS_PER_STEP = 5
+
+    for (var j = loneIdx - 1; j >= 0; j--) {
+      var candidate = paragraphInfos[j]
+      if (candidate.totalLines < 3) continue
+      // Stop searching if we've gone too far back
+      if (lonePage - candidate.lastPage > LOOKBACK_PAGES) break
+
+      // If already tightened, check if we can escalate
+      var existingInfo = getTrackingInfo(candidate.element)
+      if (existingInfo) {
+        // Can't escalate a loosen into a tighten
+        if (existingInfo.type !== 'tighten') continue
+        // Already at max
+        if (existingInfo.value >= MAX_TIGHTEN) continue
+      }
+
+      var lastLineW = candidate.lastLineWidth
+      var measure = candidate.measure
+      if (lastLineW <= 0) continue
+
+      // Estimate the tighten value we'd apply (or escalate to)
+      var tightenN = estimateTighten(candidate.totalLines)
+      // If already tightened, jump straight to max
+      if (existingInfo && existingInfo.type === 'tighten') {
+        tightenN = MAX_TIGHTEN
+      }
+
+      // Characters saved = tightenN / TIGHTEN_CHARS_PER_STEP chars per line * totalLines
+      var charsSaved = (tightenN / TIGHTEN_CHARS_PER_STEP) * candidate.totalLines
+
+      // Characters in the candidate's last line
+      var charsInLastLine = (lastLineW / measure) * CHARS_PER_LINE
+
+      // Only use this candidate if tightening can plausibly save a line
+      if (charsSaved >= charsInLastLine) {
+        return candidate
+      }
+    }
+    return null
+  }
+
+  // Find the nearest preceding paragraph that can realistically GAIN
+  // a line by loosening. This is the mirror of findOpportunity:
+  // loosening adds space, so we need a paragraph whose last line is
+  // nearly full — the slack (measure - lastLineWidth) is small enough
+  // that the added width will overflow it, creating a new line.
+  // The extra line pushes content down, moving the lone first line
+  // off the bottom of its page.
+  //
+  // Loosening has less effect than tightening, so we use a higher
+  // LOOSEN_CHARS_PER_STEP value (more steps needed per character
+  // of effective width gain).
+  function findLoosenOpportunity (loneIdx, lonePage) {
+    var LOOKBACK_PAGES = 4
+    var CHARS_PER_LINE = 60
+    // Higher than TIGHTEN_CHARS_PER_STEP because loosening is
+    // less effective at changing line breaks.
+    var LOOSEN_CHARS_PER_STEP = 8
+    // Absolute cap: if a candidate's last line has more than
+    // this many characters of slack, loosening can't realistically
+    // force a new line. Only consider candidates whose last line
+    // is very nearly full (within ~2-3 characters).
+    var MAX_LOOSEN_SLACK_CHARS = 3
+
+    for (var j = loneIdx - 1; j >= 0; j--) {
+      var candidate = paragraphInfos[j]
+      if (candidate.totalLines < 3) continue
+      if (lonePage - candidate.lastPage > LOOKBACK_PAGES) break
+
+      // If already loosened, check if we can escalate
+      var existingInfo = getTrackingInfo(candidate.element)
+      if (existingInfo) {
+        // Can't escalate a tighten into a loosen
+        if (existingInfo.type !== 'loosen') continue
+        // Already at max
+        if (existingInfo.value >= MAX_TIGHTEN) continue
+      }
+
+      var lastLineW = candidate.lastLineWidth
+      var measure = candidate.measure
+      if (lastLineW <= 0 || measure <= 0) continue
+
+      // Estimate the loosen value (or escalate to max)
+      var loosenN = estimateLoosen(candidate.totalLines)
+      if (existingInfo && existingInfo.type === 'loosen') {
+        loosenN = MAX_TIGHTEN
+      }
+
+      // Extra character-widths added by loosening across all lines
+      var charsAdded = (loosenN / LOOSEN_CHARS_PER_STEP) * candidate.totalLines
+
+      // Slack on the last line (how much room before it would overflow)
+      var slackChars = ((measure - lastLineW) / measure) * CHARS_PER_LINE
+
+      // Skip if the last line has too much slack — even aggressive
+      // loosening won't fill a half-empty line.
+      if (slackChars > MAX_LOOSEN_SLACK_CHARS) continue
+
+      // Only use this candidate if loosening can plausibly fill
+      // the last line's slack and force a new line
+      if (charsAdded >= slackChars && slackChars > 0) {
+        return candidate
+      }
+    }
+    return null
+  }
+
+  // Phase 2: Detect all issues and highlight them, then apply ONE
+  // fix (the earliest in reading order). Highlighting adds .highlighter
+  // for visual debugging; the fix applies tighten/loosen to resolve it.
+  // Only one fix per pass ensures Prince re-layouts with fresh data
+  // before we tackle the next issue.
+  var fixApplied = false
+
+  // Verify the fix from the previous pass. If the issue is
+  // still present, escalate the fix value. If we can't escalate
+  // further, undo the fix and skip that issue permanently.
+  if (lastFixInfo) {
+    var issueStillPresent = false
+    if (lastFixInfo.issueType === 'lone-line-bottom') {
+      issueStillPresent = checkLoneLineBottom(lastFixInfo.issueElement)
+    } else if (lastFixInfo.issueType === 'lone-line-top') {
+      issueStillPresent = checkLoneLineTop(lastFixInfo.issueElement)
+    }
+    // For short-line, assume resolved (self-tighten is reliable)
+
+    if (!issueStillPresent) {
+      console.log('REFINE_DEBUG|RESOLVED|' + lastFixInfo.issueType + '|page=' + lastFixInfo.pageNum)
+      lastFixInfo = null
+    } else {
+      // Fix didn't work — jump straight to MAX_TIGHTEN.
+      // If already at MAX_TIGHTEN (or close), give up.
+      var fixTrack = getTrackingInfo(lastFixInfo.fixElement)
+      if (fixTrack && fixTrack.value < MAX_TIGHTEN) {
+        var newClass = fixTrack.type + '-' + MAX_TIGHTEN
+        var escalated = addClass(lastFixInfo.fixElement, newClass, lastFixInfo.issueType, lastFixInfo.pageNum, lastFixInfo.severity)
+        if (escalated) {
+          fixApplied = true
+          console.log('REFINE_DEBUG|ESCALATED|' + newClass + '|' + lastFixInfo.issueType + '|page=' + lastFixInfo.pageNum)
+          // Keep lastFixInfo — verify again next pass
+        } else {
+          skippedElements.push(lastFixInfo.issueElement)
+          undoFix(lastFixInfo.fixElement)
+          console.log('REFINE_DEBUG|GAVE_UP|' + lastFixInfo.issueType + '|page=' + lastFixInfo.pageNum)
+          lastFixInfo = null
+        }
+      } else {
+        // Already at MAX_TIGHTEN — give up and undo
+        skippedElements.push(lastFixInfo.issueElement)
+        undoFix(lastFixInfo.fixElement)
+        console.log('REFINE_DEBUG|GAVE_UP|' + lastFixInfo.issueType + '|page=' + lastFixInfo.pageNum)
+        lastFixInfo = null
+      }
+    }
+  }
+
+  for (var i = 0; i < paragraphInfos.length; i++) {
+    var info = paragraphInfos[i]
+    var el = info.element
+    var pageNums = info.pageNums
+    var totalLines = info.totalLines
+
+    if (totalLines < 2) continue
+
+    // Skip elements that already have a tracking class as detection
+    // targets. They remain in paragraphInfos so findOpportunity and
+    // findLoosenOpportunity can see (and escalate) them.
+    if (hasTrackingClass(el)) continue
+
+    // Skip elements whose issues were previously attempted
+    // and determined to be unresolvable.
+    var isSkipped = false
+    for (var s = 0; s < skippedElements.length; s++) {
+      if (skippedElements[s] === el) { isSkipped = true; break }
+    }
+    if (isSkipped) continue
+
+    // --- Lone-line-bottom detection ---
+    if (pageNums.length > 1) {
+      var firstPageBoxes = info.byPage[pageNums[0]]
+      var firstPageLines = 0
+      for (var b = 0; b < firstPageBoxes.length; b++) {
+        firstPageLines += countLines(firstPageBoxes[b])
+      }
+
+      if (firstPageLines === 1) {
+        var pn = info.firstPage
+        var severity = isRecto(pn) ? 3 : 2
+
+        // Highlight the problem paragraph
+        var existingClass = el.className || ''
+        el.className = existingClass ? existingClass + ' highlighter' : 'highlighter'
+
+        // Apply a fix if we haven't already this pass
+        if (!fixApplied) {
+          // Strategy 1: Tighten a preceding paragraph
+          var tightenTarget = findOpportunity(i, pn)
+          if (tightenTarget) {
+            var tighten = estimateTighten(tightenTarget.totalLines)
+            addClass(tightenTarget.element, 'tighten-' + tighten, 'lone-line-bottom', pn, severity)
+            fixApplied = true
+            lastFixInfo = { issueElement: el, issueType: 'lone-line-bottom', fixElement: tightenTarget.element, pageNum: pn, severity: severity }
+          }
+
+          // Strategy 2: Loosen a preceding paragraph
+          if (!fixApplied) {
+            var loosenTarget = findLoosenOpportunity(i, pn)
+            if (loosenTarget) {
+              var loosen = estimateLoosen(loosenTarget.totalLines)
+              addClass(loosenTarget.element, 'loosen-' + loosen, 'lone-line-bottom', pn, severity)
+              fixApplied = true
+              lastFixInfo = { issueElement: el, issueType: 'lone-line-bottom', fixElement: loosenTarget.element, pageNum: pn, severity: severity }
+            }
+          }
+
+          // Strategy 3: Tighten the problem element itself.
+          // Especially useful for short paragraphs (2-3 lines)
+          // split across a page break — tightening can pull
+          // the text onto one page.
+          if (!fixApplied && totalLines <= 4) {
+            var selfTighten = estimateTighten(totalLines)
+            addClass(el, 'tighten-' + selfTighten, 'lone-line-bottom', pn, severity)
+            fixApplied = true
+            lastFixInfo = { issueElement: el, issueType: 'lone-line-bottom', fixElement: el, pageNum: pn, severity: severity }
+          }
+
+          if (!fixApplied) {
+            console.log('REFINE_DEBUG|NO_FIX|lone-line-bottom|page=' + pn + '|lines=' + totalLines + '|text=' + (el.textContent || '').substring(0, 50))
+            skippedElements.push(el)
+          }
+        }
+      }
+    }
+
+    // --- Lone-line-top detection ---
+    if (pageNums.length > 1) {
+      var lastPage = info.lastPage
+      var lastPageBoxes = info.byPage[lastPage]
+      var lastPageLines = 0
+      for (var b = 0; b < lastPageBoxes.length; b++) {
+        lastPageLines += countLines(lastPageBoxes[b])
+      }
+
+      if (lastPageLines === 1) {
+        var isWide = info.lastLineWidth > info.measure * 0.5
+        var severity
+        if (isWide) {
+          severity = isRecto(lastPage) ? 4 : 5
+        } else {
+          severity = isRecto(lastPage) ? 6 : 7
+        }
+
+        // Highlight the problem paragraph
+        var existingClass = el.className || ''
+        if (existingClass.indexOf('highlighter') === -1) {
+          el.className = existingClass ? existingClass + ' highlighter' : 'highlighter'
+        }
+
+        // Apply a fix if we haven't already this pass
+        if (!fixApplied) {
+          var opportunity = findOpportunity(i, lastPage)
+          var target = opportunity || info
+          var tighten = estimateTighten(target.totalLines)
+          addClass(target.element, 'tighten-' + tighten, 'lone-line-top', lastPage, severity)
+          fixApplied = true
+          lastFixInfo = { issueElement: el, issueType: 'lone-line-top', fixElement: target.element, pageNum: lastPage, severity: severity }
+        }
+      }
+    }
+
+    // --- Very short last line (cosmetic fix only) ---
+    if (pageNums.length === 1) {
+      var lastLineWidth = info.lastLineWidth
+      var measure = info.measure
+      if (lastLineWidth > 0 && lastLineWidth < measure * 0.08 && totalLines >= 3) {
+        // Highlight
+        var existingClass = el.className || ''
+        el.className = existingClass ? existingClass + ' highlighter' : 'highlighter'
+
+        // Apply a fix if we haven't already this pass
+        if (!fixApplied) {
+          var tighten = estimateTighten(totalLines)
+          addClass(el, 'tighten-' + tighten, 'short-line', pageNums[0], 1)
+          fixApplied = true
+          lastFixInfo = { issueElement: el, issueType: 'short-line', fixElement: el, pageNum: pageNums[0], severity: 1 }
+        }
+      }
+    }
+  }
+
+  // If we applied a fix, register for another pass to re-evaluate
+  // with fresh layout data. The next pass will re-detect all issues
+  // (some may have been resolved, others may have been created) and
+  // fix the next earliest one.
+  if (fixApplied) {
+    console.log('REFINE_PASS:' + refinePass + ':CHANGES:' + changesThisPass)
+    Prince.registerPostLayoutFunc(detectAndFix)
+  }
+}
+
+// After final layout, log the complete manifest.
+Prince.addEventListener('complete', function () {
+  if (allChanges.length === 0) {
+    console.log('REFINE_MANIFEST_START')
+    console.log('REFINE_MANIFEST_END')
+    console.log('REFINE_SUMMARY:passes=' + refinePass + ',changes=0')
+    return
+  }
+
+  // Deduplicate by fingerprint — keep only the last (escalated)
+  // entry for each element so the Node.js side applies the final class.
+  var seen = {}
+  var finalChanges = []
+  for (var d = allChanges.length - 1; d >= 0; d--) {
+    if (!seen[allChanges[d].fingerprint]) {
+      seen[allChanges[d].fingerprint] = true
+      finalChanges.unshift(allChanges[d])
+    }
+  }
+
+  console.log('REFINE_MANIFEST_START')
+  for (var i = 0; i < finalChanges.length; i++) {
+    var c = finalChanges[i]
+    // Output as a parseable line:
+    // REFINE_CHANGE|className|reason|severity|pageNum|recto|tag|id|fingerprint|textPreview
+    console.log(
+      'REFINE_CHANGE|' +
+      c.className + '|' +
+      c.reason + '|' +
+      c.severity + '|' +
+      c.pageNum + '|' +
+      c.recto + '|' +
+      c.elementTag + '|' +
+      c.elementId + '|' +
+      c.fingerprint + '|' +
+      c.textPreview
+    )
+  }
+  console.log('REFINE_MANIFEST_END')
+  console.log('REFINE_SUMMARY:passes=' + refinePass + ',changes=' + finalChanges.length + ',skipped=' + skippedElements.length)
+}, false)
+
+// Register the first post-layout detection pass.
+Prince.registerPostLayoutFunc(detectAndFix)

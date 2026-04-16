@@ -82,7 +82,7 @@ async function runPrince (argv, options) {
     prince()
       .license('./' + princeLicenseFile)
       .inputs(inputFiles)
-      .output(process.cwd() + '/_output/' + outputFilename(argv))
+      .output(process.cwd() + '/_output/' + (argv.outputFilename || outputFilename(argv)))
       .option('style', stylesheet)
       .option('javascript')
 

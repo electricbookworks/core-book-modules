@@ -1,24 +1,24 @@
 // Detect layout issues in parsed PDF pages.
 // Groups text items into lines and paragraphs,
-// then identifies widows, orphans, and short lines.
+// then identifies lone-line-bottom, lone-line-top, and short lines.
 //
 // Terminology (per electricbookworks/electric-book#162):
-//   Widow:     a single line at the BOTTOM of a page
-//              (a paragraph barely starts, with only one line before the break)
-//   Orphan:    a single line at the TOP of a page
-//              (a paragraph carried over from the previous page, with only
-//              one line remaining on this page)
+//   Lone-line-bottom: a single line at the BOTTOM of a page
+//                     (a paragraph barely starts, with only one line before the break)
+//   Lone-line-top:    a single line at the TOP of a page
+//                     (a paragraph carried over from the previous page, with only
+//                     one line remaining on this page)
 //   Short-line: a very short last line of a paragraph (e.g. <= 5 characters)
 //
 // Severity scoring (best to worst):
 //   0 = no issues
 //   1 = short-line
-//   2 = widow on a left-hand (verso) page
-//   3 = widow on a right-hand (recto) page
-//   4 = wide orphan (> half measure) on a right-hand page
-//   5 = wide orphan (> half measure) on a left-hand page
-//   6 = narrow orphan (<= half measure) on a right-hand page
-//   7 = narrow orphan (<= half measure) on a left-hand page
+//   2 = lone-line-bottom on a left-hand (verso) page
+//   3 = lone-line-bottom on a right-hand (recto) page
+//   4 = wide lone-line-top (> half measure) on a right-hand page
+//   5 = wide lone-line-top (> half measure) on a left-hand page
+//   6 = narrow lone-line-top (<= half measure) on a right-hand page
+//   7 = narrow lone-line-top (<= half measure) on a left-hand page
 
 // In a book, odd page numbers are right-hand (recto),
 // even page numbers are left-hand (verso).
@@ -177,8 +177,8 @@ function detectIssues (pages, options) {
       }
     })
 
-    // --- Widow detection ---
-    // A widow is when a paragraph starts at the bottom of a page
+    // --- Lone-line-bottom detection ---
+    // A lone-line-bottom is when a paragraph starts at the bottom of a page
     // with only one line before the page breaks. We detect this by
     // looking for a single-line paragraph at the bottom of the page
     // that continues onto the next page.
@@ -203,7 +203,7 @@ function detectIssues (pages, options) {
           // Severity: 2 for verso (left), 3 for recto (right)
           const severity = recto ? 3 : 2
           issues.push({
-            type: 'widow',
+            type: 'lone-line-bottom',
             severity: severity,
             pageNumber: page.pageNumber,
             recto: recto,
@@ -219,8 +219,8 @@ function detectIssues (pages, options) {
       }
     }
 
-    // --- Orphan detection ---
-    // An orphan is when a paragraph ends at the top of a page
+    // --- Lone-line-top detection ---
+    // A lone-line-top is when a paragraph ends at the top of a page
     // with only one line remaining (the rest is on the previous page).
     //
     // Heuristic: the first paragraph on this page has exactly 1 line,
@@ -236,13 +236,13 @@ function detectIssues (pages, options) {
         ) < 1
 
         if (sameFont) {
-          // Is this orphan line wider than half the measure?
-          const orphanLineRatio = firstParaOnPage.firstLine.width / page.measure
-          const isWide = orphanLineRatio > 0.5
+          // Is this lone-line-top wider than half the measure?
+          const loneLineRatio = firstParaOnPage.firstLine.width / page.measure
+          const isWide = loneLineRatio > 0.5
 
           // Severity scoring from issue #162:
-          // Wide orphan on recto: 4, on verso: 5
-          // Narrow orphan on recto: 6, on verso: 7
+          // Wide lone-line-top on recto: 4, on verso: 5
+          // Narrow lone-line-top on recto: 6, on verso: 7
           let severity
           if (isWide) {
             severity = recto ? 4 : 5
@@ -251,13 +251,13 @@ function detectIssues (pages, options) {
           }
 
           issues.push({
-            type: 'orphan',
+            type: 'lone-line-top',
             severity: severity,
             pageNumber: page.pageNumber,
             prevPageNumber: prevPage.pageNumber,
             recto: recto,
-            orphanWide: isWide,
-            orphanLineRatio: orphanLineRatio,
+            loneLineWide: isWide,
+            loneLineRatio: loneLineRatio,
             text: lastParaOnPrevPage.text + ' ' + firstParaOnPage.text,
             lastLineText: firstParaOnPage.firstLine.text,
             lineCount: lastParaOnPrevPage.lineCount + 1,
