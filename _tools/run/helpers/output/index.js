@@ -165,7 +165,7 @@ async function app (argv) {
     // Cordova is used for Android
     if (argv['app-os'] === 'electron') {
       if (argv['app-build']) {
-        await electron(['make'])
+        await electron(['make', '--platform', 'mas', '--arch', 'universal'])
       } else {
         await electron(['start'])
       }
