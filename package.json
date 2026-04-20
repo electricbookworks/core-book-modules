@@ -41,6 +41,7 @@
     "@electron-forge/maker-appx": "^7.8.0",
     "@electron-forge/maker-deb": "^7.8.0",
     "@electron-forge/maker-dmg": "^7.8.0",
+    "@electron-forge/maker-pkg": "^7.11.1",
     "@electron-forge/plugin-auto-unpack-natives": "^7.8.0",
     "@electron-forge/plugin-fuses": "^7.8.0",
     "entities": "^6.0.0",
