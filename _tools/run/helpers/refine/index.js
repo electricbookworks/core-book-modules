@@ -16,9 +16,9 @@
 
 const fs = require('fs-extra')
 const fsPath = require('path')
-const { loadSourceFiles, mapIssuesToSource } = require('./mapToSource.js')
+const { loadSourceFiles, mapIssuesToSource, findBestMatch } = require('./mapToSource.js')
 const { applyClasses } = require('./applyClasses.js')
-const { injectRefineScript, removeRefineScript } = require('./injectScript.js')
+const { injectRefineScript, removeRefineScript, injectHighlightScript, removeHighlightScript, injectHighlightStyles, removeHighlightStyles } = require('./injectScript.js')
 const { parseManifest } = require('./parseManifest.js')
 const runPrince = require('../lib/runPrince.js')
 const outputFilename = require('../lib/outputFilename.js')
@@ -112,17 +112,24 @@ async function refinePrince (argv) {
 
   // 3. Run Prince using the same pipeline as `eb output`,
   //    with extra passes for refinement and a stdout callback
-  //    to capture the structured manifest.
+  //    to capture the structured manifest. Use a detection-specific
+  //    output filename so we don't overwrite the user's real output PDF
+  //    with a detection-pass PDF that has debug highlights.
   console.log('Running Prince with layout detection...')
   let princeOutput = ''
+  const detectionFilename = outputFilename(argv).replace('.pdf', '-detection.pdf')
+  const detectionArgv = Object.assign({}, argv, {
+    outputFilename: detectionFilename
+  })
 
   try {
-    await runPrince(argv, {
-      maxPasses: 8,
+    await runPrince(detectionArgv, {
+      maxPasses: 45,
       onStdout: function (line) {
         princeOutput += line + '\n'
-        if (line.startsWith('REFINE_DEBUG') || line.startsWith('REFINE_CHANGE')) {
-          // Pass debug and change lines through to the console
+        if (line.startsWith('REFINE_DEBUG') ||
+            line.startsWith('REFINE_CHANGE')) {
+          // Pass debug and change lines through
           console.log(line)
         } else if (!line.startsWith('REFINE_')) {
           console.log(line)
@@ -200,9 +207,47 @@ async function refinePrince (argv) {
     console.log('\nRebuilding HTML with refined classes (incremental)...')
     await jekyll(refinedArgv)
     await pdfPipeline(refinedArgv)
+
+    // When --highlight is set, inject CSS that colours applied
+    // tighten/loosen classes, plus the detection script in
+    // highlight-only mode to mark unfixed issues with
+    // .unfixed-refinement-issue. Both are removed after Prince runs.
+    if (argv.highlight) {
+      console.log('Injecting highlight styles and detection script...')
+      injectHighlightStyles(mergedPath)
+      injectHighlightScript(mergedPath)
+    }
+
     console.log('Rendering refined PDF...')
-    await runPrince(refinedArgv)
+    let spacingOutput = ''
+    try {
+      if (argv.highlight) {
+        // Capture stdout to collect REFINE_SPACING lines from
+        // the highlight-only detection script.
+        await runPrince(refinedArgv, {
+          onStdout: function (line) {
+            if (line.startsWith('REFINE_SPACING')) {
+              spacingOutput += line + '\n'
+            } else if (!line.startsWith('REFINE_')) {
+              console.log(line)
+            }
+          }
+        })
+      } else {
+        await runPrince(refinedArgv)
+      }
+    } finally {
+      if (argv.highlight) {
+        removeHighlightStyles(mergedPath)
+        removeHighlightScript(mergedPath)
+      }
+    }
     console.log('Refined PDF saved to _output/' + refinedFilename)
+
+    // Report wide word-spacing lines with source file info.
+    if (argv.highlight && spacingOutput) {
+      reportSpacingIssues(spacingOutput, sourceFiles)
+    }
   }
 
   reportIssues(issues)
@@ -286,6 +331,58 @@ async function refinePdfjs (argv) {
       '\nReview the changes in your source files, then re-render the PDF to check.'
     )
   }
+}
+
+// Parse REFINE_SPACING lines from Prince stdout and print
+// a report of wide word-spacing lines with source file info.
+function reportSpacingIssues (spacingOutput, sourceFiles) {
+  const lines = spacingOutput.split('\n').filter(function (l) {
+    return l.startsWith('REFINE_SPACING|')
+  })
+  if (lines.length === 0) return
+
+  // Parse each line into structured data
+  const spacingIssues = lines.map(function (line) {
+    const parts = {}
+    line.replace('REFINE_SPACING|', '').split('|').forEach(function (segment) {
+      const eq = segment.indexOf('=')
+      if (eq > -1) {
+        parts[segment.substring(0, eq)] = segment.substring(eq + 1)
+      }
+    })
+    return parts
+  })
+
+  // Map fingerprints to source files
+  spacingIssues.forEach(function (issue) {
+    if (issue.fingerprint && sourceFiles) {
+      const match = findBestMatch(issue.text || '', sourceFiles, issue.fingerprint)
+      if (match) {
+        issue.sourceFile = match.file
+        issue.sourceLineNumber = match.lineNumber
+      }
+    }
+  })
+
+  console.log('\n--- Wide word-spacing lines (in refined layout) ---\n')
+  spacingIssues.forEach(function (issue, index) {
+    const num = (index + 1) + '.'
+    const page = 'p.' + (issue.page || '?')
+    const density = issue.density || '?'
+    const linePos = issue.line || '?'
+    const source = issue.sourceFile
+      ? issue.sourceFile + '.md:' + issue.sourceLineNumber
+      : '(unmapped)'
+    const preview = (issue.text || '').substring(0, 70)
+    console.log(
+      num + ' ' + page + ' | ' + source + ' | line ' + linePos +
+      ' | density ' + density +
+      '\n   "' + preview + '..."'
+    )
+  })
+  console.log(
+    '\nTotal: ' + spacingIssues.length + ' line(s) with wide word spacing.\n'
+  )
 }
 
 // Print a summary table of detected issues.

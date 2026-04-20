@@ -22,6 +22,12 @@ Prince.trackBoxes = true
 // Values above 12/1000 em are generally noticeable to readers.
 var MAX_TIGHTEN = 12
 
+// Maximum passes for detection and fixing. The verification
+// sweep uses one additional pass beyond this limit. Each pass
+// fixes one issue per wrapper chain, so budget should allow for
+// the longest wrapper chain's issues plus escalation retries.
+var MAX_FIX_PASSES = 40
+
 // Track how many passes we've done and what we've changed
 var refinePass = 0
 var changesThisPass = 0
@@ -32,6 +38,38 @@ var allChanges = []
 // or give up (undo the fix and skip that issue).
 var lastFixInfo = null
 var skippedElements = []
+
+// Guard against infinite post-sweep loops. Set to true when we
+// resume fixing after a sweep; reset when a fix is applied so
+// another sweep + resume cycle can occur.
+var postSweepStalled = false
+
+// Catalogue of all issues and fragile elements, built on pass 1.
+// Used to evaluate whether a fix is worth applying by checking
+// whether saving/adding a line would create worse problems
+// downstream at fragile paragraph boundaries.
+var catalogue = null
+
+// Whether the final verification sweep has been done.
+var sweepDone = false
+
+// Word-spacing issues found on the first pass.
+// Lines with wide inter-word gaps that suggest
+// manual hyphenation review. Informational only.
+var spacingIssues = []
+
+// Density ratio threshold for flagging wide word-spacing.
+// Each justified line's character density (chars / line width)
+// is compared to its paragraph's average. Lines below this
+// fraction of the average are flagged. 0.90 catches lines
+// with ~10% fewer characters than average — the widest gaps.
+// TODO: consider making this configurable in settings.yml
+// or locales.yml, since languages with longer average word
+// length (e.g. German) may need a different threshold.
+// TODO: for non-justified (ragged-right) text, density
+// comparison isn't useful. Instead, flag lines that end
+// very short (e.g. <= 75% of the measure). Handle later.
+var WIDE_SPACING_DENSITY_RATIO = 0.90
 
 // Is this a recto (right-hand, odd-numbered) page?
 function isRecto (pageNum) {
@@ -160,6 +198,29 @@ function getLastLineWidth (box) {
   return lastLine ? lastLine.w : 0
 }
 
+// Collect all LINE boxes from a box tree into the result array.
+function collectLineBoxes (box, result) {
+  if (box.type === 'LINE') result.push(box)
+  if (box.children) {
+    for (var i = 0; i < box.children.length; i++) {
+      collectLineBoxes(box.children[i], result)
+    }
+  }
+}
+
+// Collect text from a box tree by concatenating the .text
+// property of all TEXT boxes. Returns the line's text content.
+function collectBoxText (box) {
+  var result = ''
+  if (box.type === 'TEXT' && box.text) result += box.text
+  if (box.children) {
+    for (var i = 0; i < box.children.length; i++) {
+      result += collectBoxText(box.children[i])
+    }
+  }
+  return result
+}
+
 // Preferred tighten value: aggressive enough to work on most
 // paragraphs, but visually acceptable. We start here and only
 // go to MAX_TIGHTEN if this doesn't resolve the issue.
@@ -177,6 +238,272 @@ function estimateTighten (lineCount) {
 // a higher preferred value.
 function estimateLoosen (lineCount) {
   return Math.min(10, MAX_TIGHTEN)
+}
+
+// Build a catalogue of all issues and fragile elements from
+// the initial layout. A "fragile" element is one with exactly
+// 2 lines on its first or last page — one line of shift would
+// create a new lone-line issue.
+//
+// For each fragile, we also check whether there's a plausible
+// fix candidate nearby (a paragraph that could be tightened to
+// resolve the potential issue). Fragiles with candidates are
+// lower risk because the new issue can likely be fixed.
+function buildCatalogue (paragraphInfos) {
+  var cat = { issues: [], fragiles: [] }
+  var LOOKBACK_PAGES = 4
+  var CHARS_PER_LINE = 60
+  var TIGHTEN_CHARS_PER_STEP = 5
+
+  for (var i = 0; i < paragraphInfos.length; i++) {
+    var info = paragraphInfos[i]
+    var el = info.element
+    var totalLines = info.totalLines
+    if (totalLines < 2) continue
+    if (info.pageNums.length <= 1) continue
+
+    // --- Check first page for issues and fragiles ---
+    var firstPageBoxes = info.byPage[info.pageNums[0]]
+    var firstPageLines = 0
+    for (var b = 0; b < firstPageBoxes.length; b++) {
+      firstPageLines += countLines(firstPageBoxes[b])
+    }
+
+    if (firstPageLines === 1) {
+      // Current issue: lone-line-bottom
+      var pn = info.firstPage
+      cat.issues.push({
+        index: i, element: el, page: pn,
+        type: 'lone-line-bottom',
+        severity: isRecto(pn) ? 3 : 2,
+        wrapperChain: info.wrapperChain
+      })
+    } else if (firstPageLines === 2) {
+      // Fragile: content shifting DOWN (from loosen) could
+      // push one line to the next page → lone-line-bottom
+      var pn = info.firstPage
+      cat.fragiles.push({
+        index: i, element: el, page: pn,
+        potentialType: 'lone-line-bottom',
+        potentialSeverity: isRecto(pn) ? 3 : 2,
+        trigger: 'loosen',
+        hasCandidate: false,
+        wrapperChain: info.wrapperChain
+      })
+    }
+
+    // --- Check last page for issues and fragiles ---
+    var lastPage = info.lastPage
+    var lastPageBoxes = info.byPage[lastPage]
+    var lastPageLines = 0
+    for (var b = 0; b < lastPageBoxes.length; b++) {
+      lastPageLines += countLines(lastPageBoxes[b])
+    }
+
+    if (lastPageLines === 1) {
+      // Current issue: lone-line-top
+      var isWide = info.lastLineWidth > info.measure * 0.5
+      var sev
+      if (isWide) {
+        sev = isRecto(lastPage) ? 4 : 5
+      } else {
+        sev = isRecto(lastPage) ? 6 : 7
+      }
+      cat.issues.push({
+        index: i, element: el, page: lastPage,
+        type: 'lone-line-top', severity: sev,
+        wrapperChain: info.wrapperChain
+      })
+    } else if (lastPageLines === 2) {
+      // Fragile: content shifting UP (from tighten) could pull
+      // one line back to the previous page → lone-line-top
+      var isWide = info.lastLineWidth > info.measure * 0.5
+      var sev
+      if (isWide) {
+        sev = isRecto(lastPage) ? 4 : 5
+      } else {
+        sev = isRecto(lastPage) ? 6 : 7
+      }
+      cat.fragiles.push({
+        index: i, element: el, page: lastPage,
+        potentialType: 'lone-line-top',
+        potentialSeverity: sev,
+        trigger: 'tighten',
+        hasCandidate: false,
+        wrapperChain: info.wrapperChain
+      })
+    }
+  }
+
+  // For each fragile, check if there's a plausible fix candidate
+  // nearby — a preceding paragraph with enough lines that tightening
+  // could save a line. If so, the fragile is lower risk.
+  for (var f = 0; f < cat.fragiles.length; f++) {
+    var fragile = cat.fragiles[f]
+    var fragIdx = fragile.index
+    for (var j = fragIdx - 1; j >= 0; j--) {
+      var cand = paragraphInfos[j]
+      if (cand.totalLines < 3) continue
+      if (fragile.page - cand.lastPage > LOOKBACK_PAGES) break
+      // Check if tightening this candidate could save a line
+      var tightenN = PREFERRED_TIGHTEN
+      var charsSaved = (tightenN / TIGHTEN_CHARS_PER_STEP) * cand.totalLines
+      var charsInLastLine = (cand.lastLineWidth / cand.measure) * CHARS_PER_LINE
+      if (cand.lastLineWidth > 0 && charsSaved >= charsInLastLine) {
+        fragile.hasCandidate = true
+        break
+      }
+    }
+  }
+
+  return cat
+}
+
+// Analyze word spacing across all paragraphs to identify
+// individual justified lines with unusually wide inter-word
+// gaps. These are candidates for manual hyphenation review
+// and may indicate visible 'white rivers' running down
+// paragraphs.
+//
+// For each justified line (all lines except the last, which
+// is unjustified), we compute character density (chars per
+// point of line width). Since all justified lines share the
+// same width, lines with fewer characters must have wider
+// inter-word gaps. We flag lines whose density falls below
+// WIDE_SPACING_DENSITY_RATIO of the paragraph average.
+//
+// Returns an array of {element, page, densityRatio,
+//   lineText, textPreview}.
+function analyzeWordSpacing (paragraphInfos) {
+  // Minimum characters on a line to consider. Short lines
+  // naturally have lower density and aren't reliable.
+  var MIN_CHARS = 20
+  var results = []
+
+  for (var i = 0; i < paragraphInfos.length; i++) {
+    var info = paragraphInfos[i]
+    var el = info.element
+    var boxes = el.getPrinceBoxes()
+    if (!boxes || boxes.length === 0) continue
+
+    // Collect all LINE boxes for this paragraph
+    var lineBoxes = []
+    for (var b = 0; b < boxes.length; b++) {
+      collectLineBoxes(boxes[b], lineBoxes)
+    }
+
+    // Need at least 3 lines: 2+ justified lines for a
+    // meaningful average, plus the unjustified last line.
+    if (lineBoxes.length < 3) continue
+
+    // Collect per-line data for justified lines (all but last).
+    // Note: Prince strips spaces from TEXT.text in justified
+    // lines, so the text is concatenated without word breaks.
+    // Character count still works for relative density because
+    // all lines are equally affected.
+    var lineData = []
+    var totalDensity = 0
+
+    for (var li = 0; li < lineBoxes.length - 1; li++) {
+      var line = lineBoxes[li]
+      if (line.w <= 0) continue
+
+      var lineText = collectBoxText(line)
+      var chars = lineText.length
+      if (chars < MIN_CHARS) continue
+
+      var density = chars / line.w
+      totalDensity += density
+
+      lineData.push({
+        text: lineText,
+        chars: chars,
+        density: density,
+        pageNum: line.pageNum,
+        lineIndex: li + 1 // 1-based line number within paragraph
+      })
+    }
+
+    // Total lines in the paragraph (including last unjustified line)
+    var paraLineCount = lineBoxes.length
+
+    if (lineData.length < 2) continue
+
+    // Average char density across justified lines
+    var avgDensity = totalDensity / lineData.length
+
+    // Flag lines with density notably below average
+    for (var ld = 0; ld < lineData.length; ld++) {
+      var d = lineData[ld]
+      var ratio = d.density / avgDensity
+
+      if (ratio < WIDE_SPACING_DENSITY_RATIO) {
+        results.push({
+          element: el,
+          page: d.pageNum,
+          densityRatio: ratio,
+          lineText: d.text.substring(0, 80),
+          lineIndex: d.lineIndex,
+          totalLines: paraLineCount,
+          textPreview: (el.textContent || '').substring(0, 80).replace(/\n/g, ' ')
+        })
+      }
+    }
+  }
+
+  return results
+}
+
+// Evaluate whether fixing an issue is worth the cascade risk.
+// A tighten saves a line (content shifts UP), which can create
+// lone-line-top at fragile downstream elements. A loosen adds
+// a line (content shifts DOWN), creating lone-line-bottom risk.
+//
+// We check the NEAREST downstream fragile of the relevant type
+// within a few pages. A single line shift typically creates at
+// most one new issue before being absorbed by paragraph reflow.
+//
+// Returns true if the fix is worth applying, false if the
+// cascade risk outweighs the benefit.
+// issueChain: the wrapper chain of the issue being fixed.
+// Fragiles in other chains are ignored (no cross-chain cascade).
+function shouldFix (issuePage, issueSeverity, fixType, issueChain) {
+  if (!catalogue) return true
+
+  // Find the nearest fragile triggered by this fix type
+  // within the same wrapper chain
+  var nearestFragile = null
+  for (var f = 0; f < catalogue.fragiles.length; f++) {
+    var fragile = catalogue.fragiles[f]
+    // Only fragiles downstream of the issue page
+    if (fragile.page <= issuePage) continue
+    // Only fragiles triggered by this fix type
+    if (fragile.trigger !== fixType) continue
+    // Only fragiles in the same wrapper chain
+    if (fragile.wrapperChain !== issueChain) continue
+    nearestFragile = fragile
+    break
+  }
+
+  if (!nearestFragile) return true
+
+  // Compare 1:1: issue severity vs the fragile's potential severity.
+  // Fragiles with a fix candidate are lower risk (discount by 0.3).
+  var risk = nearestFragile.hasCandidate
+    ? nearestFragile.potentialSeverity * 0.3
+    : nearestFragile.potentialSeverity
+
+  if (risk > 0) {
+    console.log(
+      'REFINE_DEBUG|CASCADE|page=' + issuePage +
+      '|severity=' + issueSeverity +
+      '|risk=' + Math.round(risk * 10) / 10 +
+      '|fragilePage=' + nearestFragile.page +
+      '|fix=' + fixType +
+      '|decision=' + (issueSeverity >= risk ? 'PROCEED' : 'SKIP')
+    )
+  }
+  return issueSeverity >= risk
 }
 
 // Check if an element still has a lone-line-bottom issue
@@ -254,7 +581,7 @@ function getTrackingInfo (element) {
 // (tighten or loosen), escalate to the higher value.
 // If it has a tracking class of a DIFFERENT type, skip
 // (don't replace tighten with loosen or vice versa).
-function addClass (element, className, reason, pageNum, severity) {
+function addClass (element, className, reason, pageNum, severity, issueElement) {
   var existing = getTrackingInfo(element)
 
   if (existing) {
@@ -292,7 +619,8 @@ function addClass (element, className, reason, pageNum, severity) {
     elementTag: element.tagName,
     elementId: element.id || '',
     fingerprint: fp,
-    textPreview: (element.textContent || '').substring(0, 80).replace(/\n/g, ' ')
+    textPreview: (element.textContent || '').substring(0, 80).replace(/\n/g, ' '),
+    issueElement: issueElement || element
   }
   allChanges.push(change)
 
@@ -374,6 +702,43 @@ function detectAndFix () {
     if (!isInsideUnmappable(allParagraphs[f])) {
       candidates.push(allParagraphs[f])
     }
+  }
+
+  // Build wrapper chain map. Each div.wrapper starts a new chain
+  // unless it has the class 'continued', in which case it shares
+  // the chain of the previous wrapper. Fixes cannot cascade across
+  // chain boundaries, so fixes in different chains are safe to
+  // apply in the same pass.
+  var wrappers = document.querySelectorAll('div.wrapper')
+  var chainId = 0
+  for (var wi = 0; wi < wrappers.length; wi++) {
+    var wrapper = wrappers[wi]
+    var cls = wrapper.className || ''
+    // Check if this wrapper continues the previous chain
+    if (wi > 0 && cls.indexOf('continued') >= 0) {
+      wrapper._refineChainId = wrappers[wi - 1]._refineChainId
+    } else {
+      chainId++
+      wrapper._refineChainId = chainId
+    }
+  }
+
+  // Helper: find the wrapper chain ID for an element by walking
+  // up to its nearest div.wrapper ancestor.
+  function getWrapperChain (el) {
+    var node = el
+    while (node && node !== document.body) {
+      if (node._refineChainId) return node._refineChainId
+      if (node.tagName && node.tagName.toLowerCase() === 'div') {
+        var cls = node.className || ''
+        if (cls.indexOf('wrapper') >= 0) {
+          // Wrapper without a chain ID (shouldn't happen, but fallback)
+          return 0
+        }
+      }
+      node = node.parentNode
+    }
+    return 0 // Not inside a wrapper
   }
 
   // Phase 1: Collect layout data for every candidate paragraph.
@@ -479,8 +844,60 @@ function detectAndFix () {
       totalLines: totalLines,
       lastLineWidth: lastLineW,
       measure: measure,
-      byPage: byPage
+      byPage: byPage,
+      wrapperChain: getWrapperChain(el)
     })
+  }
+
+  // --- Build catalogue on first pass ---
+  // Scan all paragraphs to identify issues and fragile elements
+  // before applying fixes. This informs which fixes are worth
+  // applying by predicting cascade effects. Built once, then
+  // the same pass proceeds to apply the first fix.
+  if (!catalogue) {
+    catalogue = buildCatalogue(paragraphInfos)
+    console.log(
+      'REFINE_DEBUG|CATALOGUE|issues=' + catalogue.issues.length +
+      '|fragiles=' + catalogue.fragiles.length
+    )
+    for (var ci = 0; ci < catalogue.issues.length; ci++) {
+      var issue = catalogue.issues[ci]
+      console.log(
+        'REFINE_DEBUG|CATALOGUE_ISSUE|' + issue.type +
+        '|page=' + issue.page + '|severity=' + issue.severity
+      )
+    }
+    for (var cf = 0; cf < catalogue.fragiles.length; cf++) {
+      var frag = catalogue.fragiles[cf]
+      console.log(
+        'REFINE_DEBUG|CATALOGUE_FRAGILE|' + frag.potentialType +
+        '|page=' + frag.page + '|severity=' + frag.potentialSeverity +
+        '|trigger=' + frag.trigger +
+        '|hasCandidate=' + frag.hasCandidate
+      )
+    }
+    // Fall through to detection/fixing below
+  }
+
+  // Analyze word spacing on the first pass. These are
+  // informational findings (not fixes); they identify
+  // paragraphs where justified text has wide inter-word
+  // gaps, suggesting manual hyphenation review.
+  if (refinePass === 1) {
+    spacingIssues = analyzeWordSpacing(paragraphInfos)
+    for (var sp = 0; sp < spacingIssues.length; sp++) {
+      var si = spacingIssues[sp]
+      console.log(
+        'REFINE_SPACING|page=' + si.page +
+        '|density=' + Math.round(si.densityRatio * 100) + '%' +
+        '|line=' + si.lineIndex + '/' + si.totalLines +
+        '|fingerprint=' + computeFingerprint(si.element) +
+        '|text=' + si.textPreview
+      )
+    }
+    console.log(
+      'REFINE_DEBUG|SPACING_TOTAL=' + spacingIssues.length
+    )
   }
 
   // Find the nearest preceding paragraph that can realistically save
@@ -608,12 +1025,95 @@ function detectAndFix () {
     return null
   }
 
-  // Phase 2: Detect all issues and highlight them, then apply ONE
-  // fix (the earliest in reading order). Highlighting adds .highlighter
-  // for visual debugging; the fix applies tighten/loosen to resolve it.
-  // Only one fix per pass ensures Prince re-layouts with fresh data
-  // before we tackle the next issue.
+  // Highlight-only mode: detect issues and add the
+  // .unfixed-refinement-issue class, but do not fix anything.
+  // This mode is activated by setting REFINE_HIGHLIGHT_ONLY = true
+  // before the script runs (injected by the Node orchestrator).
+  if (typeof REFINE_HIGHLIGHT_ONLY !== 'undefined' && REFINE_HIGHLIGHT_ONLY) {
+    for (var h = 0; h < paragraphInfos.length; h++) {
+      var hInfo = paragraphInfos[h]
+      var hEl = hInfo.element
+      var hPageNums = hInfo.pageNums
+      var hTotalLines = hInfo.totalLines
+
+      if (hTotalLines < 2) continue
+
+      // Lone-line-bottom: first line alone at bottom of a page
+      if (hPageNums.length > 1) {
+        var hFirstPageBoxes = hInfo.byPage[hPageNums[0]]
+        var hFirstPageLines = 0
+        for (var hb = 0; hb < hFirstPageBoxes.length; hb++) {
+          hFirstPageLines += countLines(hFirstPageBoxes[hb])
+        }
+        if (hFirstPageLines === 1) {
+          var hClass = hEl.className || ''
+          if (hClass.indexOf('unfixed-refinement-issue') === -1) {
+            hEl.className = hClass ? hClass + ' unfixed-refinement-issue' : 'unfixed-refinement-issue'
+          }
+        }
+      }
+
+      // Lone-line-top: last line alone at top of a page
+      if (hPageNums.length > 1) {
+        var hLastPageBoxes = hInfo.byPage[hInfo.lastPage]
+        var hLastPageLines = 0
+        for (var hb2 = 0; hb2 < hLastPageBoxes.length; hb2++) {
+          hLastPageLines += countLines(hLastPageBoxes[hb2])
+        }
+        if (hLastPageLines === 1) {
+          var hClass2 = hEl.className || ''
+          if (hClass2.indexOf('unfixed-refinement-issue') === -1) {
+            hEl.className = hClass2 ? hClass2 + ' unfixed-refinement-issue' : 'unfixed-refinement-issue'
+          }
+        }
+      }
+
+      // Short last line
+      if (hPageNums.length === 1) {
+        var hLastLineWidth = hInfo.lastLineWidth
+        var hMeasure = hInfo.measure
+        if (hLastLineWidth > 0 && hLastLineWidth < hMeasure * 0.08 && hTotalLines >= 3) {
+          var hClass3 = hEl.className || ''
+          if (hClass3.indexOf('unfixed-refinement-issue') === -1) {
+            hEl.className = hClass3 ? hClass3 + ' unfixed-refinement-issue' : 'unfixed-refinement-issue'
+          }
+        }
+      }
+    }
+    // Word-spacing: log lines with wide word spacing so the
+    // Node orchestrator can report them with source file info.
+    // We don't highlight these in the PDF because the prevalence
+    // of wide spacing would obscure other issue highlights.
+    var hlSpacing = analyzeWordSpacing(paragraphInfos)
+    for (var hs = 0; hs < hlSpacing.length; hs++) {
+      var hsItem = hlSpacing[hs]
+      var hsFp = computeFingerprint(hsItem.element)
+      console.log(
+        'REFINE_SPACING|page=' + hsItem.page +
+        '|density=' + Math.round(hsItem.densityRatio * 100) + '%' +
+        '|line=' + hsItem.lineIndex + '/' + hsItem.totalLines +
+        '|fingerprint=' + hsFp +
+        '|text=' + hsItem.textPreview
+      )
+    }
+
+    // Done — no fixes, no further passes
+    return
+  }
+
+  // Phase 2: Detect all issues and highlight them, then apply
+  // fixes. Fixes in different wrapper chains cannot cascade into
+  // each other, so one fix per wrapper chain per pass is safe.
+  // Nearby fixes within the same chain must wait for a fresh layout.
   var fixApplied = false
+  var fixedChains = {} // wrapper chain IDs that got a fix this pass
+
+  // Helper: check whether a fix can be applied in the given chain.
+  // Allows multiple fixes per pass if they're in different chains.
+  function canFixInChain (chain) {
+    if (!fixApplied) return true
+    return !fixedChains[chain]
+  }
 
   // Verify the fix from the previous pass. If the issue is
   // still present, escalate the fix value. If we can't escalate
@@ -628,33 +1128,77 @@ function detectAndFix () {
     // For short-line, assume resolved (self-tighten is reliable)
 
     if (!issueStillPresent) {
-      console.log('REFINE_DEBUG|RESOLVED|' + lastFixInfo.issueType + '|page=' + lastFixInfo.pageNum)
-      lastFixInfo = null
+      // Regression check: did fixing one issue create an equal-or-worse
+      // issue on the same element? E.g. fixing a lone-line-bottom (sev 1)
+      // can shift the line to the top of the next page, creating a
+      // lone-line-top (sev 2) — a worse outcome.
+      // Severity: lone-line-top = 2, lone-line-bottom = 1.
+      var originalSev = lastFixInfo.issueType === 'lone-line-top' ? 2 : 1
+      var regression = false
+      var regressionType = null
+
+      // Check the issue element for either type of lone-line issue
+      if (checkLoneLineTop(lastFixInfo.issueElement)) {
+        if (2 >= originalSev) {
+          regression = true
+          regressionType = 'lone-line-top'
+        }
+      }
+      if (!regression && checkLoneLineBottom(lastFixInfo.issueElement)) {
+        if (1 >= originalSev) {
+          regression = true
+          regressionType = 'lone-line-bottom'
+        }
+      }
+
+      if (regression) {
+        // Fix traded the issue for a same-or-worse one — undo.
+        // Skip only the original issue type, so the element can
+        // still be detected for the regressed (different) type.
+        skippedElements.push({ el: lastFixInfo.issueElement, type: lastFixInfo.issueType })
+        undoFix(lastFixInfo.fixElement)
+        console.log('REFINE_DEBUG|REGRESSION|' + lastFixInfo.issueType + '->' + regressionType + '|page=' + lastFixInfo.pageNum)
+        lastFixInfo = null
+      } else {
+        console.log('REFINE_DEBUG|RESOLVED|' + lastFixInfo.issueType + '|page=' + lastFixInfo.pageNum)
+        lastFixInfo = null
+      }
     } else {
       // Fix didn't work — jump straight to MAX_TIGHTEN.
       // If already at MAX_TIGHTEN (or close), give up.
       var fixTrack = getTrackingInfo(lastFixInfo.fixElement)
       if (fixTrack && fixTrack.value < MAX_TIGHTEN) {
         var newClass = fixTrack.type + '-' + MAX_TIGHTEN
-        var escalated = addClass(lastFixInfo.fixElement, newClass, lastFixInfo.issueType, lastFixInfo.pageNum, lastFixInfo.severity)
+        var escalated = addClass(lastFixInfo.fixElement, newClass, lastFixInfo.issueType, lastFixInfo.pageNum, lastFixInfo.severity, lastFixInfo.issueElement)
         if (escalated) {
           fixApplied = true
+          fixedChains[getWrapperChain(lastFixInfo.fixElement)] = true
           console.log('REFINE_DEBUG|ESCALATED|' + newClass + '|' + lastFixInfo.issueType + '|page=' + lastFixInfo.pageNum)
           // Keep lastFixInfo — verify again next pass
         } else {
-          skippedElements.push(lastFixInfo.issueElement)
+          skippedElements.push({ el: lastFixInfo.issueElement, type: lastFixInfo.issueType })
           undoFix(lastFixInfo.fixElement)
           console.log('REFINE_DEBUG|GAVE_UP|' + lastFixInfo.issueType + '|page=' + lastFixInfo.pageNum)
           lastFixInfo = null
         }
       } else {
         // Already at MAX_TIGHTEN — give up and undo
-        skippedElements.push(lastFixInfo.issueElement)
+        skippedElements.push({ el: lastFixInfo.issueElement, type: lastFixInfo.issueType })
         undoFix(lastFixInfo.fixElement)
         console.log('REFINE_DEBUG|GAVE_UP|' + lastFixInfo.issueType + '|page=' + lastFixInfo.pageNum)
         lastFixInfo = null
       }
     }
+  }
+
+  // Check if an element+issueType pair has been skipped.
+  // Stored as {el, type} so a skip for one issue type doesn't
+  // block detection of a different type on the same element.
+  function isSkippedFor (element, issueType) {
+    for (var s = 0; s < skippedElements.length; s++) {
+      if (skippedElements[s].el === element && skippedElements[s].type === issueType) return true
+    }
+    return false
   }
 
   for (var i = 0; i < paragraphInfos.length; i++) {
@@ -670,14 +1214,6 @@ function detectAndFix () {
     // findLoosenOpportunity can see (and escalate) them.
     if (hasTrackingClass(el)) continue
 
-    // Skip elements whose issues were previously attempted
-    // and determined to be unresolvable.
-    var isSkipped = false
-    for (var s = 0; s < skippedElements.length; s++) {
-      if (skippedElements[s] === el) { isSkipped = true; break }
-    }
-    if (isSkipped) continue
-
     // --- Lone-line-bottom detection ---
     if (pageNums.length > 1) {
       var firstPageBoxes = info.byPage[pageNums[0]]
@@ -686,7 +1222,7 @@ function detectAndFix () {
         firstPageLines += countLines(firstPageBoxes[b])
       }
 
-      if (firstPageLines === 1) {
+      if (firstPageLines === 1 && !isSkippedFor(el, 'lone-line-bottom')) {
         var pn = info.firstPage
         var severity = isRecto(pn) ? 3 : 2
 
@@ -694,25 +1230,34 @@ function detectAndFix () {
         var existingClass = el.className || ''
         el.className = existingClass ? existingClass + ' highlighter' : 'highlighter'
 
-        // Apply a fix if we haven't already this pass
-        if (!fixApplied) {
+        // Apply a fix if we can (one fix per wrapper chain per pass)
+        var chain = info.wrapperChain
+        if (canFixInChain(chain)) {
           // Strategy 1: Tighten a preceding paragraph
           var tightenTarget = findOpportunity(i, pn)
-          if (tightenTarget) {
+          if (tightenTarget && shouldFix(pn, severity, 'tighten', chain)) {
             var tighten = estimateTighten(tightenTarget.totalLines)
-            addClass(tightenTarget.element, 'tighten-' + tighten, 'lone-line-bottom', pn, severity)
+            addClass(tightenTarget.element, 'tighten-' + tighten, 'lone-line-bottom', pn, severity, el)
             fixApplied = true
-            lastFixInfo = { issueElement: el, issueType: 'lone-line-bottom', fixElement: tightenTarget.element, pageNum: pn, severity: severity }
+            fixedChains[chain] = true
+            // Only track the first fix for pass-by-pass verification.
+            // Fixes in other chains are verified by the sweep.
+            if (!lastFixInfo) {
+              lastFixInfo = { issueElement: el, issueType: 'lone-line-bottom', fixElement: tightenTarget.element, pageNum: pn, severity: severity }
+            }
           }
 
           // Strategy 2: Loosen a preceding paragraph
-          if (!fixApplied) {
+          if (canFixInChain(chain)) {
             var loosenTarget = findLoosenOpportunity(i, pn)
-            if (loosenTarget) {
+            if (loosenTarget && shouldFix(pn, severity, 'loosen', chain)) {
               var loosen = estimateLoosen(loosenTarget.totalLines)
-              addClass(loosenTarget.element, 'loosen-' + loosen, 'lone-line-bottom', pn, severity)
+              addClass(loosenTarget.element, 'loosen-' + loosen, 'lone-line-bottom', pn, severity, el)
               fixApplied = true
-              lastFixInfo = { issueElement: el, issueType: 'lone-line-bottom', fixElement: loosenTarget.element, pageNum: pn, severity: severity }
+              fixedChains[chain] = true
+              if (!lastFixInfo) {
+                lastFixInfo = { issueElement: el, issueType: 'lone-line-bottom', fixElement: loosenTarget.element, pageNum: pn, severity: severity }
+              }
             }
           }
 
@@ -720,16 +1265,19 @@ function detectAndFix () {
           // Especially useful for short paragraphs (2-3 lines)
           // split across a page break — tightening can pull
           // the text onto one page.
-          if (!fixApplied && totalLines <= 4) {
+          if (canFixInChain(chain) && totalLines <= 4 && shouldFix(pn, severity, 'tighten', chain)) {
             var selfTighten = estimateTighten(totalLines)
-            addClass(el, 'tighten-' + selfTighten, 'lone-line-bottom', pn, severity)
+            addClass(el, 'tighten-' + selfTighten, 'lone-line-bottom', pn, severity, el)
             fixApplied = true
-            lastFixInfo = { issueElement: el, issueType: 'lone-line-bottom', fixElement: el, pageNum: pn, severity: severity }
+            fixedChains[chain] = true
+            if (!lastFixInfo) {
+              lastFixInfo = { issueElement: el, issueType: 'lone-line-bottom', fixElement: el, pageNum: pn, severity: severity }
+            }
           }
 
-          if (!fixApplied) {
+          if (canFixInChain(chain)) {
             console.log('REFINE_DEBUG|NO_FIX|lone-line-bottom|page=' + pn + '|lines=' + totalLines + '|text=' + (el.textContent || '').substring(0, 50))
-            skippedElements.push(el)
+            skippedElements.push({ el: el, type: 'lone-line-bottom' })
           }
         }
       }
@@ -744,7 +1292,7 @@ function detectAndFix () {
         lastPageLines += countLines(lastPageBoxes[b])
       }
 
-      if (lastPageLines === 1) {
+      if (lastPageLines === 1 && !isSkippedFor(el, 'lone-line-top')) {
         var isWide = info.lastLineWidth > info.measure * 0.5
         var severity
         if (isWide) {
@@ -759,14 +1307,25 @@ function detectAndFix () {
           el.className = existingClass ? existingClass + ' highlighter' : 'highlighter'
         }
 
-        // Apply a fix if we haven't already this pass
-        if (!fixApplied) {
-          var opportunity = findOpportunity(i, lastPage)
-          var target = opportunity || info
-          var tighten = estimateTighten(target.totalLines)
-          addClass(target.element, 'tighten-' + tighten, 'lone-line-top', lastPage, severity)
-          fixApplied = true
-          lastFixInfo = { issueElement: el, issueType: 'lone-line-top', fixElement: target.element, pageNum: lastPage, severity: severity }
+        // Apply a fix if we can (one fix per wrapper chain per pass)
+        var chain = info.wrapperChain
+        if (canFixInChain(chain)) {
+          if (shouldFix(lastPage, severity, 'tighten', chain)) {
+            var opportunity = findOpportunity(i, lastPage)
+            var target = opportunity || info
+            var tighten = estimateTighten(target.totalLines)
+            addClass(target.element, 'tighten-' + tighten, 'lone-line-top', lastPage, severity, el)
+            fixApplied = true
+            fixedChains[chain] = true
+            if (!lastFixInfo) {
+              lastFixInfo = { issueElement: el, issueType: 'lone-line-top', fixElement: target.element, pageNum: lastPage, severity: severity }
+            }
+          } else {
+            console.log('REFINE_DEBUG|NO_FIX|lone-line-top|page=' + lastPage + '|lines=' + totalLines + '|reason=cascade-blocked|text=' + (el.textContent || '').substring(0, 50))
+            skippedElements.push({ el: el, type: 'lone-line-top' })
+          }
+        } else {
+          console.log('REFINE_DEBUG|DEFERRED|lone-line-top|page=' + lastPage + '|severity=' + severity + '|text=' + (el.textContent || '').substring(0, 50))
         }
       }
     }
@@ -775,29 +1334,111 @@ function detectAndFix () {
     if (pageNums.length === 1) {
       var lastLineWidth = info.lastLineWidth
       var measure = info.measure
-      if (lastLineWidth > 0 && lastLineWidth < measure * 0.08 && totalLines >= 3) {
+      if (lastLineWidth > 0 && lastLineWidth < measure * 0.08 && totalLines >= 3 && !isSkippedFor(el, 'short-line')) {
         // Highlight
         var existingClass = el.className || ''
         el.className = existingClass ? existingClass + ' highlighter' : 'highlighter'
 
-        // Apply a fix if we haven't already this pass
-        if (!fixApplied) {
+        // Apply a fix if we can (one fix per wrapper chain per pass)
+        var chain = info.wrapperChain
+        if (canFixInChain(chain) && shouldFix(pageNums[0], 1, 'tighten', chain)) {
           var tighten = estimateTighten(totalLines)
-          addClass(el, 'tighten-' + tighten, 'short-line', pageNums[0], 1)
+          addClass(el, 'tighten-' + tighten, 'short-line', pageNums[0], 1, el)
           fixApplied = true
-          lastFixInfo = { issueElement: el, issueType: 'short-line', fixElement: el, pageNum: pageNums[0], severity: 1 }
+          fixedChains[chain] = true
+          if (!lastFixInfo) {
+            lastFixInfo = { issueElement: el, issueType: 'short-line', fixElement: el, pageNum: pageNums[0], severity: 1 }
+          }
         }
       }
     }
   }
 
-  // If we applied a fix, register for another pass to re-evaluate
-  // with fresh layout data. The next pass will re-detect all issues
-  // (some may have been resolved, others may have been created) and
-  // fix the next earliest one.
-  if (fixApplied) {
-    console.log('REFINE_PASS:' + refinePass + ':CHANGES:' + changesThisPass)
+  // If we applied a fix and haven't hit the pass budget, register
+  // for another pass. Reserve the last passes for the sweep.
+  if (fixApplied && refinePass < MAX_FIX_PASSES) {
+    // A new fix was applied, so allow another post-sweep resume
+    // cycle if needed later.
+    postSweepStalled = false
+    console.log('REFINE_DEBUG|PASS_CONTINUE|pass=' + refinePass + '|changes=' + changesThisPass)
     Prince.registerPostLayoutFunc(detectAndFix)
+    return
+  }
+
+  console.log('REFINE_DEBUG|PASS_END|pass=' + refinePass + '|fixApplied=' + fixApplied + '|sweepDone=' + sweepDone + '|allChanges=' + allChanges.length + '|postSweepStalled=' + postSweepStalled)
+
+  // --- Verification sweep ---
+  // No new fix was applied. Before finishing, verify that every
+  // tracked element's issue is actually resolved in the current
+  // layout. Fixes verified during earlier passes may no longer
+  // hold because later fixes shifted the layout. Undo any that
+  // have regressed so the final PDF and markdown stay consistent.
+  if (!sweepDone && allChanges.length > 0) {
+    sweepDone = true
+    var undone = 0
+
+    console.log('REFINE_DEBUG|SWEEP_START|tracked=' + allChanges.length)
+
+    // Iterate backwards since undoFix splices from allChanges
+    for (var v = allChanges.length - 1; v >= 0; v--) {
+      var change = allChanges[v]
+      var issueEl = change.issueElement
+      if (!issueEl) continue
+
+      // Find the fix element by matching fingerprint
+      var fixEl = null
+      for (var si = 0; si < paragraphInfos.length; si++) {
+        if (computeFingerprint(paragraphInfos[si].element) === change.fingerprint) {
+          fixEl = paragraphInfos[si].element
+          break
+        }
+      }
+      if (!fixEl) continue
+      if (!hasTrackingClass(fixEl)) continue
+
+      // Check if the original issue is still present on the
+      // issue element in the current layout
+      var reason = change.reason
+      var issuePresent = false
+      if (reason === 'lone-line-bottom') {
+        issuePresent = checkLoneLineBottom(issueEl)
+      } else if (reason === 'lone-line-top') {
+        issuePresent = checkLoneLineTop(issueEl)
+      }
+      // short-line self-fixes: assume still valid
+
+      if (issuePresent) {
+        console.log('REFINE_DEBUG|SWEEP_UNDO|' + change.className + '|' + reason + '|page=' + change.pageNum)
+        undoFix(fixEl)
+        undone++
+      } else {
+        console.log('REFINE_DEBUG|SWEEP_OK|' + change.className + '|' + reason + '|page=' + change.pageNum)
+      }
+    }
+
+    console.log('REFINE_DEBUG|SWEEP_END|undone=' + undone + '|remaining=' + allChanges.length)
+
+    if (undone > 0) {
+      // Layout changed from undos — give one more pass for things
+      // to settle, then resume fixing if budget remains.
+      Prince.registerPostLayoutFunc(detectAndFix)
+      return
+    }
+  }
+
+  // After the sweep has settled (or was not needed), check if
+  // there are still unaddressed issues and pass budget remaining.
+  // This lets issues that were always behind fixApplied=true
+  // (like later-page lone-line-tops) finally get their turn.
+  // We only resume if a sweep just ran and found no regressions,
+  // so this cannot loop infinitely — the pass budget is the guard.
+  // The postSweepStalled flag prevents wasting passes when no
+  // new fix can be found after resuming.
+  if (sweepDone && !fixApplied && !postSweepStalled && refinePass < MAX_FIX_PASSES) {
+    sweepDone = false
+    postSweepStalled = true
+    Prince.registerPostLayoutFunc(detectAndFix)
+    return
   }
 }
 
@@ -840,7 +1481,7 @@ Prince.addEventListener('complete', function () {
     )
   }
   console.log('REFINE_MANIFEST_END')
-  console.log('REFINE_SUMMARY:passes=' + refinePass + ',changes=' + finalChanges.length + ',skipped=' + skippedElements.length)
+  console.log('REFINE_SUMMARY:passes=' + refinePass + ',changes=' + finalChanges.length + ',skipped=' + skippedElements.length + ',spacing=' + spacingIssues.length)
 }, false)
 
 // Register the first post-layout detection pass.

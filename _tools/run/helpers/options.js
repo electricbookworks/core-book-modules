@@ -194,6 +194,13 @@ const options = {
     default: false,
     defaultDescription: 'false',
     type: 'boolean'
+  },
+  highlight: {
+    description: 'Add colour highlights to the refined PDF showing fixes and unfixed issues',
+    alias: 'hl',
+    default: false,
+    defaultDescription: 'false',
+    type: 'boolean'
   }
 }
 
