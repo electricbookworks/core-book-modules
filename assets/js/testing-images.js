@@ -81,7 +81,7 @@ function ebTestingImages () {
       // like ebInjectSVGs() can safely run.
       imageCounter += 1
       if (images.length === imageCounter) {
-        if (settings.output === 'web' || settings.output === 'app') {
+        if (process.env.output === 'web' || process.env.output === 'app') {
           ebLazyLoad()
         }
         document.body.setAttribute('data-testing-images', 'loaded')

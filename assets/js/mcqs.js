@@ -457,7 +457,7 @@ function ebMCQsButtonClicks () {
 
       // now send it all to WordPress
       // if this is a website or an app
-      if (settings.output === 'web' || settings.output === 'app') {
+      if (process.env.output === 'web' || process.env.output === 'app') {
         const quizNumber = mcqsToCheckName.replace('question-', '')
         ebMCQsSendtoWordPress(quizNumber, score)
       }
@@ -473,7 +473,7 @@ export default function ebMCQs () {
 
   // add the WordPress account button
   // if this is a website
-  if (settings.output === 'web') {
+  if (process.env.output === 'web') {
     ebMCQsAddWordPressAccountButton()
   }
 
