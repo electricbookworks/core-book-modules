@@ -611,7 +611,7 @@ function ebLoadAccordion () {
 
 function ebCheckAccordionReady () {
   return (document.body.getAttribute('data-accordion-active') !== 'true' &&
-  (document.body.getAttribute('data-index-targets') !== null || settings.dynamicIndexing === false) &&
+  (document.body.getAttribute('data-index-targets') !== null || settings['dynamic-indexing'] === false) &&
   document.body.getAttribute('data-ids-assigned') !== null &&
   document.body.getAttribute('data-search-results') !== null)
 }

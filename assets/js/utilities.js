@@ -307,7 +307,7 @@ function ebReplaceCanonicalURL (anchor) {
 // If we've got a live build on a non-production server, use the staging images
 // on CloudFront rather than the production ones
 function ebReplaceRemoteImageURL () {
-  if (settings?.remoteMedia?.cloudFrontLive && settings?.remoteMedia?.cloudFrontStaging) {
+  if (settings?.['remote-media']?.cloudFrontLive && settings?.['remote-media']?.cloudFrontStaging) {
     const allImages = document.querySelectorAll('img')
     allImages.forEach(function (image) {
     // Replace the live CloudFront subdomain with the staging CloudFront subdomain
@@ -316,8 +316,8 @@ function ebReplaceRemoteImageURL () {
       attrs.forEach(function (attr) {
         if (image.getAttribute(attr)) {
           image.setAttribute(attr, image.getAttribute(attr).replaceAll(
-            settings.remoteMedia.cloudFrontLive,
-            settings.remoteMedia.cloudFrontStaging
+            settings['remote-media'].cloudFrontLive,
+            settings['remote-media'].cloudFrontStaging
           ))
         }
       })

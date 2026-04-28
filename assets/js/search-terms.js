@@ -230,7 +230,7 @@ function ebMarkSearchTermsOnPage () {
 function ebReadyForSearchTerms () {
   return (
     (document.body.getAttribute('data-index-targets') !== null ||
-      settings.dynamicIndexing === false) &&
+      settings['dynamic-indexing'] === false) &&
      document.body.getAttribute('data-ids-assigned') &&
      document.body.getAttribute('data-mathjax-rendered')
   )
