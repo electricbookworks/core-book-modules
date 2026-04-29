@@ -448,9 +448,7 @@ This section captures the proven workflow and learnings from completed refactors
   "author": "Arthur Attwell",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@electricbookworks/electric-book-modules": "github:electricbookworks/electric-book-modules#v1.3.4",
-    "anchor-js": "^4.2.0",
-    "holmes.js": "^1.17.3",
+    "@electricbookworks/electric-book-modules": "github:electricbookworks/electric-book-modules#v1.5.0",
     "standard": "^17.1.2"
   },
   "cordova": { ... },
