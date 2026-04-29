@@ -139,7 +139,7 @@ function ebVideoShow (video) {
     // console.log('iframe:');
     // console.log(iframe);
 
-    videoWrapper.addEventListener('click', function (ev) {
+    videoWrapper && videoWrapper.addEventListener('click', function (ev) {
       videoWrapper.classList.add('contains-iframe')
       ev.preventDefault()
       // replace the link with the generated iframe
