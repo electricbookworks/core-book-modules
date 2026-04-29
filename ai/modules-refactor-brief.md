@@ -168,15 +168,15 @@ EBM provides (43 files): `accordion.js`, `active-variant.js`, `add-login-button.
 
 #### Category B — Significantly diverged (import from `./custom/`)
 
-TE2 treats these as diverged — they exist in EBM but the CORE version is different enough to warrant a custom override. Check each repo to see if these apply:
+These exist in EBM but the repo's version is different enough to warrant a custom override. **The custom version must come from the repo being refactored**, not from another repo. Compare the repo's file against EBM's version — if there are functional differences beyond ES module/style conversion, the repo's own version goes into `custom/` after converting it to an ES module with `export default`.
 
-`accordion.js`, `baseline-grid.js`, `expandable-box.js`, `footnotes.js`, `lazyload.js`, `mcqs.js`, `page-reference.js`, `share.js`, `svg-management.js`, `videos.js`
+In TE2 these are diverged: `accordion.js`, `baseline-grid.js`, `expandable-box.js`, `footnotes.js`, `lazyload.js`, `mcqs.js`, `page-reference.js`, `share.js`, `svg-management.js`, `videos.js`. **Other repos will have different divergence patterns** — always compare against EBM per-file.
 
-#### Category C — CORE custom (import from `./custom/`)
+#### Category C — Repo-specific custom (import from `./custom/`)
 
-These are CORE-project-specific and don't exist in EBM:
+These don't exist in EBM. **The source is always the repo being refactored.** Convert each to an ES module with `export default` and place in `custom/`.
 
-`accessible-headings.js`, `analytics.js`, `anchor.js`, `bump.js`, `citations.js`, `components.js`, `cookie-banner.js`, `dark-mode.js`, `definitions.js`, `endnotes-core-pdf.js`, `epub-definitions.js`, `epub-mcqs.js`, `figure-advancer.js`, `footer-notice.js`, `footnotes-core-pdf.js`, `footnotes-hidden-pdf.js`, `fullscreen-images.js`, `holmes-filter.js`, `landing-page.js`, `language-select.js`, `mark-siblings.js`, `migrate-storage.js`, `move-below-footnotes.js`, `new-tab.js`, `notifications.js`, `owid-iframes.js`, `pdf-slides.js`, `progress-bar.js`, `sidenotes.js`, `students.js`, `transcripts.js`, `wordpress-user-profile.js`
+For CORE projects, common repo-specific files include: `accessible-headings.js`, `analytics.js`, `anchor.js`, `bump.js`, `citations.js`, `components.js`, `cookie-banner.js`, `dark-mode.js`, `definitions.js`, `endnotes-core-pdf.js`, `epub-definitions.js`, `epub-mcqs.js`, `figure-advancer.js`, `footer-notice.js`, `footnotes-core-pdf.js`, `footnotes-hidden-pdf.js`, `fullscreen-images.js`, `holmes-filter.js`, `landing-page.js`, `language-select.js`, `mark-siblings.js`, `migrate-storage.js`, `move-below-footnotes.js`, `new-tab.js`, `notifications.js`, `owid-iframes.js`, `pdf-slides.js`, `progress-bar.js`, `sidenotes.js`, `students.js`, `transcripts.js`, `wordpress-user-profile.js`. **Each repo may have a different subset.**
 
 #### Category D — Replaced by webpack infrastructure (delete)
 
@@ -209,6 +209,7 @@ Pre-modular repos may have elaborate search and bookmark systems that are not us
 ### 1. Create branch
 
 ```
+git checkout master
 git checkout -b eb-modules
 ```
 
@@ -237,9 +238,14 @@ git checkout -b eb-modules
 
 ### 5. Create `assets/js/custom/`
 
-- Move diverged and project-specific JS files into `assets/js/custom/`
-- Ensure each file uses ES module `export default` syntax
+- **Source: the repo being refactored, NOT another repo like TE2.** Each file in `custom/` must be derived from this repo's own `assets/js/` version.
+- For each JS file in the repo's `assets/js/`, compare against EBM's `assets/js/` version:
+  - If identical or only ES module/style differences → import from EBM (no custom file needed)
+  - If functionally diverged from EBM → convert the REPO'S OWN version to ES module format, place in `custom/`
+  - If not in EBM → convert the REPO'S OWN version to ES module format, place in `custom/`
+- Conversion to ES module means: wrap logic in `export default function ebFunctionName () { ... }`, remove `'use strict'`, remove direct invocation, replace `typeof defined !== 'undefined' && defined.Prince` with `process.env.output` checks
 - Update any internal references between custom files
+- TE2's `custom/` can be used as a REFERENCE for the ES module conversion pattern, but the functional logic must come from the target repo
 
 ### 6. Move index files
 
@@ -306,7 +312,7 @@ This section captures the proven workflow and learnings from completed refactors
 
 5. **Create `_tools-custom/`** — Write the custom override files. Use TE2's `_tools-custom/` as the reference for CORE projects (epub transformations and features command are shared).
 
-6. **Copy TE2's `custom/` directory** — For CORE projects, `cp -R core-the-economy-2/assets/js/custom TARGET/assets/js/custom`. Then add any repo-specific custom files (e.g. CI2's `tables.js` with responsive positioning).
+6. **Create `custom/` from the repo's own files** — For each JS file in the repo's `assets/js/`, compare it against EBM's version. If diverged or not in EBM, convert the REPO'S OWN version to ES module format and place in `assets/js/custom/`. Use TE2's `custom/` only as a reference for the ES module conversion pattern (export default, process.env checks), NOT as the source of the actual file content.
 
 7. **Create `main.js`** — Use TE2's `main.js` as template. Adjust for repo-specific includes by cross-referencing with the old `bundle.js`.
 
@@ -334,7 +340,7 @@ This section captures the proven workflow and learnings from completed refactors
 
 - **MINOR DIFF files don't need custom overrides** — Files that differ only in `'use strict'` markers, direct invocation vs `export default`, or `typeof Prince` vs `process.env.output` checks are handled by EBM's versions. The webpack/ES module system handles these patterns.
 
-- **DIVERGED files go to `custom/`** — Files with substantive logic differences (different selectors, extra features, different APIs) must be in `custom/`. For CORE projects, TE2's `custom/` directory is the authoritative source.
+- **DIVERGED files go to `custom/`** — Files with substantive logic differences (different selectors, extra features, different APIs) must be in `custom/`. **Always use the repo's own version as the source**, converted to ES module format. Do NOT copy from TE2 or another repo — each repo's diverged files may have different functional logic. TE2's `custom/` can be used as a reference for the ES module conversion pattern only.
 
 - **Search and bookmark systems are obsolete** — Pre-modular repos may have elaborate search files (`search-index-*.js`, `elasticlunr-setup.js`, `search-store.js`, etc.) and bookmark sync. All repos adopt EBM's approach: `search-index.js`, `search-results.js`, `search-terms.js` for search; `bookmarks-legacy.js` for bookmarks. Delete all legacy search/bookmark files.
 
