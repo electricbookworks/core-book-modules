@@ -295,7 +295,14 @@ git checkout -b eb-modules
 - Before: `<script data-script-name="bundle" src="{{ path-to-root-directory }}assets/js/bundle.js"> </script>`
 - After: `<script data-script-name="main" src="{{ path-to-root-directory }}assets/js/dist/main.dist.js"> </script>`
 
-### 9. Update `_data/settings.yml`
+### 9. Update `_includes/epub-package.html`
+
+- The OPF manifest template references `assets/js/bundle.js` for epub JS. Update it to reference the webpack dist output.
+- Before: `href="assets/js/bundle.js"`
+- After: `href="assets/js/dist/main.dist.js"`
+- This fixes two epubcheck errors: RSC-001 ("bundle.js not found") and RSC-008 ("main.dist.js not declared in the OPF manifest").
+
+### 10. Update `_data/settings.yml`
 
 - Restructure flat settings to nested objects to match `process.env.settings` property paths used in `main.js` AND in EBM's own JS files (bookmarks, nav, etc.)
 - Key changes: `accordion` (flat boolean + sibling keys → nested object with `enabled`, `level`, `auto-close`), `bookmarks` (flat boolean → nested object with `enabled`, `synchronise`, `note-max-length`, `elements: { include, exclude }`)
@@ -303,7 +310,7 @@ git checkout -b eb-modules
 - Use TE2's `_data/settings.yml` as the reference for correct structure
 - **Critical**: also grep EBM source JS (`node_modules/@electricbookworks/electric-book-modules/assets/js/`) for `process.env.settings` and `settings.` to find ALL required paths — not just the repo's own code
 
-### 10. Clean up
+### 11. Clean up
 
 - Delete `assets/js/bundle.js`
 - Delete `assets/js/config.js`, `settings.js`, `metadata.js`
@@ -312,7 +319,7 @@ git checkout -b eb-modules
 - Delete `_tools/update/` (if present)
 - Delete `deploy.sh` and `test.sh` from the project root (these are replaced by EBM's `run.js` commands)
 
-### 11. Update config file JS exclusions
+### 12. Update config file JS exclusions
 
 - In `_config.yml` and each format config (`_configs/_config.app.yml`, `_config.epub.yml`, `_config.print-pdf.yml`, `_config.screen-pdf.yml`), replace the long list of individual `/assets/js/*.js` excludes with a single directory exclusion:
   ```yaml
@@ -323,7 +330,7 @@ git checkout -b eb-modules
 - Also ensure `vendor` and `_webpack` are in the `_config.yml` exclude list (they should already be there from the original template).
 - Use TE2's config files as the reference for the correct pattern.
 
-### 12. Sync table bleed styles from TE2
+### 13. Sync table bleed styles from TE2
 
 - Update these files to match TE2:
   - `_sass/theme/partials/_web-tables.scss`
@@ -333,7 +340,7 @@ git checkout -b eb-modules
 
 If you are unable to match this files, skip this step but flag it.
 
-### 13. Install and test
+### 14. Install and test
 
 ```
 npm install
@@ -395,6 +402,8 @@ This section captures the proven workflow and learnings from completed refactors
 - **Index files must move to `_indexes/`** — Pre-modular repos keep `book-index-*.js` and `search-index-*.js` in `assets/js/`. The webpack `BookIndexFilesPlugin` expects book indexes at `_indexes/book-index-${output}` in the project root. Search index files should also move to `_indexes/` — although the internal search UI is not used, other tools (e.g. `build-features-list.js`) may still read from them.
 
 - **`_includes/close-body.html` must reference the dist file** — The old template loads `assets/js/bundle.js`. Update it to load `assets/js/dist/main.dist.js` and remove the separate `search-engine.js` / `search-notifications.js` script includes (search is now bundled by webpack).
+
+- **`_includes/epub-package.html` must reference the dist file** — The OPF manifest template declares `assets/js/bundle.js` as the epub's JS entry. Update it to `assets/js/dist/main.dist.js`. Without this, epubcheck reports RSC-001 (bundle.js not found) and RSC-008 (main.dist.js not declared in manifest).
 
 - **Script ordering matters in `main.js`** — Preserve the same order as `bundle.js`. In particular: `ebSetup()` first in the web/app block, `ebSvgManagement()` before `ebLazyLoad()`, `ebCookieBanner()` and `ebAnchor()` in the web-only block.
 
