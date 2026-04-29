@@ -78,7 +78,9 @@
     "webpack-cli": "^6.0.1",
     "which": "^2.0.2",
     "yaml-loader": "^0.8.1",
-    "yargs": "^17.5.1"
+    "yargs": "^17.5.1",
+    "anchor-js": "^4.2.0",
+    "holmes.js": "^1.17.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.11",
