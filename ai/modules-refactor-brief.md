@@ -229,7 +229,7 @@ git checkout -b eb-modules
 
 ### 4. Create `assets/js/main.js`
 
-- Use TE2's `main.js` as a template
+- Use TE2's `main.js` as a guide on how to refactor bundle.js
 - Map each `{% include_relative ... %}` from `bundle.js` to the appropriate import:
   - EBM scripts → `import from '@electricbookworks/electric-book-modules/assets/js/...'`
   - Custom scripts → `import from './custom/...'`
@@ -287,7 +287,18 @@ git checkout -b eb-modules
 - Delete `assets/js/index-loader.js`, `search-engine.js`, `bundle-check.js`
 - Delete `_tools/update/` (if present)
 
-### 10. Install and test
+### 10. Update config file JS exclusions
+
+- In `_config.yml` and each format config (`_configs/_config.app.yml`, `_config.epub.yml`, `_config.print-pdf.yml`, `_config.screen-pdf.yml`), replace the long list of individual `/assets/js/*.js` excludes with a single directory exclusion:
+  ```yaml
+  # Included in main.js, so not needed in build
+  - /assets/js/custom
+  ```
+- The old pattern listed every JS file individually (e.g. `- /assets/js/accordion.js`, `- assets/js/vendor/mark.min.js`, etc.) — sometimes 30–70 lines. This is replaced by one line because all custom JS now lives in `assets/js/custom/` and gets bundled by webpack into `dist/main.dist.js`.
+- Also ensure `vendor` and `_webpack` are in the `_config.yml` exclude list (they should already be there from the original template).
+- Use TE2's config files as the reference for the correct pattern.
+
+### 11. Install and test
 
 ```
 npm install
