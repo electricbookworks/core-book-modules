@@ -323,18 +323,15 @@ git checkout -b eb-modules
 - Also ensure `vendor` and `_webpack` are in the `_config.yml` exclude list (they should already be there from the original template).
 - Use TE2's config files as the reference for the correct pattern.
 
-### 12. Sync table bleed styles to TE2
+### 12. Sync table bleed styles from TE2
 
-- Copy these files from the refactored repo to TE2:
+- Update these files to match TE2:
   - `_sass/theme/partials/_web-tables.scss`
   - `_sass/theme/partials/_web-mcqs.scss`
   - `_sass/theme/partials/_epub-mcqs.scss`
-- In TE2's `_sass/theme/web-variables.scss`, add at the end:
-  ```scss
-  // TABLES
-  $table-max-width: $max-width-default !default;
-  $table-max-width-wider: $table-max-width * 1.3 !default;
-  ```
+  - The variables for `// TABLES` only in `_sass/theme/web-variables.scss`
+
+If you are unable to match this files, skip this step but flag it.
 
 ### 13. Install and test
 
