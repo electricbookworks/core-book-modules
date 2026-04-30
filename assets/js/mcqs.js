@@ -1,7 +1,6 @@
 /* global XMLHttpRequest */
 
 import { locales, pageLanguage } from './locales'
-const settings = process.env.settings
 
 // -----------------------------
 // Options
@@ -330,6 +329,10 @@ function ebMCQsWordPressUserId () {
 function ebMCQsAddWordPressAccountButton () {
   // get #nav
   const theNav = document.querySelector('#nav')
+
+  if (!theNav) {
+    return
+  }
 
   // get the element in the nav that we'll insert before
   const insertBeforeTarget = theNav.querySelector('h2')
