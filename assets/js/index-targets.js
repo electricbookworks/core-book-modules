@@ -224,6 +224,15 @@ function ebIndexProcessComments (comments) {
     // Add an attribute to flag that we're done.
     if (commentCounter === comments.length) {
       document.body.setAttribute('data-index-targets', 'loaded')
+
+      // If the URL hash matches a newly added index target, scroll to it.
+      const hash = window.location.hash
+      if (hash) {
+        const targetElement = document.getElementById(hash.slice(1))
+        if (targetElement && targetElement.classList.contains('index-target')) {
+          targetElement.scrollIntoView()
+        }
+      }
     }
   })
 }
