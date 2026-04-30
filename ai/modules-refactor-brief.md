@@ -12,7 +12,7 @@ Each repo gets an `eb-modules` branch for the refactor. Work one repo at a time;
 
 ### The module (`electric-book-modules`)
 
-- **npm package**: `@electricbookworks/electric-book-modules` (v1.3.4)
+- **npm package**: `@electricbookworks/electric-book-modules` (v1.5.1)
 - **Provides**: `_tools/`, `_webpack/`, and `assets/js/` (canonical front-end scripts)
 - **postinstall script** (`install.js`) runs automatically on `npm install` and:
   1. Empties and copies `_tools/` and `_webpack/` from EBM into the consuming project root
