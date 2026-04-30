@@ -216,7 +216,7 @@ git checkout -b eb-modules
 ### 2. Update `package.json`
 
 - Set proper `name` and `version`
-- Add EBM as devDependency: `"@electricbookworks/electric-book-modules": "github:electricbookworks/electric-book-modules#v1.3.4"`
+- Add EBM as devDependency: `"@electricbookworks/electric-book-modules": "github:electricbookworks/electric-book-modules#v1.5.1"`
 - Remove raw tool dependencies already provided by EBM
 - Keep project-specific dependencies (e.g. `anchor-js`, `holmes.js`)
 - Add scripts: `postyalc`, `update-modules`
@@ -448,7 +448,7 @@ This section captures the proven workflow and learnings from completed refactors
   "author": "Arthur Attwell",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@electricbookworks/electric-book-modules": "github:electricbookworks/electric-book-modules#v1.5.0",
+    "@electricbookworks/electric-book-modules": "github:electricbookworks/electric-book-modules#v1.5.1",
     "standard": "^17.1.2"
   },
   "cordova": { ... },
