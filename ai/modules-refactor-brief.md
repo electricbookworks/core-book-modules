@@ -340,7 +340,50 @@ git checkout -b eb-modules
 
 If you are unable to match this files, skip this step but flag it.
 
-### 14. Install and test
+### 14. Update `netlify.toml`
+
+- Replace the repo's `netlify.toml` with the following canonical configuration:
+
+  ```toml
+  # See https://docs.netlify.com/configure-builds/file-based-configuration/
+
+  [build]
+    # We add 'npm rebuild' or 'npm run postinstall' to ensure the tools are created
+    command = "npm install && npm rebuild && npm run eb -- output --baseurl='' --dontserve=true"
+    publish = "_site"
+
+  [build.environment]
+    NODE_VERSION = "22"
+    # This forces npm to prioritize a clean state
+    NPM_FLAGS = "--no-audit --no-fund"
+
+  [context.production.environment]
+
+    # We set NODE_ENV to development so that
+    # Netlify will install devDependencies in package.json.
+    NODE_ENV = "development"
+
+  [context.deploy-preview.environment]
+    NODE_ENV = "development"
+
+  [context.branch-deploy.environment]
+    NODE_ENV = "development"
+
+  [build.processing.html]
+
+    # Prevents Netlify from eliding the .html on page URLs,
+    # which we need when users copy the URL for use elsewhere
+    # (e.g. for cross references during digitisation).
+    pretty_urls = false
+  ```
+
+- The key changes from old configs:
+  - Build command now uses `npm run eb -- output` instead of legacy gulp/Jekyll commands
+  - `npm rebuild` ensures EBM's postinstall runs and `_tools/` is populated
+  - `NODE_ENV = "development"` in all contexts so Netlify installs devDependencies (EBM is a devDependency)
+  - Node version set to 22
+
+### 15. Install and test
 
 ```
 npm install
