@@ -1,4 +1,4 @@
-import { ebReplaceCanonicalURL } from '@electricbookworks/electric-book-modules/assets/js/utilities'
+import { ebReplaceCanonicalURL } from './utilities'
 
 const userDetailUrl = '/api/session/'
 const params = {
