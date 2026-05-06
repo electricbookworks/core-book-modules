@@ -2,6 +2,7 @@ import AnchorJS from 'anchor-js'
 import { locales, pageLanguage } from './locales'
 
 export default function ebAnchor () {
+  if (!locales[pageLanguage]?.links?.['anchor-link']) return
   const anchors = new AnchorJS()
   anchors.options = {
     placement: 'right', // 'left' disappears outside viewport

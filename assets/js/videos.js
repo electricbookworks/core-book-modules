@@ -1,4 +1,6 @@
-/* global IntersectionObserver */
+/* globals YT */
+
+import { ebTrackYoutubeVideoPlay, ebTrackVideoOptionClicks } from './analytics.js'
 
 function ebVideoInit () {
   return navigator.userAgent.indexOf('Opera Mini') === -1 &&
@@ -6,12 +8,13 @@ function ebVideoInit () {
             !!Array.prototype.forEach &&
             document.body.classList &&
             document.addEventListener &&
-            document.querySelectorAll('.video')
+            document.querySelectorAll('.videowrapper')
 }
 
 const ebVideoHosts = {
-  youtube: 'https://www.youtube.com/embed/',
-  vimeo: 'https://player.vimeo.com/video/'
+  youtube: 'https://www.youtube-nocookie.com/embed/',
+  vimeo: 'https://player.vimeo.com/video/',
+  bilibili: 'https://player.bilibili.com/player.html?bvid='
 }
 
 function ebGetVideoHost (videoElement) {
@@ -19,7 +22,7 @@ function ebGetVideoHost (videoElement) {
   const classes = videoElement.classList
 
   classes.forEach(function (currentClass) {
-    if (Object.prototype.hasOwnProperty.call(ebVideoHosts, currentClass)) {
+    if (Object.keys(ebVideoHosts).includes(currentClass)) {
       videoHost = currentClass
     }
   })
@@ -40,6 +43,11 @@ function ebVideoLanguage (videoElement) {
   return language
 }
 
+function ebVideoGetTitle (videoElement) {
+  const videoTitle = videoElement.getAttribute('data-title')
+  return videoTitle
+}
+
 function ebVideoTimestamp (videoElement) {
   if (videoElement.getAttribute('data-video-timestamp')) {
     const timestamp = videoElement.getAttribute('data-video-timestamp')
@@ -47,12 +55,18 @@ function ebVideoTimestamp (videoElement) {
   }
 }
 
-function ebVideoMakeIframe (host, videoId, videoLanguage, videoSubtitles, videoTimestamp) {
+function ebVideoConstructURL (host, videoLanguage, videoSubtitles, videoTimestamp, videoId) {
   // Get which video host, e.g. YouTube or Vimeo
   const hostURL = ebVideoHosts[host]
 
-  // Set parameters, starting with autoplay on
-  let parametersString = '?autoplay=1'
+  let parametersString
+
+  if (host === 'bilibili') {
+    parametersString = '&page=1&autoplay=0'
+  } else {
+    // Set parameters, starting with autoplay off
+    parametersString = '?autoplay=0'
+  }
 
   // Add a language, if any
   if (videoLanguage) {
@@ -76,136 +90,216 @@ function ebVideoMakeIframe (host, videoId, videoLanguage, videoSubtitles, videoT
     if (host === 'vimeo') {
       parametersString += '#t=' + videoTimestamp
     }
+    if (host === 'bilibili') {
+      parametersString += '&t=' + videoTimestamp
+    }
   }
 
+  const videoURL = hostURL + videoId + parametersString
+
+  return videoURL
+}
+
+function ebVideoMakeIframe (videoElement, videoTitle, videoURL) {
   const iframe = document.createElement('iframe')
   iframe.setAttribute('frameborder', 0)
   iframe.setAttribute('allowfullscreen', '')
-  iframe.setAttribute('src', hostURL + videoId + parametersString)
+  iframe.setAttribute('src', videoURL)
+  iframe.setAttribute('title', videoTitle)
+
+  videoElement.removeAttribute('data-title')
 
   return iframe
 }
 
+// function onYouTubeIframeAPIReady () {
+// This is called by the youtube iframe API
+// and initiates the YT object
+// }
+
+function ebVideoUseTheYoutubeIFrameAPI (videoId, videoLanguage, videoSubtitles,
+  videoTitle, videoTimestamp, currentVideo) {
+  function onPlayerStateChange (event) {
+    const playerStatus = event.data
+    // Watch for the video to start playing
+    if (playerStatus === 1) {
+      // call the tracking function from analytics.js
+      ebTrackYoutubeVideoPlay(currentVideo)
+    }
+  }
+
+  let player
+  YT.ready(function () {
+    player = new YT.Player(videoId, {
+      videoId,
+      playerVars: {
+        cc_lang_pref: videoLanguage,
+        cc_load_policy: videoSubtitles,
+        start: videoTimestamp,
+        enablejsapi: 1
+      },
+      events: {
+        onStateChange: onPlayerStateChange.bind(currentVideo)
+      }
+    })
+
+    // Add a useful title for accessibility
+    const iframe = player.getIframe()
+    iframe.setAttribute('title', videoTitle)
+  })
+}
+
 // Only show video options on button click
-function videoOptionsDropdown (video) {
+function ebVideoOptionsDropdown (video) {
   const videoOptions = video.querySelector('.video-options')
   if (videoOptions) {
     const button = videoOptions.querySelector('button')
+    const arrowUp = button.querySelector('.arrow-up')
+    const arrowDown = button.querySelector('.arrow-down')
     const options = videoOptions.querySelector('.video-options-content')
-
-    // Unless this listener has already been added,
-    // listen for clicks on the video-options button.
-    if (!options.classList.contains('js-video-options-content')) {
-      options.classList.add('js-video-options-content')
-      button.addEventListener('click', function (event) {
+    options.classList.add('js-video-options-content')
+    button.addEventListener('click', function () {
+      options.classList.toggle('js-video-options-content-visible')
+      arrowUp.classList.toggle('visuallyhidden')
+      arrowDown.classList.toggle('visuallyhidden')
+    })
+    button.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        event.preventDefault()
         options.classList.toggle('js-video-options-content-visible')
-      })
+        arrowUp.classList.toggle('visuallyhidden')
+        arrowDown.classList.toggle('visuallyhidden')
+      }
+    })
+    // Close the dropdown when you press Escape
+    videoOptions.addEventListener('keydown', function (event) {
+      if (options.classList.contains('js-video-options-content-visible') &&
+                event.key === 'Escape') {
+        options.classList.remove('js-video-options-content-visible')
+        arrowUp.classList.remove('visuallyhidden')
+        arrowDown.classList.add('visuallyhidden')
+        button.focus()
+      }
+    })
+
+    // Call the tracking function from analytics.js
+    if (process.env.output === 'web') {
+      ebTrackVideoOptionClicks(video)
     }
   }
 }
 
-function ebVideoShow (video) {
+// Add Google Structured Data script to videos
+function ebVideoStructuredData (videoElement, videoTitle, videoURL, videoID, videoHost) {
+  const scriptElement = document.createElement('script')
+  scriptElement.setAttribute('type', 'application/ld+json')
+
+  // For upload date, we don't have permission to use the YouTube Data API to
+  // get the actual upload date of the video, so we substitue the web date from
+  // default.yml, which can be accessed as the meta esdate from the HTML head
+  let uploadDate = document.head.querySelector('meta[property="esdate"]')?.content ?? new Date().toISOString()
+  uploadDate = uploadDate.replace(' ', 'T') + '+00:00'
+
+  const videoDescription = videoElement.querySelector('.video-description').innerText
+
+  const videoResourceType = videoElement.getAttribute('data-resource-type')
+    ? videoElement.getAttribute('data-resource-type')
+    : 'Concept Overview'
+
+  const videoEducationLevel = videoElement.getAttribute('data-education-level')
+    ? videoElement.getAttribute('data-education-level')
+    : 'Beginner'
+
+  // Construct the JSON object for a learning video
+  // https://developers.google.com/search/docs/appearance/structured-data/learning-video
+  const jsonObject = {}
+  jsonObject['@context'] = 'https://schema.org'
+  jsonObject['@type'] = ['VideoObject', 'LearningResource']
+  jsonObject.name = videoTitle
+  jsonObject.description = videoDescription
+  jsonObject.learningResourceType = videoResourceType
+  jsonObject.educationalLevel = videoEducationLevel
+  jsonObject.embedUrl = videoURL
+  jsonObject.uploadDate = uploadDate
+
+  if (videoHost === 'youtube') {
+    jsonObject.thumbnailUrl = [`https://img.youtube.com/vi/${videoID}/0.jpg`]
+  } else if (videoHost === 'vimeo') {
+    jsonObject.thumbnailUrl = [`https://i.vimeocdn.com/video/${videoID}.webp`]
+  } else {
+    const videoImage = videoElement.querySelector('.video-link img')?.src
+    if (videoImage) {
+      jsonObject.thumbnailUrl = [videoImage]
+    }
+  }
+
+  scriptElement.innerText = JSON.stringify(jsonObject)
+
+  return scriptElement
+}
+
+// ebVideoShow is called from accordions.js,
+// when a section is opened, for the videos in that section.
+function ebVideoShow (section) {
   // early exit for unsupported browsers
   if (!ebVideoInit()) {
-    console.log('Video JS not supported in this browser.')
     return
   }
 
-  // Create the list of videos, either from the supplied video
-  // or from all the videos on the page.
   let videos = []
-  if (video) {
-    videos.push(video)
+  if (section) {
+    videos = section.querySelectorAll('.video')
   } else {
     videos = document.querySelectorAll('.video')
   }
 
   videos.forEach(function (currentVideo) {
-    // make the iframe
-    const videoHost = ebGetVideoHost(currentVideo)
-    const videoId = currentVideo.id
-    const videoLanguage = ebVideoLanguage(currentVideo)
-    const videoSubtitles = ebVideoSubtitles(currentVideo)
-    const videoTimestamp = ebVideoTimestamp(currentVideo)
-    const videoWrapper = currentVideo.querySelector('.video-wrapper')
-    const iframe = ebVideoMakeIframe(videoHost, videoId, videoLanguage, videoSubtitles, videoTimestamp)
+    // first check whether it is necessary to run the video builder
+    if (!currentVideo.classList.contains('video-embedded')) {
+      const videoHost = ebGetVideoHost(currentVideo)
+      const videoId = currentVideo.getAttribute('data-video-id')
+      const videoLanguage = ebVideoLanguage(currentVideo)
+      const videoSubtitles = ebVideoSubtitles(currentVideo)
+      const videoTitle = ebVideoGetTitle(currentVideo)
+      const videoTimestamp = ebVideoTimestamp(currentVideo)
 
-    // console.log('currentVideo: ' + currentVideo);
-    // console.log('videoHost: ' + videoHost);
-    // console.log('currentVideo ID: ' + videoId);
-    // console.log('videoLanguage: ' + videoLanguage);
-    // console.log('videoSubtitles: ' + videoSubtitles);
-    // console.log('videoTimestamp: ' + videoTimestamp);
-    // console.log('iframe:');
-    // console.log(iframe);
+      const videowrapper = currentVideo.querySelector('.video-wrapper')
+      currentVideo.classList.add('video-embedded')
 
-    videoWrapper && videoWrapper.addEventListener('click', function (ev) {
-      videoWrapper.classList.add('contains-iframe')
-      ev.preventDefault()
-      // replace the link with the generated iframe
-      videoWrapper.innerHTML = ''
-      videoWrapper.appendChild(iframe)
-    }, { once: true })
+      // Remove unnecessary anchor element
+      if (videowrapper.querySelector('a')) {
+        videowrapper.removeChild(videowrapper.querySelector('a'))
+      }
 
-    // Scriptify the options dropdown
-    videoOptionsDropdown(currentVideo)
+      const videoURL = ebVideoConstructURL(videoHost, videoLanguage, videoSubtitles, videoTimestamp, videoId)
+
+      if (videoHost === 'youtube' && process.env.output === 'web') {
+        // Use the youtube iframe api for youtube videos
+        // There is a holder div with id=videoId that will be replaced
+        // with an iframe by the API
+        ebVideoUseTheYoutubeIFrameAPI(
+          videoId, videoLanguage, videoSubtitles, videoTitle, videoTimestamp, currentVideo
+        )
+      } else {
+        const iframe = ebVideoMakeIframe(currentVideo, videoTitle, videoURL)
+        videowrapper.appendChild(iframe)
+      }
+
+      // Scriptify the options dropdown
+      ebVideoOptionsDropdown(currentVideo)
+
+      if (process.env.output === 'web') {
+        // Add the script for Google Structured Data
+        const scriptEl = ebVideoStructuredData(currentVideo, videoTitle, videoURL, videoId, videoHost)
+
+        videowrapper.insertAdjacentElement('afterbegin', scriptEl)
+      }
+    }
   })
 }
 
-// Sometimes the accordion script won't trigger ebVideoShow,
-// so we listen for the video on the page as a fallback.
-function ebVideoWatch () {
-  // console.log('Watching for videos...');
-
-  // Create an array and then populate it with images.
-  let videos = []
-  videos = document.querySelectorAll('.video')
-
-  // If IntersectionObserver is supported,
-  // create a new one that will use it on all the videos.
-  if (Object.prototype.hasOwnProperty.call(window, 'IntersectionObserver')) {
-    const ebVideoObserverConfig = {
-      rootMargin: '200px' // load when it's 200px from the viewport
-    }
-
-    const videoObserver = new IntersectionObserver(function
-    (entries, videoObserver) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          // console.log('Found video:');
-          // console.log(entry.target);
-
-          const video = entry.target
-
-          // Show the video iframe
-          ebVideoShow(video)
-
-          // Stop observing the image once loaded
-          videoObserver.unobserve(video)
-        }
-      })
-    }, ebVideoObserverConfig)
-
-    // Observe each image
-    videos.forEach(function (video) {
-      videoObserver.observe(video)
-    })
-  } else {
-    // If the browser doesn't support IntersectionObserver,
-    // just load all the videos.
-    videos.forEach(function (video) {
-      ebVideoShow(video)
-    })
-  }
-}
-
-function ebVideos () {
+export default function ebVideos () {
   ebVideoShow()
-  ebVideoWatch()
 }
 
-export default ebVideos
-
-export {
-  ebVideoShow
-}
+export { ebVideoShow }

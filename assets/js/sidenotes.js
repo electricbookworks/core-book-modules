@@ -104,7 +104,7 @@ function ebShiftSidenote (sidenote, sibling, screenWidthNarrow, screenWidthWide)
     const sidenotePlaceholder = document.createElement('div')
     sidenotePlaceholder.id = sidenote.getAttribute('data-fingerprint')
     sidenote.insertAdjacentElement('afterend', sidenotePlaceholder)
-    sibling.insertAdjacentElement('afterend', sidenote)
+    sibling && sibling.insertAdjacentElement('afterend', sidenote)
   }
 }
 
