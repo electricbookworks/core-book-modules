@@ -4,7 +4,7 @@ import { ebReplaceCanonicalURL } from './utilities'
 import { ebGetWPUserSession } from './wordpress-user-profile'
 
 export default function ebLoginPrompts () {
-// Change the content of the notification close button label
+  // Change the content of the notification close button label
   function ebChangeCloseButton () {
     const closeButtons = document.querySelectorAll('.notification.login-prompt label')
 
@@ -29,7 +29,7 @@ export default function ebLoginPrompts () {
       ebReplaceCanonicalURL(loginButton)
     }
 
-    if (!userSession && (process.env.settings.web['login-prompts'] === true)) {
+    if (!userSession) {
       if (sidebarLoginPrompt && document.body.classList.contains('home')) {
         sidebarLoginPrompt.classList.remove('visuallyhidden')
       }
@@ -121,7 +121,7 @@ export default function ebLoginPrompts () {
   }
 
   function ebWaitForAccordion () {
-  // Need to wait for the accordion to load, before we manipulating the sections
+    // Need to wait for the accordion to load, before we manipulating the sections
 
     const accordionWaiter = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {

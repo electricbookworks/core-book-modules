@@ -59,12 +59,14 @@ import ebTranscripts from '../transcripts'
 import ebVideos from '../videos'
 import ebWordPressUserProfile from '../wordpress-user-profile'
 
-console.log('Config:', process.env.config)
-console.log('Settings:', process.env.settings)
+// console.log('Config:', process.env.config)
+// console.log('Settings:', process.env.settings)
 // console.log('Works:', process.env.works)
 // console.log('Output:', process.env.output)
 // console.log('Build:', process.env.build)
 // console.log('Files:', process.env.files)
+
+const outputSettings = process.env.settings[process.env.output] || {}
 
 ebMarkParents()
 
@@ -79,8 +81,10 @@ if (process.env.output === 'web' || process.env.output === 'app') {
 // Prioritise these for web
 if (process.env.output === 'web') {
   ebSessionConditional()
-  ebLoginPrompts()
-  if (process.env.settings.web['wordpress-user-profile'] === true) {
+  if (outputSettings['login-prompts'] === true) {
+    ebLoginPrompts()
+  }
+  if (outputSettings['wordpress-user-profile'] === true) {
     ebWordPressUserProfile()
   }
   ebAnchor()
@@ -119,11 +123,11 @@ if (process.env.output === 'web' || process.env.output === 'app') {
   */
   ebCitations()
 
-  if (process.env.settings?.web?.images?.fullscreen === true) {
+  if (outputSettings.images?.fullscreen === true) {
     ebFullscreenImages()
   }
 
-  if (process.env.settings.web.svg.inject === true) {
+  if (outputSettings.svg?.inject === true) {
     // This currently does nothing for lazy-loaded images, because there is no src attribute for SVGInject to work with.
     // So it is not clear why this is called before lazy loading - re "Load after svg management" below.
     // Additionally, the lazy loading script simply calls SVGInject again, but without any of the customisations in svg-management.
@@ -135,17 +139,17 @@ if (process.env.output === 'web' || process.env.output === 'app') {
   ebLazyLoad()
 }
 
-const webDevAnnotation = process.env.output === 'web' && process.env.build !== 'live' && process.env.settings.web.annotator.development === true
-const webLiveAnnotation = process.env.output === 'web' && process.env.build === 'live' && process.env.settings.web.annotator.live === true
-if (webDevAnnotation || webLiveAnnotation) {
+const devAnnotation = process.env.build !== 'live' && outputSettings.annotator?.development === true
+const liveAnnotation = process.env.build === 'live' && outputSettings.annotator?.live === true
+if (devAnnotation || liveAnnotation) {
   ebAnnotation()
 }
 
-if (process.env.settings[process.env.output]?.accordion?.enabled === true) {
+if (outputSettings.accordion?.enabled === true) {
   ebAccordion()
 }
 
-if (process.env.settings[process.env.output]?.bookmarks?.enabled === true) {
+if (outputSettings.bookmarks?.enabled === true) {
   ebBookmarks()
   process.env.build === 'live' && ebMigrateStorage()
 }
