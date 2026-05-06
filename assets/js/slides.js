@@ -192,16 +192,16 @@ const ebSlidesShow = function (slidelines) {
   }
 
   slidelines.forEach(function (slideline) {
+    const element = document.querySelector(sanitisedTargetHash)
+    const figure = element.closest('div.figure')
     // check if hash is in this slideline
-    if (!slideline.querySelector(sanitisedTargetHash)) {
+    if (!element || !figure || !figure.getAttribute('id') || !slideline.querySelector(sanitisedTargetHash)) {
       ebSlidesShowFirstInSlideline(slideline)
       return
     } else if (!slideline.querySelector('.nav-slides [href="' + sanitisedTargetHash + '"]')) {
       // The hash might belong to a figure caption or title within the slideline
       // Look for the nearest parent figure div and use its hash to open up the slide
-      const element = document.querySelector(sanitisedTargetHash)
-      const ancestor = element.closest('div.figure')
-      sanitisedTargetHash = '#' + ancestor.getAttribute('id')
+      sanitisedTargetHash = '#' + figure.getAttribute('id')
     }
 
     // show the target slideline
