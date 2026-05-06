@@ -42,3 +42,7 @@ export default async function ebWordPressUserProfile () {
     profile.querySelector('.buttons').classList.remove('visuallyhidden')
   }
 }
+
+export {
+  ebGetWPUserSession
+}

@@ -28,6 +28,7 @@ import ebIndexTargetsInit from '../index-targets'
 import ebLandingPage from '../landing-page'
 import ebLanguageSelect from '../language-select'
 import ebLazyLoad from '../lazyload'
+import ebLoginPrompts from '../login-prompts'
 import ebMarkParents from '../mark-parents'
 import ebMarkSiblings from '../mark-siblings'
 import ebMCQs from '../mcqs'
@@ -58,8 +59,8 @@ import ebTranscripts from '../transcripts'
 import ebVideos from '../videos'
 import ebWordPressUserProfile from '../wordpress-user-profile'
 
-// console.log('Config:', process.env.config)
-// console.log('Settings:', process.env.settings)
+console.log('Config:', process.env.config)
+console.log('Settings:', process.env.settings)
 // console.log('Works:', process.env.works)
 // console.log('Output:', process.env.output)
 // console.log('Build:', process.env.build)
@@ -71,12 +72,21 @@ if (process.env.settings.redact === true) {
   ebRedact()
 }
 
+if (process.env.output === 'web' || process.env.output === 'app') {
+  ebSetup()
+}
+
+// Prioritise these for web
 if (process.env.output === 'web') {
   ebSessionConditional()
+  ebLoginPrompts()
+  if (process.env.settings.web['wordpress-user-profile'] === true) {
+    ebWordPressUserProfile()
+  }
+  ebAnchor()
 }
 
 if (process.env.output === 'web' || process.env.output === 'app') {
-  ebSetup()
   ebNav()
   ebVideos()
   ebMCQs()
@@ -123,17 +133,6 @@ if (process.env.output === 'web' || process.env.output === 'app') {
 
   // Load after svg management
   ebLazyLoad()
-}
-
-if (process.env.output === 'web') {
-  if (process.env.settings.web['wordpress-user-profile'] === true) {
-    ebWordPressUserProfile()
-  }
-  ebCookieBanner()
-  ebAnchor()
-
-  // Add analytics tracking after all elements have loaded
-  ebAnalytics()
 }
 
 const webDevAnnotation = process.env.output === 'web' && process.env.build !== 'live' && process.env.settings.web.annotator.development === true
@@ -244,4 +243,11 @@ if (process.env.output === 'epub') {
   ebShowHide()
   ebTables()
   ebEpubMCQs()
+}
+
+if (process.env.output === 'web') {
+  // low priority scripts for web output
+  ebCookieBanner()
+  // Add analytics tracking after all elements have loaded
+  ebAnalytics()
 }
