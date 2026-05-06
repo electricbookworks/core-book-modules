@@ -1,7 +1,7 @@
 /* global localStorage */
 
-import { locales, pageLanguage } from '@electricbookworks/electric-book-modules/assets/js/locales.js'
-import { ebInIframe } from '@electricbookworks/electric-book-modules/assets/js/utilities.js'
+import { locales, pageLanguage } from './locales.js'
+import { ebInIframe } from './utilities.js'
 
 // There are two reasons why we might interact with this script:
 

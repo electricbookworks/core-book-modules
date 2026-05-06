@@ -1,6 +1,6 @@
 /* global requestAnimationFrame */
 
-import { locales, pageLanguage } from '@electricbookworks/electric-book-modules/assets/js/locales'
+import { locales, pageLanguage } from './locales'
 import holmes from 'holmes.js'
 
 // This file allows us to use holmes to filter data lists

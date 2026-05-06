@@ -1,5 +1,5 @@
 import AnchorJS from 'anchor-js'
-import { locales, pageLanguage } from '@electricbookworks/electric-book-modules/assets/js/locales'
+import { locales, pageLanguage } from './locales'
 
 export default function ebAnchor () {
   const anchors = new AnchorJS()

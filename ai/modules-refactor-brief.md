@@ -142,7 +142,7 @@ Pre-modular repos may have `_tools/update/` (with `files.txt` and `update.sh`) f
 ### How the new system works
 
 `main.js` is a standard ES module entry point. Each script is imported:
-- From EBM: `import foo from '@electricbookworks/electric-book-modules/assets/js/foo'`
+- From EBM: `import foo from './foo'`
 - From custom: `import bar from './custom/bar'`
 
 Webpack (config from EBM's `_webpack/`) bundles everything to `assets/js/dist/main.dist.js`. Five custom plugins handle config injection:
@@ -216,7 +216,7 @@ git checkout -b eb-modules
 ### 2. Update `package.json`
 
 - Set proper `name` and `version`
-- Add EBM as devDependency: `"@electricbookworks/electric-book-modules": "github:electricbookworks/electric-book-modules#v1.5.1"`
+- Add EBM as devDependency: `"@electricbookworks/electric-book-modules": "github:electricbookworks/electric-book-modules#v1.5.8"`
 - Remove raw tool dependencies already provided by EBM
 - Keep project-specific dependencies (e.g. `anchor-js`, `holmes.js`)
 - Add scripts: `postyalc`, `update-modules`
@@ -255,7 +255,7 @@ git checkout -b eb-modules
 
 - Use TE2's `main.js` as a guide on how to refactor bundle.js
 - Map each `{% include_relative ... %}` from `bundle.js` to the appropriate import:
-  - EBM scripts → `import from '@electricbookworks/electric-book-modules/assets/js/...'`
+  - EBM scripts → `import from './...'`
   - Custom scripts → `import from './custom/...'`
 - Preserve the same conditional execution logic, translated from Liquid to `process.env.*` checks
 - Preserve script ordering (it matters)
@@ -308,7 +308,7 @@ git checkout -b eb-modules
 - Key changes: `accordion` (flat boolean + sibling keys → nested object with `enabled`, `level`, `auto-close`), `bookmarks` (flat boolean → nested object with `enabled`, `synchronise`, `note-max-length`, `elements: { include, exclude }`)
 - Applies to both `web:` and `app:` sections
 - Use TE2's `_data/settings.yml` as the reference for correct structure
-- **Critical**: also grep EBM source JS (`node_modules/@electricbookworks/electric-book-modules/assets/js/`) for `process.env.settings` and `settings.` to find ALL required paths — not just the repo's own code
+- **Critical**: also grep EBM source JS (`node_modules/./`) for `process.env.settings` and `settings.` to find ALL required paths — not just the repo's own code
 
 ### 11. Clean up
 
@@ -491,7 +491,7 @@ This section captures the proven workflow and learnings from completed refactors
   "author": "Arthur Attwell",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@electricbookworks/electric-book-modules": "github:electricbookworks/electric-book-modules#v1.5.1",
+    "@electricbookworks/electric-book-modules": "github:electricbookworks/electric-book-modules#v1.5.8",
     "standard": "^17.1.2"
   },
   "cordova": { ... },
@@ -583,13 +583,3 @@ remote-media:
   development: ''
   live: ''
 ```
-
-### Bugs fixed in EBM v1.3.5
-
-These were present in v1.3.4 and earlier. All caused property lookups on `undefined` (safe but inert):
-
-| Bug | Files | Fix |
-|---|---|---|
-| `settings.dynamicIndexing` (camelCase vs kebab-case) | `accordion.js`, `search-terms.js` | → `settings['dynamic-indexing']` |
-| `settings.output` (not in settings.yml) | `mcqs.js` (×2), `testing-images.js` | → `process.env.output` |
-| `settings.remoteMedia` (camelCase vs kebab-case) | `utilities.js` (×3) | → `settings['remote-media']` |
