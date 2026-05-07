@@ -12,11 +12,11 @@ function ebShareButtons () {
   if (shareButtons && shareModal) {
     shareButtons.forEach(function (button) {
       button.addEventListener('click', function () {
-        shareModal.classList.toggle('visuallyhidden')
+        shareModal.classList.toggle('share-hidden')
         const buttonIcon = document.querySelector('.share-button svg')
         buttonIcon.classList.toggle('active')
 
-        if (shareModal.classList.contains('visuallyhidden')) {
+        if (shareModal.classList.contains('share-hidden')) {
           shareModal.setAttribute('aria-hidden', 'true')
         } else {
           shareModal.setAttribute('aria-hidden', 'false')
