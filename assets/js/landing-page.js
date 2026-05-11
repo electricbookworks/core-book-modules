@@ -62,6 +62,9 @@ NAV BEHAVIOUR ON THE LANDING PAGE
 */
 
 function ebLandingPageNavLinks (navElement) {
+  if (!navElement) {
+    return
+  }
   const navLinks = navElement.querySelectorAll('a')
   navLinks.forEach(function (link) {
     link.addEventListener('click', function () {
@@ -74,8 +77,10 @@ function ebLandingPageNavLinks (navElement) {
 }
 
 function ebLandingPageNavToggleAccess (navElement) {
+  if (!navElement) {
+    return
+  }
   // Nav elements that are not visible should not be keyboard accessible
-
   const navItems = navElement.querySelectorAll('input.search-box, a')
   if (navElement.classList.contains('invisible')) {
     navItems.forEach(function (item) {
@@ -89,6 +94,9 @@ function ebLandingPageNavToggleAccess (navElement) {
 }
 
 function ebLandingPageNavKeyboardAccess (navButton, navElement) {
+  if (!navButton || !navElement) {
+    return
+  }
   const navButtonSVG = navButton.querySelector('svg')
   const navButtonStyles = window.getComputedStyle(navButtonSVG)
 
@@ -134,7 +142,9 @@ function ebLandingPageNav () {
   if (document.querySelector('.landing-page')) {
     const navButton = document.querySelector('button.masthead-menu')
     const navElement = document.getElementById('landing-page-nav')
-    ebLandingPageNavKeyboardAccess(navButton, navElement)
+    if (navButton && navElement) {
+      ebLandingPageNavKeyboardAccess(navButton, navElement)
+    }
   }
 }
 
@@ -146,7 +156,9 @@ function ebLandingPageLanguageSwitcher () {
   // Check whether we're on the landing page
   if (document.querySelector('.landing-page') && document.querySelector('select#translations')) {
     const languageSelector = document.querySelector('select#translations')
-
+    if (!languageSelector) {
+      return
+    }
     // Add an event listener
     languageSelector.addEventListener('input', function () {
       const selectedOption = languageSelector.options[languageSelector.selectedIndex]
@@ -156,7 +168,7 @@ function ebLandingPageLanguageSwitcher () {
       const origin = new URL(window.location.href).origin
       const destination = origin + newPath
 
-      // Reassigning window.location.href naviagtes to that new href
+      // Reassigning window.location.href navigates to that new href
       window.location.href = destination
     })
   }
