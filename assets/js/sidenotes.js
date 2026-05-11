@@ -124,7 +124,7 @@ function ebSidenoteConverterProcess () {
     // they would be floated on wider screens, preserving sensible reading order
 
     // We use the fingerprint to distinguish individual sidenotes, as they don't
-    // received ids
+    // receive ids
     const sidenoteFP = sidenote.getAttribute('data-fingerprint')
 
     // We want to move the sidenote below the next _visible_ sibling, rather than
@@ -139,6 +139,11 @@ function ebSidenoteConverterProcess () {
       [data-fingerprint="${sidenoteFP}"] ~ h5,
       [data-fingerprint="${sidenoteFP}"] ~ dl:not(.definition)
     `)
+
+    // If there is no nextVisibleSibling, don't move this sidenote.
+    if (!nextVisibleSibling) {
+      return
+    }
 
     // 640px = 40em = $break-point-m for regular sidenotes
     // 1280px = 80em = $break-point-xl for sidenotes in expandable boxes
