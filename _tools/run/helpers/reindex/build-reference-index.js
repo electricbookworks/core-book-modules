@@ -158,7 +158,7 @@ async function buildReferenceIndex (outputFormat, filesData) {
 
     // If we've got all the pages, close the Puppeteer browser.
     if (count === filesData.length) {
-      browser.close()
+      await browser.close()
     }
   }
 
