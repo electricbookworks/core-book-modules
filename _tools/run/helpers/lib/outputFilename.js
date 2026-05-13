@@ -1,3 +1,5 @@
+const variantSettings = require('../settings/variantSettings.js')
+
 // Returns a filename for the output file
 function outputFilename (argv) {
   let filename
@@ -7,10 +9,17 @@ function outputFilename (argv) {
   }
 
   if (argv.language) {
-    filename = argv.book + '-' + argv.language + '-' + argv.format + fileExtension
+    filename = argv.book + '-' + argv.language + '-' + argv.format
   } else {
-    filename = argv.book + '-' + argv.format + fileExtension
+    filename = argv.book + '-' + argv.format
   }
+
+  const variant = variantSettings(argv)
+  if (variant.active) {
+    filename += '--' + variant.active
+  }
+
+  filename += fileExtension
 
   return filename
 }
