@@ -5,7 +5,6 @@ const yargs = require('yargs')
 const WorksDataPlugin = require('./plugins/works-data-plugin')
 const YamlEnvPlugin = require('./plugins/yaml-env-plugin')
 const BookIndexFilesPlugin = require('./plugins/book-index-files-plugin')
-const FilesPlugin = require('./plugins/files-plugin')
 const ConfigMergePlugin = require('./plugins/config-merge-plugin')
 const mode = yargs.argv.mode || 'development'
 const ebBuild = process.env.build || 'development'
@@ -18,6 +17,9 @@ module.exports = {
     main: path.resolve(process.cwd(), 'assets/js/main.js'),
     ...(isWebAppOutput && fs.existsSync(path.resolve(process.cwd(), 'assets/js/search.js')) && {
       search: path.resolve(process.cwd(), 'assets/js/search.js')
+    }),
+    ...(isWebAppOutput && fs.existsSync(path.resolve(process.cwd(), 'assets/js/indexing.js')) && {
+      indexing: path.resolve(process.cwd(), 'assets/js/indexing.js')
     })
   },
   target: isPrinceOutput ? ['web', 'es5'] : 'web',
@@ -102,9 +104,6 @@ module.exports = {
     new BookIndexFilesPlugin({
       searchDir: '_indexes',
       envVar: 'bookIndexFiles'
-    }),
-    new FilesPlugin({
-      envVar: 'files'
     }),
     new webpack.DefinePlugin({
       'process.env.output': JSON.stringify(process.env.output || 'web'),
