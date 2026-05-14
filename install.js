@@ -5,8 +5,11 @@ const path = require('path')
 
 /**
  * Installation script for electric-book-modules
- * Copies the _tools and _webpack folders to the parent package and creates .gitignore files
+ * Syncs folders to the parent package and creates .gitignore files
  */
+
+// Folders to sync to parent package
+const FOLDERS_TO_SYNC = ['_tools', '_webpack', '_docs']
 
 let moduleRoot
 let parentRoot
@@ -53,10 +56,7 @@ async function install () {
       process.exit(1)
     }
 
-    // Folders to copy
-    const folders = ['_tools', '_webpack']
-
-    for (const folder of folders) {
+    for (const folder of FOLDERS_TO_SYNC) {
       try {
         // Source and destination paths
         const sourcePath = path.join(moduleRoot, folder)
@@ -94,19 +94,21 @@ async function install () {
       }
     }
 
-    // Copy in custom tools from parent
-    try {
-      const customToolsPath = path.join(parentRoot, '_tools-custom')
-      const toolsDestPath = path.join(parentRoot, '_tools')
-      if (await fs.pathExists(customToolsPath)) {
-        await fs.copy(customToolsPath, toolsDestPath, {
-          overwrite: true,
-          preserveTimestamps: true,
-          errorOnExist: false
-        })
+    // Sync custom folders from parent (e.g. _tools-custom -> _tools)
+    for (const folder of FOLDERS_TO_SYNC) {
+      try {
+        const customFolderPath = path.join(parentRoot, `${folder}-custom`)
+        const folderDestPath = path.join(parentRoot, folder)
+        if (await fs.pathExists(customFolderPath)) {
+          await fs.copy(customFolderPath, folderDestPath, {
+            overwrite: true,
+            preserveTimestamps: true,
+            errorOnExist: false
+          })
+        }
+      } catch (customError) {
+        log(`Error syncing ${folder}-custom: ${customError.message}`, 'error')
       }
-    } catch (customError) {
-      log(`Error copying _tools-custom: ${customError.message}`, 'error')
     }
 
     // Create gulpfile.js in parent root
