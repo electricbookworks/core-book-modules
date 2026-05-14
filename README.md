@@ -36,8 +36,9 @@ Then install it: `npm install`.
 
 When you install this package via npm, the `postinstall` script automatically runs and:
 
-1. Copies the `_tools` and `_webpack` folders from this package to the root of your project
-2. Creates `.gitignore` files in both copied folders to prevent tracking their contents
+1. Copies root folders defined in `FOLDERS_TO_SYNC` inside `install.js` from this package to the parent package.
+2. Creates `.gitignore` files in copied folders to prevent tracking their contents
+3. Syncs custom files. The parent package can customise the contents of these folders by using the `{folder-name}-custom` pattern. For example, `_tools-custom/some/file.js` in the parent package will be copied into the resulting `_tools/some/file.js` that gets installed in the parent package. It will overwrite any same named file.
 3. Creates a `gulpfile.js` in the root of the parent package that imports the full source of `_tools/gulpfile.js`
 4. Creates a log file (`electric-book-modules-install.log`) for debugging purposes if there are any errors.
 

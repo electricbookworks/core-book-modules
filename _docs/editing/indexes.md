@@ -125,6 +125,16 @@ It's important to always close your ranges! And remember that a tag between bloc
 
 ### Creating the index list
 
+Index pages need to have `type: book-index` defined in their frontmatter to load the index data. E.g.:
+
+```md
+---
+title: "Index"
+style: endmatter-page contains-index
+type: book-index
+---
+```
+
 Then in the markdown file for the index itself, you create a list of entries, using exactly the phrases you used when tagging concepts in HTML comments. You do not need to add any links or page references. The list must have a `{:.reference-index}` class tag. E.g.:
 
 ``` md
@@ -140,16 +150,6 @@ Don't confuse the syntax of this list with that used for your tags. You do not i
 - existentialists
   - Camus, Albert
 {:.reference-index}
-```
-
-Index pages need to have `type: book-index` defined in their frontmatter. E.g.:
-
-```md
----
-title: "Index"
-style: endmatter-page contains-index
-type: book-index
----
 ```
 
 ### Generating the index database
