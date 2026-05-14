@@ -1,20 +1,21 @@
-/* globals MathJax */
+/* global MathJax */
 
-import { locales, pageLanguage } from './locales'
+import { locales, pageLanguage } from '@electricbookworks/electric-book-modules/assets/js/locales'
+import { ebTrackExpandableBoxOpen } from './analytics.js'
 
 // --------------------------
 // Toggles 'expandable boxes'
 // --------------------------
 
 // Empty extension boxes do not need to be expandable
-const expandableBoxSelector = '.expandable-box'
+const expandableBoxSelector = '.expandable-box:not(.extension-empty)'
 
 // Extension previews are never hidden and so should be excluded
-const expandableBoxContentSelector = 'h3 ~ *:not(.expandable-box-preview),' +
-'h4 ~ *:not(.expandable-box-preview),' + 'h5 ~ *:not(.expandable-box-preview),' +
-'h6 ~ *:not(.expandable-box-preview)'
+const expandableBoxContentSelector = 'h3 ~ *:not(.extension-preview),' +
+'h4 ~ *:not(.extension-preview),' + 'h5 ~ *:not(.extension-preview),' +
+'h6 ~ *:not(.extension-preview)'
 
-const boxHeaderSelector = 'h3, h4, h5, h6'
+const boxHeaderSelector = 'h3 strong, h4 strong, h5 strong, h6 strong'
 
 // Toggle the visibility of the contents of the box
 function ebExpandableBoxToggle (event) {
@@ -24,6 +25,19 @@ function ebExpandableBoxToggle (event) {
   const button = box.querySelector('.preview-read-more')
 
   const expandableBoxContent = box.querySelectorAll(expandableBoxContentSelector)
+
+  if (toggle.classList.contains('closed')) {
+    // Analytics tracking of walk-through box opens
+    const expandableBoxH3Heading = box.querySelector('h3 strong')
+      .childNodes[0].nodeValue.toLowerCase()
+
+    if (expandableBoxH3Heading &&
+      box.classList.contains('walk-through') &&
+      process.env.output === 'web') {
+      // Call the tracking function from analytics.js
+      ebTrackExpandableBoxOpen(expandableBoxH3Heading)
+    }
+  }
 
   // Switch the class of the toggle button - content changes between '-' and '+'
   toggle.classList.toggle('open')
@@ -45,10 +59,10 @@ function ebExpandableBoxAddPreviewButton (box) {
   // Create the button
   const button = document.createElement('button')
   button.classList.add('preview-read-more')
-  button.innerText = locales[pageLanguage]['expandable-box']['read-more']
+  button.innerText = locales[pageLanguage].extensions['read-more']
 
   // Add the button just before the end of the extension preview
-  const preview = box.querySelector('.expandable-box-preview')
+  const preview = box.querySelector('.extension-preview')
   preview.insertAdjacentElement('beforeend', button)
 
   // Toggle the visibilty of the box contents when the button is clicked
@@ -130,6 +144,7 @@ function ebExpandableBoxCheckURLForTargets () {
     if (target.id === hashInCurrentURL) {
       const targetElement = document.getElementById(hashInCurrentURL)
       ebExpandableBoxClickContainerBoxToggle(targetElement)
+      targetElement.scrollIntoView()
     }
   })
 }
@@ -148,7 +163,7 @@ function ebExpandableBoxInitialiseBoxes () {
     ebExpandableBoxAddBoxToggle(box)
 
     // Add Read More button to extension previews
-    if (box.querySelector('.expandable-box-preview')) {
+    if (box.querySelector('.extension-preview')) {
       ebExpandableBoxAddPreviewButton(box)
     }
   })
@@ -158,11 +173,10 @@ function ebExpandableBoxInitialiseBoxes () {
 function ebStartExpandableBox () {
   ebExpandableBoxInitialiseBoxes()
   ebExpandableBoxListenForIncomingLinks()
-  window.addEventListener(
-    'hashchange',
-    ebExpandableBoxCheckURLForTargets(),
-    false
-  )
+  ebExpandableBoxCheckURLForTargets()
+  window.addEventListener('hashchange', function () {
+    ebExpandableBoxCheckURLForTargets()
+  }, false)
 }
 
 function ebExpandableBox () {

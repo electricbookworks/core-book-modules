@@ -1131,20 +1131,27 @@ function ebBookmarksInit () {
   }
 }
 
+let readyForBookmarks = false
+
+function ebBookmarksIdsReady (bookmarksObserver) {
+  if (document.body.getAttribute('data-ids-assigned') && document.body.getAttribute('data-fingerprints-assigned')) {
+    readyForBookmarks = true
+    ebBookmarksInit()
+    bookmarksObserver && bookmarksObserver.disconnect()
+  }
+}
+
 // Wait for IDs and fingerprints to be loaded
 // and IDs to be assigned
 // before applying the accordion.
 function ebPrepareForBookmarks () {
+  // They may already be ready and no mutations may occur after this initiatilisation
+  ebBookmarksIdsReady()
+
   const bookmarksObserver = new MutationObserver(function (mutations) {
-    let readyForBookmarks = false
     mutations.forEach(function (mutation) {
       if (mutation.type === 'attributes' && readyForBookmarks === false) {
-        if (document.body.getAttribute('data-ids-assigned') &&
-                        document.body.getAttribute('data-fingerprints-assigned')) {
-          readyForBookmarks = true
-          ebBookmarksInit()
-          bookmarksObserver.disconnect()
-        }
+        ebBookmarksIdsReady(bookmarksObserver)
       }
     })
   })

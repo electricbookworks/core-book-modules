@@ -138,8 +138,8 @@ const ebResetSlides = function (slidelines) {
       slideline.classList.add('visuallyhidden')
     })
 
-    // get the slide nav items, hide them
-    const slideNavItems = slideline.previousElementSibling.querySelectorAll('.nav-slides li')
+    // get the slide nav items, reset them
+    const slideNavItems = slideline.querySelectorAll('.nav-slides li')
     slideNavItems.forEach(function (slideline) {
       slideline.classList.remove('slide-current')
     })
@@ -193,9 +193,9 @@ const ebSlidesShow = function (slidelines) {
 
   slidelines.forEach(function (slideline) {
     const element = document.querySelector(sanitisedTargetHash)
-    const figure = element.closest('div.figure')
+    const figure = element && element.closest('div.figure')
     // check if hash is in this slideline
-    if (!element || !figure || !figure.getAttribute('id') || !slideline.querySelector(sanitisedTargetHash)) {
+    if (!figure || !figure.getAttribute('id') || !slideline.querySelector(sanitisedTargetHash)) {
       ebSlidesShowFirstInSlideline(slideline)
       return
     } else if (!slideline.querySelector('.nav-slides [href="' + sanitisedTargetHash + '"]')) {
@@ -276,20 +276,19 @@ const ebSlidesKeyDown = function () {
 }
 
 const ebSlidesAlreadyShown = function () {
-  // get all the nav slide links
-  const navSlides = document.querySelectorAll('.nav-slides a')
+  // Use event delegation on document.body rather than individual .slides.
+  // This avoids DOM manipulation issues from other scripts
+  // that can destroy listeners. document.body is never recreated by
+  // innerHTML replacement, so its listener always survives.
+  document.body.addEventListener('click', function (ev) {
+    const navSlide = ev.target.closest('.nav-slides a')
+    if (!navSlide) return
+    const itsCurrentlyHidden = document.querySelector(navSlide.getAttribute('href')).classList.contains('visuallyhidden')
 
-  navSlides.forEach(function (navSlide) {
-    // listen for clicks on each nav slide link
-    navSlide.addEventListener('click', function (ev) {
-      const itsCurrentlyHidden = document.querySelector(this.getAttribute('href'))
-        .classList.contains('visuallyhidden')
-
-      // if it's currently shown, stop the anchor's jump
-      if (!itsCurrentlyHidden) {
-        ev.preventDefault()
-      }
-    })
+    // if it's currently shown, stop the anchor's jump
+    if (!itsCurrentlyHidden) {
+      ev.preventDefault()
+    }
   })
 }
 
@@ -318,11 +317,14 @@ const ebSlides = function () {
 
   // listen for hashchanges
   window.addEventListener('hashchange', function () {
+    // Re-query slidelines each time to prevent stale references.
+    const currentSlidelines = document.querySelectorAll('.slides')
+
     // get, then hide, the figures and slide nav items
-    ebResetSlides(slidelines)
+    ebResetSlides(currentSlidelines)
 
     // show slide from hash
-    ebSlidesShow(slidelines)
+    ebSlidesShow(currentSlidelines)
   })
 
   // listen for keys

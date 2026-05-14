@@ -1,13 +1,4 @@
-/* global XMLHttpRequest */
-
 import { locales, pageLanguage } from './locales'
-
-// -----------------------------
-// Options
-// 1. If you're pinging scores to a Wordpress database,
-//    enter the name of the cookie it leaves here.
-const wordpressCookieName = 'mywpcookie'
-// -----------------------------
 
 function ebMCQsInit () {
   // check for browser support of the features we use
@@ -16,7 +7,8 @@ function ebMCQsInit () {
             document.querySelector &&
             !!Array.prototype.forEach &&
             window.addEventListener &&
-            document.querySelectorAll('.mcq')
+            document.querySelectorAll('.mcq') &&
+            !document.querySelector('.table-of-questions')
 }
 
 function ebMCQsFindNumberOfCorrectAnswers (questionCode) {
@@ -118,8 +110,20 @@ function ebMCQsMakeOptionCheckboxes (question) {
     // the label gets the checkbox as a child
     label.appendChild(checkbox)
 
+    // add a span for numbering the options
+    const number = document.createElement('span')
+    number.classList.add('option-number')
+    number.innerHTML = (index + 1).toString() + '. '
+
+    // wrap the text in a span for styling
+    const span = document.createElement('span')
+    span.classList.add('option-text')
+    span.innerHTML = option.innerHTML
+
     // now the label gets the option text
-    label.innerHTML = label.innerHTML + option.innerHTML
+    // label.innerHTML = label.innerHTML + option.innerHTML
+    label.appendChild(number)
+    label.appendChild(span)
 
     // remove the now-duplicate option text
     // and put the label inside the option
@@ -138,8 +142,8 @@ function ebMCQsAddButton (question) {
   button.classList.add('check-answer-button')
 
   // now add it to question, after the options
-  const options = question.querySelector('.mcq-options, .question-options')
-  options.insertAdjacentElement('afterend', button)
+  const feedback = question.querySelector('.mcq-feedback, .question-feedback')
+  feedback.insertAdjacentElement('beforebegin', button)
 }
 
 const ebMCQsMakeQuestionAccessible = function (question) {
@@ -150,16 +154,6 @@ const ebMCQsMakeQuestionAccessible = function (question) {
   fieldset.innerHTML = questionContents
   question.innerHTML = ''
   question.appendChild(fieldset)
-
-  // get the h3 and wrap the contents of the h3 in a legend
-  const questionHeading = question.querySelector('h3')
-  const questionHeadingContents = questionHeading.innerHTML
-
-  const legend = document.createElement('legend')
-  legend.innerHTML = questionHeadingContents
-
-  questionHeading.innerHTML = ''
-  questionHeading.appendChild(legend)
 }
 
 function ebMCQsGetAllSelected (mcqsToCheck) {
@@ -183,7 +177,10 @@ function ebMCQsGetAllSelected (mcqsToCheck) {
 }
 
 function ebMCQsHideAllFeedback (mcqsToCheck) {
-  const feedbacks = mcqsToCheck.querySelectorAll('.mcq-feedback li')
+  const feedback = mcqsToCheck.querySelector('.mcq-feedback')
+  const feedbacks = feedback.querySelectorAll('li')
+  feedback.classList.remove('mcq-feedback-shown-inside')
+
   feedbacks.forEach(function (feedback) {
     // reset the styles
     feedback.classList.remove('mcq-feedback-show')
@@ -191,7 +188,10 @@ function ebMCQsHideAllFeedback (mcqsToCheck) {
 }
 
 function ebMCQsShowSelectedOptions (mcqsToCheck, selectedOptions) {
-  const feedbacks = mcqsToCheck.querySelectorAll('.mcq-feedback li')
+  const feedback = mcqsToCheck.querySelector('.mcq-feedback')
+  const feedbacks = feedback.querySelectorAll('li')
+  feedback.classList.add('mcq-feedback-shown-inside')
+
   feedbacks.forEach(function (feedback, index) {
     // if it's been selected, show it
     if (selectedOptions[index + 1]) {
@@ -204,7 +204,10 @@ function ebMCQsShowSelectedOptions (mcqsToCheck, selectedOptions) {
 }
 
 function ebMCQsShowSelectedIncorrectOptions (mcqsToCheck, selectedOptions, correctAnswersForThisMCQs) {
-  const feedbacks = mcqsToCheck.querySelectorAll('.mcq-feedback li')
+  const feedback = mcqsToCheck.querySelector('.mcq-feedback')
+  const feedbacks = feedback.querySelectorAll('li')
+  feedback.classList.add('mcq-feedback-shown-inside')
+
   feedbacks.forEach(function (feedback, index) {
     // if it's been selected, and it's incorrect, show it
     if (selectedOptions[index + 1] &&
@@ -239,7 +242,7 @@ function ebMCQsGetAllCorrectAnswers () {
   const ebMCQsCorrectAnswersForPage = {}
 
   // get all the questions
-  const questions = document.querySelectorAll('.mcq')
+  const questions = document.querySelectorAll('.question')
 
   // loop over questions
   questions.forEach(function (question) {
@@ -301,114 +304,6 @@ function ebMCQsNotAllTheCorrectAnswers (correctAnswersForThisMCQs, selectedOptio
   return false
 }
 
-// get the WordPress ID from a cookie, or return false if we don't have one
-function ebMCQsWordPressUserId () {
-  const cookieName = wordpressCookieName
-
-  // get the cookie, split it into bits
-  const cookie = document.cookie.split('; ')
-
-  const WordPressUserIdCookie = cookie.find(function (el) {
-    // if it starts with our wordpressCookieName in options above, it's our WP one
-    return el.indexOf(cookieName) === 0
-  })
-
-  if (!WordPressUserIdCookie) {
-    // we're logged out, anon
-    return false
-  }
-
-  // decode it and remove the cookie name
-  const decodedCookie = decodeURIComponent(WordPressUserIdCookie).replace(cookieName + '=', '')
-
-  return decodedCookie
-}
-
-// Add the WordPress account button to the nav,
-// change the text based on logged in or not
-function ebMCQsAddWordPressAccountButton () {
-  // get #nav
-  const theNav = document.querySelector('#nav')
-
-  if (!theNav) {
-    return
-  }
-
-  // get the element in the nav that we'll insert before
-  const insertBeforeTarget = theNav.querySelector('h2')
-
-  // make the WordPress link to insert into the nav
-  const accountLink = document.createElement('a')
-  accountLink.innerText = locales[pageLanguage].account.login
-  accountLink.href = '/login/'
-  accountLink.classList.add('wordpress-link')
-
-  // add the account link to the nav
-  theNav.insertBefore(accountLink, insertBeforeTarget)
-
-  if (ebMCQsWordPressUserId()) {
-    // change the button text and href
-    accountLink.innerText = locales[pageLanguage].account['my-account']
-    accountLink.href = '/account/'
-  }
-}
-
-// Send a bit of JSON for eacn question submission
-function ebMCQsSendtoWordPress (quizId, score) {
-  // if we don't have a user id, early exit
-  const userId = ebMCQsWordPressUserId()
-  if (!ebMCQsWordPressUserId()) {
-    return
-  }
-
-  // make the object to send
-  const data = {
-    action: 'quiz_score', // existing action name
-    book_id: 1,
-    quiz_id: quizId,
-    user_id: userId,
-    score
-  }
-
-  // set url to send json to
-  const wordPressURL = '/wp-admin/admin-ajax.php'
-
-  // send the data
-  // first build the data structure into a string
-  const query = []
-  let key
-
-  // make an array of 'key=value' with special characters encoded
-  for (key in data) {
-    query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
-  }
-  const dataText = query.join('&') // join the array into 'key=value1&key2=value2...'
-  // now send the data
-  const req = new XMLHttpRequest() // create the request
-  req.open('POST', wordPressURL, true) // put in the target url here!
-  req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
-  req.send(dataText) // so we send the encoded data not the original data structure
-}
-
-function ebMCQsAddFeedbackLabel (mcqsToCheck, feedbackType) {
-  const mcqsToCheckQuestionContent = mcqsToCheck.querySelector('.question-content')
-
-  // Remove existing feedback
-  const mcqsToCheckOldLabel = mcqsToCheck.querySelector('.feedback-label')
-  if (mcqsToCheckOldLabel) {
-    mcqsToCheckQuestionContent.removeChild(mcqsToCheckOldLabel)
-  }
-
-  // Find feedback, create a div for the label, and insert it
-  const mcqsToCheckFeedback = mcqsToCheck.querySelector('.mcq-feedback')
-  const mcqsToCheckFeedbackLabel = document.createElement('div')
-
-  mcqsToCheckFeedbackLabel.setAttribute('class', 'feedback-label')
-  mcqsToCheckFeedbackLabel.innerText = locales[pageLanguage].questions[feedbackType]
-
-  mcqsToCheckQuestionContent.insertBefore(mcqsToCheckFeedbackLabel, mcqsToCheckFeedback)
-}
-
 function ebMCQsButtonClicks () {
   // get all the buttons
   const answerCheckingButtons = document.querySelectorAll('.check-answer-button')
@@ -436,55 +331,33 @@ function ebMCQsButtonClicks () {
       mcqsToCheck.classList.remove('mcq-partially-correct')
       mcqsToCheck.classList.remove('mcq-correct')
 
-      // set score
-      let score = 0
-
       // if exactly right, mark it so, show options
       if (ebMCQsExactlyRight(correctAnswersForThisMCQs, selectedOptions)) {
         mcqsToCheck.classList.add('mcq-correct')
-        ebMCQsAddFeedbackLabel(mcqsToCheck, 'feedback-correct')
         ebMCQsShowSelectedOptions(mcqsToCheck, selectedOptions)
-
-        // set score
-        score = 1
       } else if (ebMCQsNotAllTheCorrectAnswers(correctAnswersForThisMCQs, selectedOptions)) {
         mcqsToCheck.classList.add('mcq-partially-correct')
-        ebMCQsAddFeedbackLabel(mcqsToCheck, 'feedback-unfinished')
         ebMCQsShowSelectedIncorrectOptions(mcqsToCheck, selectedOptions, correctAnswersForThisMCQs)
       } else {
         // show the feedback for the incorrect options
         mcqsToCheck.classList.add('mcq-incorrect')
-        ebMCQsAddFeedbackLabel(mcqsToCheck, 'feedback-incorrect')
         ebMCQsShowSelectedIncorrectOptions(mcqsToCheck, selectedOptions, correctAnswersForThisMCQs)
-      }
-
-      // now send it all to WordPress
-      // if this is a website or an app
-      if (process.env.output === 'web' || process.env.output === 'app') {
-        const quizNumber = mcqsToCheckName.replace('question-', '')
-        ebMCQsSendtoWordPress(quizNumber, score)
       }
     })
   })
 }
 
-export default function ebMCQs () {
+export default function ebMCQs (config) {
   // early exit for lack of browser support or no mcqs
   if (!ebMCQsInit()) {
     return
-  }
-
-  // add the WordPress account button
-  // if this is a website
-  if (process.env.output === 'web') {
-    ebMCQsAddWordPressAccountButton()
   }
 
   // mark the document, to use the class in CSS
   document.documentElement.classList.add('js-mcq')
 
   // get all the questions
-  const questions = document.querySelectorAll('.mcq')
+  const questions = document.querySelectorAll('.question')
 
   // loop over questions
   questions.forEach(function (question) {
