@@ -89,31 +89,6 @@ function ebNavBuildTreeRecursive (navTree, basePath, areChildren = true) {
 }
 
 /**
- * Generates a navigation <ol> from a list of file data.
- * @param {Array} files - The files for a given book.
- * @param {string} basePath - The base URL for the links.
- * @returns {HTMLOListElement|null} The generated list or null if empty.
- */
-function ebNavGenerateTreeFromFiles (files, basePath) {
-  if (!files || files.length === 0) return null
-
-  const ol = document.createElement('ol')
-  files.forEach(page => {
-    // Skip index files as they shouldn't appear in navigation.
-    if (page.file === 'index') return
-
-    const li = document.createElement('li')
-    const link = document.createElement('a')
-    link.href = `${basePath}/${page.file}.html`
-    link.innerHTML = ebNavProcessMarkdown(page.title)
-    li.appendChild(link)
-    ol.appendChild(li)
-  })
-
-  return ol.children.length > 0 ? ol : null
-}
-
-/**
  * Safely retrieves a nested property from a work object with multiple fallbacks.
  * @param {object} workData - The work object.
  * @param {Array<string>} keys - The property path to retrieve (e.g., ['products', 'web', 'nav']).
@@ -197,10 +172,6 @@ function ebNavBuildBookList () {
 
       if (navTree && navTree.length > 0) {
         childTree = ebNavBuildTreeRecursive(navTree, basePath)
-      } else {
-        // TODO: fix files inclusion
-        const bookFiles = process.env.files[workKey]
-        childTree = ebNavGenerateTreeFromFiles(bookFiles, basePath)
       }
 
       if (childTree) {

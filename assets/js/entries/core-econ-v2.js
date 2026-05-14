@@ -23,7 +23,6 @@ import ebFootnotesHiddenPdf from '../footnotes-hidden-pdf'
 import ebFullscreenImages from '../fullscreen-images'
 import ebHeadingTitles from '../heading-titles'
 import ebHolmesFilter from '../holmes-filter'
-import ebIndexLists from '../index-lists'
 import ebIndexTargetsInit from '../index-targets'
 import ebLandingPage from '../landing-page'
 import ebLanguageSelect from '../language-select'
@@ -52,7 +51,6 @@ import ebShiftElements from '../shift-elements'
 import ebShowHide from '../show-hide'
 import ebSidenotes from '../sidenotes'
 import ebSlides from '../slides'
-// import ebStudents from '../students'
 import ebSvgManagement from '../svg-management'
 import ebTables from '../tables'
 import ebTranscripts from '../transcripts'
@@ -64,9 +62,19 @@ import ebWordPressUserProfile from '../wordpress-user-profile'
 // console.log('Works:', process.env.works)
 // console.log('Output:', process.env.output)
 // console.log('Build:', process.env.build)
-// console.log('Files:', process.env.files)
 
 const outputSettings = process.env.settings[process.env.output] || {}
+
+// Create index targets first because this script reconstructs the DOM,
+// potentially breaking event listeners, state, and node lists for other scripts.
+if (process.env.settings['dynamic-indexing'] !== false) {
+  /*
+    Script to turn HTML comments into anchor targets.
+    Also handled by gulp in PDF, epub; but included
+    in all outputs so that Puppeteer can index.
+  */
+  ebIndexTargetsInit()
+}
 
 ebMarkParents()
 
@@ -213,33 +221,6 @@ if (process.env.output === 'screen-pdf' || process.env.output === 'print-pdf') {
 // This script generates a "For instructors' use only" footer in screen-pdfs
 if (process.env.output === 'screen-pdf') {
   ebFooterNotice()
-}
-
-// For student builds
-// if (process.env.config.audience === 'students') {
-// ebStudents() This 'audience' property is not defined in any of the configs?
-// }
-
-// Tools for generating and displaying book indexes
-if (process.env.settings['dynamic-indexing'] !== false) {
-  const bookIndexFileExists = process.env.bookIndexFiles && process.env.bookIndexFiles.includes(process.env.output)
-  const ebIndexTargets = bookIndexFileExists ? require(`@indexes/book-index-${process.env.output}`) : []
-
-  /*
-    Script to turn HTML comments into anchor targets.
-    Also handled by gulp in PDF, epub; but included
-    in all outputs so that Puppeteer can index.
-  */
-  ebIndexTargetsInit()
-
-  /*
-    Script that adds index-reference links.
-    This is done client-side in web and app, and pre-processed by gulp
-    in PDF and epub outputs.
-  */
-  if (process.env.output === 'web' || process.env.output === 'app') {
-    ebIndexLists(ebIndexTargets)
-  }
 }
 
 // Scripts for epub output. Do not expect support in many readers.
