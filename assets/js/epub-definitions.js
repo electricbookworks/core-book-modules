@@ -1,4 +1,3 @@
-/* jslint browser */
 /* global window */
 
 const ebDefinitionsInit = function () {
@@ -19,11 +18,17 @@ const ebDefinitionsSlugify = function (snail) {
 }
 
 const ebConvertToAnchorTag = function (element) {
+  // Thanks https://stackoverflow.com/a/34237781/1781075
   function cloneAttributes (element, sourceNode) {
+    let attr
     const attributes = Array.prototype.slice.call(sourceNode.attributes)
-    attributes.forEach(function (attr) {
+    // While attr can be set to the last attribute in attributes
+    // (i.e. there is still an attribute in attributes to copy),
+    // set that attribute on the element. (Note, we really do want
+    // to try to set the value of attr here, not test if it equals anything.)
+    while ((attr = attributes.pop())) {
       element.setAttribute(attr.nodeName, attr.nodeValue)
-    })
+    }
   }
 
   // Make it an anchor tag, not a strong span
@@ -135,22 +140,6 @@ const ebDefinitionsShowDescriptions = function () {
     })
   })
 }
-
-// const ebDefinitionsHideDescriptions = function () {
-//   // 20230130 - this function is no longer used
-
-//   const descriptions = document.querySelectorAll('.definition-description-hover')
-
-//   descriptions.forEach(function (description) {
-//     // if we mouseleave description, hide it
-//     // (mouseout also fires on mouseout of children, so we use mouseleave)
-//     description.addEventListener('mouseleave', function () {
-//       setTimeout(function () {
-//         description.classList.add('visuallyhidden')
-//       }, 1000)
-//     })
-//   })
-// }
 
 const ebDefinitionsHideDescriptionWithButton = function () {
   const closeButtons = document.querySelectorAll('.definition-description-hover button.close')

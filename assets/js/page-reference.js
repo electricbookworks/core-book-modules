@@ -1,4 +1,5 @@
-/* global Prince */
+/* globals Prince */
+
 import { locales, pageLanguage } from './locales'
 
 // Page cross-reference in print
@@ -20,8 +21,61 @@ const postPageNumberPhrase = locales[pageLanguage]['cross-references']['post-pag
 // the last number inserted.
 let ebCurrentBookIndexPageNumber = ''
 
+function elidePageNumber (from, to) {
+  // 'from' and 'to' are both strings indicating page numbers
+  // the 'to' string needs to be compared to the 'from' string,
+  // and elided where appropriate, according to CORE styles
+
+  // First check whether the strings are the same length
+  // e.g 99-103 should be left alone
+  if (from.length !== to.length) {
+    return to
+  }
+
+  // If they are the same length, start comparing digits
+  let i = 0
+  let fromDigit
+  let toDigit
+  // Compare digits starting from the beginning of the string, and break
+  // when we reach non-identical values e.g. 227-229, stop at i = 2
+  while (i < from.length) {
+    fromDigit = from[i]
+    toDigit = to[i]
+
+    if (fromDigit === toDigit) {
+      i = i + 1
+    } else {
+      break
+    }
+  }
+
+  // Now we need to check backwards from the final digit of 'from', and check
+  // for zeroes. When we reach a non-zero digit, break.
+  //  e.g. 200-203, stop at j = 2.
+  let j = from.length - 1
+  while (j > 0) {
+    if (from[j] === '0') {
+      j = j - 1
+    } else {
+      break
+    }
+  }
+
+  // If 'from' ends in one or more zeroes, use j to slice 'to'
+  if (j < from.length - 1) {
+    return to.slice(j)
+  } else { // use i to slice 'to'
+    // First we need to check if from[i] and to[i] are 1 e.g. 212-18, keep 2 digits
+    if (from[from.length - 2] === '1' && to[to.length - 2] === '1') {
+      return to.slice(i - 1)
+    } else {
+      return to.slice(i)
+    }
+  }
+}
+
 function addPageReferenceFunc () {
-  if (process.env.output === 'screen-pdf' || process.env.output === 'print-pdf') {
+  if (typeof Prince === 'object') {
     console.log('Adding page references in Prince.')
     Prince.addScriptFunc('pagereference', function (currentPage, targetPage) {
       // if the target is on this page, return blank
@@ -44,11 +98,16 @@ function addPageReferenceFunc () {
       // If the page number isn't the ebCurrentBookIndexPageNumber,
       // return the page number for the target link.
       if (page !== ebCurrentBookIndexPageNumber) {
+        // Run the function to elide the number if it's the end of a range
+        let indexString = page
+        if (entryPosition === 'to') {
+          indexString = elidePageNumber(ebCurrentBookIndexPageNumber, page)
+        }
         // Update the ebCurrentBookIndexPageNumber
         ebCurrentBookIndexPageNumber = page
 
         // Return the page plus any prepended string
-        return prepend + page
+        return prepend + indexString
       } else {
         // Otherwise, return an empty string.
         return ''

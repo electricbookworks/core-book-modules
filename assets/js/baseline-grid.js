@@ -1,6 +1,6 @@
 /* global Prince */
 
-function ebAlignToGrid (querySelectorToAlign, querySelectorToLeave) {
+function ebAlignToGrid (container, querySelectorToAlign, querySelectorToLeave) {
   // Get all elements we want aligned with baseline grid.
   // Note that unlike InDesign we do not force elements
   // to the next baseline unit. Rather, we add margin-bottom
@@ -13,9 +13,20 @@ function ebAlignToGrid (querySelectorToAlign, querySelectorToLeave) {
   // We use margin, not padding, because in testing it has been
   // more reliable (e.g. padding on a table doesn't add space).
 
-  let elementsToAlign = document.querySelectorAll('.content h1, .content h2, .content h3, .content h4, .content h5, .content math[display="block"], .content p, .content ol, .content ul, .content table, .content .figure, .content .video, .content .box, .content .align-to-baseline')
+  let containerToAlign = document.body
 
-  let elementsToLeave = document.querySelectorAll('.content li > p, .content .figure *')
+  if (container) {
+    containerToAlign = container
+  }
+
+  let elementsToAlign = containerToAlign.querySelectorAll('.content h1, .content h2, .content h3, .content h4, .content h5, .content h6, .content math[display="block"], .content p, .content ol, .content ul, .content table, .content .figure, .content .video, .content .box, .content .exercise, .content .question, .content .great-economists, .content .economists, .content .einstein, .content .align-to-baseline, .content .fixed')
+
+  let elementsToLeave = containerToAlign.querySelectorAll('.content li > p, .content .figure *')
+
+  // Which elements should have extra space divided
+  // between their top and bottom margins, rather than all bottom?
+  let splitAlignmentMargin = document.querySelectorAll('.content math[display="block"]')
+  splitAlignmentMargin = Array.from(splitAlignmentMargin)
 
   if (querySelectorToAlign) {
     elementsToAlign = document.querySelectorAll(querySelectorToAlign)
@@ -52,7 +63,17 @@ function ebAlignToGrid (querySelectorToAlign, querySelectorToLeave) {
         }
       })
 
+      // Don't align elements that are explicitly released,
       if (element.classList.contains('release-from-baseline-grid')) {
+        alignThisElement = false
+      }
+
+      // Don't align if element is already floated to the bottom.
+      // Note Prince reports floatPosition on the parent box.
+      if (princeBox &&
+          princeBox.parent &&
+          princeBox.parent.floatPosition &&
+          princeBox.parent.floatPosition === 'BOTTOM') {
         alignThisElement = false
       }
 
@@ -63,13 +84,28 @@ function ebAlignToGrid (querySelectorToAlign, querySelectorToLeave) {
         if (difference > 0) {
           // Get the element's existing margin-bottom
           const elementMarginBottom = parseFloat(princeBox.marginBottom)
+          const elementMarginTop = parseFloat(princeBox.marginTop)
 
-          // Add more margin to that, equal to the baseline grid value
-          // less the (modulo) difference calculated above.
-          const newMarginBottom = elementMarginBottom + (gridValue - difference)
+          // Some elements get margin-bottom only,
+          // others get top and bottom.
+          let newMarginBottom, newMarginTop
+          if (splitAlignmentMargin.includes(element)) {
+            // Add more margin to that, equal to the baseline grid value
+            // less the (modulo) difference calculated above.
+            newMarginBottom = elementMarginBottom + ((gridValue - difference) / 2)
+            newMarginTop = elementMarginTop + ((gridValue - difference) / 2)
 
-          // Give the element that new margin-bottom
-          element.style.marginBottom = newMarginBottom + 'pt'
+            // Give the element that new margin-bottom and -top
+            element.style.marginBottom = newMarginBottom + 'pt'
+            element.style.marginTop = newMarginTop + 'pt'
+          } else {
+            // Add more margin to that, equal to the baseline grid value
+            // less the (modulo) difference calculated above.
+            newMarginBottom = elementMarginBottom + (gridValue - difference)
+
+            // Give the element that new margin-bottom
+            element.style.marginBottom = newMarginBottom + 'pt'
+          }
 
           // Now, the next princeBox might have a margin-top,
           // and if that margin-top is greater than this element's
@@ -85,14 +121,22 @@ function ebAlignToGrid (querySelectorToAlign, querySelectorToLeave) {
           // has broken it in this one place.
 
           // Debugging
-          // console.log(element.tagName)
+          // element.style.background = 'pink'
+          // console.log('\n')
+          // console.log('-- Align to baseline --')
           // if (element.id) { console.log('#' + element.id) }
+          // console.log(element.tagName)
+          // if (element.textContent) { console.log('"' + element.textContent.substring(0, 20).replace(/\n/g, '') + '"') }
+          // console.log('Prince box type: ' + princeBox.type)
+          // console.log('Box (parent) floatPosition: ' + princeBox.parent.floatPosition)
+          // console.log('Box baseline: ' + princeBox.baseline)
           // console.log('Grid value with unit: ' + gridValueWithUnit)
           // console.log('Grid value: ' + gridValue)
           // console.log('Height: ' + height)
           // console.log('Difference: ' + difference)
           // console.log('Original margin-bottom: ' + elementMarginBottom)
-          // console.log('New margin-bottom ' + newMarginBottom)
+          // console.log('New margin-bottom: ' + newMarginBottom)
+          // console.log('\n')
         }
       }
     })
@@ -102,7 +146,22 @@ function ebAlignToGrid (querySelectorToAlign, querySelectorToLeave) {
   // so we run this again. The max number of iterations
   // is passed to Prince (in helpers.js) as `max-passes`.
   Prince.registerPostLayoutFunc(function () {
-    ebAlignToGrid()
+    console.log('Re-running baseline-grid alignment...')
+    ebAlignToGrid(container, querySelectorToAlign, querySelectorToLeave)
+  })
+}
+
+function ebBaselineGridWrapperCheck () {
+  // Get all wrappers on the page
+  // Loop through the wrappers checking for release-from-baseline-grid
+  // For each wrapper without release-from-baseline-grid run ebAlignToGrid
+  const wrappers = document.querySelectorAll('div.wrapper')
+
+  wrappers.forEach(function (wrapper) {
+    if (!wrapper.classList.contains('release-from-baseline-grid')) {
+      console.log('Aligning to baseline grid in ' + wrapper.getAttribute('data-page-info'))
+      ebAlignToGrid(wrapper)
+    }
   })
 }
 
@@ -110,9 +169,9 @@ function ebAlignToGrid (querySelectorToAlign, querySelectorToLeave) {
 // Check if the Prince object exists,
 // in case we're inspecting in a browser.
 export default function ebBaselineGrid () {
-  if (process.env.output === 'screen-pdf' || process.env.output === 'print-pdf') {
+  if (typeof Prince === 'object') {
     Prince.registerPostLayoutFunc(function () {
-      ebAlignToGrid()
+      ebBaselineGridWrapperCheck()
     })
   }
 }

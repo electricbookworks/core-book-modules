@@ -1,6 +1,6 @@
 /* global MathJax */
 
-import { locales, pageLanguage } from '@electricbookworks/electric-book-modules/assets/js/locales'
+import { locales, pageLanguage } from './locales'
 import { ebTrackExpandableBoxOpen } from './analytics.js'
 
 // --------------------------

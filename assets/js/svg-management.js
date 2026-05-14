@@ -1,7 +1,4 @@
-/* global MutationObserver */
-
 import SVGInject from '@iconfu/svg-inject'
-const settings = process.env.settings
 
 // This script helps get sensible SVGs into our pages.
 // It first injects all SVGs linked as img tags
@@ -19,20 +16,55 @@ function ebSVGFontFixes (svg) {
   // What fonts do we want to change the names of?
   // Optionally add a new font-weight, e.g. for 'OpenSans-Bold',
   // which should be Open Sans with a bold weight.
-  // Note that some apps include quotes around properties.
   const fontsToChange = [
     {
-      oldFontFace: 'SourceSansPro-Regular',
-      newFontFace: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif'
+      oldFontFace: 'OpenSans-Regular',
+      newFontFace: 'Open Sans'
     },
     {
-      oldFontFace: '"SourceSansPro-Regular"',
-      newFontFace: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif'
-    },
-    {
-      oldFontFace: '"SourceSansPro-Bold"',
-      newFontFace: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
+      oldFontFace: 'OpenSans-Bold',
+      newFontFace: 'Open Sans',
       newFontWeight: 'bold'
+    },
+    {
+      oldFontFace: 'Asap-Medium',
+      newFontFace: 'Asap',
+      newFontWeight: '600'
+    },
+    {
+      oldFontFace: 'Asap-Regular',
+      newFontFace: 'Asap'
+    },
+    {
+      oldFontFace: 'Asap-MediumItalic',
+      newFontFace: 'Asap',
+      newFontWeight: '600',
+      newFontStyle: 'italic'
+    },
+    {
+      oldFontFace: 'Asap-Italic',
+      newFontFace: 'Asap',
+      newFontStyle: 'italic'
+    },
+    {
+      oldFontFace: 'Asap-Bold',
+      newFontFace: 'Asap',
+      newFontWeight: 'bold'
+    },
+    {
+      oldFontFace: 'SourceSansPro-Regular',
+      newFontFace: 'Source Sans Pro',
+      newFontWeight: '400'
+    },
+    {
+      oldFontFace: 'SourceSansPro-Semibold',
+      newFontFace: 'Source Sans Pro',
+      newFontWeight: '600'
+    },
+    {
+      oldFontFace: 'SourceSansPro-Bold',
+      newFontFace: 'Source Sans Pro',
+      newFontWeight: '700'
     }
   ]
 
@@ -57,7 +89,7 @@ function ebSVGFontFixes (svg) {
       }
 
       // Change font properties in style attributes
-      if (ebFontFixElements[i].style.fontFamily === fontsToChange[j].oldFontFace) {
+      if (ebFontFixElements[i].style.fontFamily.includes(fontsToChange[j].oldFontFace)) {
         ebFontFixElements[i].style.fontFamily = fontsToChange[j].newFontFace
         if (ebFontFixElements[i].style.fontWeight || fontsToChange[j].newFontWeight) {
           ebFontFixElements[i].style.fontWeight = fontsToChange[j].newFontWeight
@@ -81,12 +113,11 @@ function ebSVGInjectImageData (img) {
   // - otherwise use alt text as the title, and omit the desc,
   //   which would simply duplicate the title.
 
-  let title, desc, role
+  let title, desc
 
   // Get a description for the SVG <desc>
   if (img.alt) {
     desc = img.alt
-    role = 'img'
   }
 
   // Get text for the SVG <title>
@@ -98,14 +129,11 @@ function ebSVGInjectImageData (img) {
   } else if (img.alt) {
     title = img.alt
     desc = ''
-  } else {
-    role = 'presentation'
   }
 
   return {
     title,
-    desc,
-    role
+    desc
   }
 }
 
@@ -122,43 +150,25 @@ function ebSVGInjectTitleDesc (svg, imgData) {
   // if a shorter title exists in the form of a figure caption.
 
   if (imgData.desc) {
-    // If the img tag has an alt="" attribute,
-    // that will override any <desc> in the original SVG.
     if (svg.querySelector('desc')) {
       svg.querySelector('desc').remove()
     }
 
+    svg.desc = imgData.desc
     const descElement = document.createElementNS('http://www.w3.org/2000/svg', 'desc')
     descElement.textContent = imgData.desc
     svg.insertAdjacentElement('afterbegin', descElement)
   }
 
   if (imgData.title) {
-    // If the img tag has a title="" attribute,
-    // that will override any <title> in the original SVG.
     if (svg.querySelector('title')) {
       svg.querySelector('title').remove()
     }
 
+    svg.title = imgData.title
     const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title')
     titleElement.textContent = imgData.title
     svg.insertAdjacentElement('afterbegin', titleElement)
-  }
-
-  if (imgData.role) {
-    // If the img tag has a role="" attribute,
-    // apply that to the SVG element, too
-    if (!svg.getAttribute('role')) {
-      svg.setAttribute('role', imgData.role)
-
-      // We can't use aria-labelledby=title here, because
-      // we don't have a way to assign an ID to the title
-      // that will definitely be unique in the surrounding document.
-      // So we use aria-label, risking screen-reading duplication.
-      if (imgData.title) {
-        svg.setAttribute('aria-label', imgData.title)
-      }
-    }
   }
 }
 
@@ -190,54 +200,6 @@ function ebInjectSVGs () {
   })
 }
 
-// Check if the document is ready for testing images
-function ebReadyForTestingImages () {
-  const readyForTestingImages = document.body.getAttribute('data-testing-images')
-  if (readyForTestingImages) {
-    return true
-  } else {
-    return false
-  }
+export default function ebSvgManagement () {
+  ebInjectSVGs()
 }
-
-// Wait for testing images to be loaded
-function ebWaitForTestingImages () {
-  console.log('Waiting for any test images to load ...')
-
-  if (ebReadyForTestingImages()) {
-    ebInjectSVGs()
-  } else if (typeof MutationObserver !== 'undefined') {
-    const testingImagesObserver = new MutationObserver(function (mutations) {
-      mutations.forEach(function (mutation) {
-        if (mutation.type === 'attributes' && ebReadyForTestingImages()) {
-          console.log('Testing images loaded. Starting SVG injection.')
-          ebInjectSVGs()
-          testingImagesObserver.disconnect()
-        }
-      })
-    })
-
-    testingImagesObserver.observe(document.body, {
-      attributes: true // listen for attribute changes
-    })
-  }
-}
-
-function ebSVGManagement () {
-  // Go
-  // Do not try to inject SVGs if the page
-  // is not running on http, because CORS will
-  // not allow SVG injection except on http.
-  if ((window.location.protocol).includes('http')) {
-    if (settings['remote-media']?.testing &&
-        settings['remote-media']?.testing.length > 0) {
-      // Wait for testing images to load
-      // before injecting SVGs
-      ebWaitForTestingImages()
-    } else {
-      ebInjectSVGs()
-    }
-  }
-}
-
-export default ebSVGManagement
