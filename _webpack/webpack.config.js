@@ -79,7 +79,8 @@ module.exports = {
   resolve: {
     extensions: ['.js'],
     alias: {
-      '@': path.resolve(process.cwd(), 'assets/js')
+      '@': path.resolve(process.cwd(), 'assets/js'),
+      '@indexes': path.resolve(process.cwd(), '_indexes')
     }
   },
   plugins: [
