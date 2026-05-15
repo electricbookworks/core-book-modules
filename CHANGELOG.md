@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/electricbookworks/electric-book-modules/compare/v1.6.7...v2.0.0) (2026-05-15)
+
 ### [1.6.7](https://github.com/electricbookworks/electric-book-modules/compare/v1.6.6...v1.6.7) (2026-05-12)
 
 ### [1.6.6](https://github.com/electricbookworks/electric-book-modules/compare/v1.6.5...v1.6.6) (2026-05-11)
