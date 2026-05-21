@@ -24,44 +24,21 @@ const storageKey = window.location.pathname + '-accordion'
 // --------------------------------------------------------------
 
 function ebAccordionInit () {
-  let pageAccordionOff
-
-  // Check for no-accordion setting on page
-  const accordionPageSetting = ebAccordionPageSetting()
-  const accordionBookSetting = ebAccordionBookSetting()
-
-  // First, check the book-level setting
-  if (accordionBookSetting === false) {
-    pageAccordionOff = true
-  } else {
-    pageAccordionOff = false
-  }
-
-  // If the accordion is turned off for this page
-  if (accordionPageSetting && (accordionPageSetting === 'none')) {
-    pageAccordionOff = true
-  }
-
-  // If the accordion is turned on for this page
-  if (accordionPageSetting === 'true') {
-    pageAccordionOff = false
-  }
-
   return navigator.userAgent.indexOf('Opera Mini') === -1 &&
     document.querySelectorAll !== 'undefined' &&
     window.addEventListener !== 'undefined' &&
     !!Array.prototype.forEach &&
-    !pageAccordionOff
+    !ebAccordionIsPageOff()
 }
 
 function ebAccordionPageSetting () {
-  const accordionPageSetting = document.body.querySelector('.wrapper').getAttribute('data-accordion-page')
-  return accordionPageSetting
+  return document.body.querySelector('.wrapper').getAttribute('data-accordion-page')
 }
 
-function ebAccordionBookSetting () {
-  const accordionBookSetting = settings.web.accordion.enabled
-  return accordionBookSetting
+export function ebAccordionIsPageOff () {
+  const accordionPageSetting = ebAccordionPageSetting()
+  const accordionBookSetting = process.env.settings[process.env.output]?.accordion?.enabled
+  return accordionBookSetting === false || accordionPageSetting !== 'true'
 }
 
 // function ebAccordionDefaultAccordionHeadID () {

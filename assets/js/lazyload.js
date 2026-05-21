@@ -1,22 +1,6 @@
 import SVGInject from '@iconfu/svg-inject'
+import { ebAccordionIsPageOff } from './accordion'
 const settings = process.env.settings
-
-// Check for no-accordion setting on page
-const ebLazyLoadImagesCheckPageAccordionOff = function () {
-  let pageAccordionOff
-
-  const accordionPageSetting = document.body.getAttribute('data-accordion-page')
-  const accordionBookSetting = settings.web.accordion.enabled
-
-  if ((accordionPageSetting && (accordionPageSetting === 'none')) ||
-      accordionBookSetting === false) {
-    pageAccordionOff = true
-  } else {
-    pageAccordionOff = false
-  }
-
-  return pageAccordionOff
-}
 
 const ebLazyLoadImages = function (lazyImages) {
   if (!Array.prototype.forEach) return
@@ -62,8 +46,7 @@ export default function ebLazyLoad () {
       const thisHasNoH2s = (document.querySelector('h2') === null)
       const thisIsEndmatter = (document.querySelector('.wrapper').classList.contains('endmatter-page'))
       const thisIsALeibniz = (document.querySelector('.wrapper').classList.contains('leibniz'))
-      const pageAccordionOff = ebLazyLoadImagesCheckPageAccordionOff()
-      if (thisIsNotAChapter || thisIsFrontmatter || thisHasNoH2s || thisIsEndmatter || thisIsALeibniz || pageAccordionOff) {
+      if (thisIsNotAChapter || thisIsFrontmatter || thisHasNoH2s || thisIsEndmatter || thisIsALeibniz || ebAccordionIsPageOff()) {
         const lazyImages = document.querySelectorAll('[data-src]')
         ebLazyLoadImages(lazyImages)
       }
