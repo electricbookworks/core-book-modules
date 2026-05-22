@@ -1,6 +1,6 @@
-# Electric Book Modules
+# CORE Book Modules
 
-A distributable package of modules used in the Electric Book Template and derivations thereof.
+A distributable package of modules used in CORE projects originally derived from the Electric Book Template.
 
 ## Publishing changes
 
@@ -26,7 +26,7 @@ Add it as a dependency using the direct GitHub repo and tag version approach, re
 
 ```js
 "dependencies": {
-  "@electricbookworks/electric-book-modules": "github:electricbookworks/electric-book-modules#{tag}"
+  "@electricbookworks/core-book-modules": "github:electricbookworks/core-book-modules#{tag}"
 }
 ```
 
@@ -40,14 +40,14 @@ When you install this package via npm, the `postinstall` script automatically ru
 2. Creates `.gitignore` files in copied folders to prevent tracking their contents
 3. Syncs custom files. The parent package can customise the contents of these folders by using the `{folder-name}-custom` pattern. For example, `_tools-custom/some/file.js` in the parent package will be copied into the resulting `_tools/some/file.js` that gets installed in the parent package. It will overwrite any same named file.
 3. Creates a `gulpfile.js` in the root of the parent package that imports the full source of `_tools/gulpfile.js`
-4. Creates a log file (`electric-book-modules-install.log`) for debugging purposes if there are any errors.
+4. Creates a log file (`core-book-modules-install.log`) for debugging purposes if there are any errors.
 
 ### Updating to a new version
 
 This dependency approach can result in `npm install` not correctly updating the package when changing the version. To fix this, use the following inside your Electric Book Template after changing the version:
 
 ```sh
-rm -rf node_modules/@electricbookworks/electric-book-modules && rm package-lock.json && npm install
+rm -rf node_modules/@electricbookworks/core-book-modules && rm package-lock.json && npm install
 ```
 
 Your template should also have a shortcut command for this: `npm run update-modules`.
@@ -71,14 +71,14 @@ yalc publish
 Inside the template that is consuming this package, run:
 
 ```
-yalc link @electricbookworks/electric-book-modules
+yalc link @electricbookworks/core-book-modules
 ```
 
 Add this `postyalc` property to `scripts` inside the consuming template's package.json:
 
 ```
 "scripts": {
-  "postyalc": "node node_modules/@electricbookworks/electric-book-modules/install.js"
+  "postyalc": "node node_modules/@electricbookworks/core-book-modules/install.js"
 }
 ```
 
