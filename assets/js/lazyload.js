@@ -1,6 +1,5 @@
 import SVGInject from '@iconfu/svg-inject'
 import { ebAccordionIsPageOff } from './accordion'
-const settings = process.env.settings
 
 const ebLazyLoadImages = function (lazyImages) {
   if (!Array.prototype.forEach) return
@@ -38,7 +37,7 @@ const ebLazyLoadImages = function (lazyImages) {
 }
 
 export default function ebLazyLoad () {
-  if (settings.web.images.lazyload) {
+  if (process.env.settings[process.env.output]?.images?.lazyload) {
     // if we're not on a unit, lazy load all images
     if ('querySelectorAll' in document) {
       const thisIsNotAChapter = !(document.querySelector('.wrapper').classList.contains('default-page'))

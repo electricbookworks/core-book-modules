@@ -336,7 +336,7 @@ function ebAccordionShow (targetID) {
 
     // Lazyload the images inside
     const lazyimages = sectionToShow.querySelectorAll('[data-srcset]')
-    if (lazyimages.innerHTML !== undefined) {
+    if (lazyimages.length > 0) {
       ebLazyLoadImages(lazyimages)
     }
 
