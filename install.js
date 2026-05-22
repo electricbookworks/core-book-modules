@@ -4,7 +4,7 @@ const fs = require('fs-extra')
 const path = require('path')
 
 /**
- * Installation script for electric-book-modules
+ * Installation script for core-book-modules
  * Syncs folders to the parent package and creates .gitignore files
  */
 
@@ -32,7 +32,7 @@ async function install () {
     moduleRoot = __dirname
     parentRoot = path.resolve(moduleRoot, '../../..')
 
-    // Standard npm install: node_modules/@electricbookworks/electric-book-modules
+    // Standard npm install: node_modules/@electricbookworks/core-book-modules
     if (moduleRoot.includes('node_modules')) {
       // Find the node_modules directory and get the project root
       const nodeModulesIndex = moduleRoot.lastIndexOf('node_modules')
@@ -82,7 +82,7 @@ async function install () {
 
         // Create .gitignore file in the copied folder
         const gitignoreContent = `# Electric Book ${folder === '_tools' ? 'Tools' : 'Webpack'}
-# This folder is managed by @electricbookworks/electric-book-modules
+# This folder is managed by @electricbookworks/core-book-modules
 # Do not track any files in this folder
 *
 !.gitignore
@@ -121,13 +121,13 @@ async function install () {
     }
 
     if (logMessages.length > 0) {
-      const logPath = path.join(parentRoot, 'electric-book-modules-install.log')
+      const logPath = path.join(parentRoot, 'core-book-modules-install.log')
       await fs.writeFile(logPath, logMessages.join('\n'), 'utf8')
     }
   } catch (error) {
     const errorMsg = `Error during installation: ${error.message}`
     try {
-      const logPath = path.join(parentRoot, 'electric-book-modules-install.log')
+      const logPath = path.join(parentRoot, 'core-book-modules-install.log')
       logMessages.push(`[${new Date().toISOString()}] ERROR: ${errorMsg}`)
       await fs.writeFile(logPath, logMessages.join('\n'), 'utf8')
     } catch (logError) {
