@@ -5,8 +5,8 @@ if (process.env.settings['dynamic-indexing'] !== false && (process.env.output ==
   const ebIndexTargets = bookIndexFileExists ? require(`@indexes/book-index-${process.env.output}`) : []
   /*
     Script that adds index-reference links.
-    This is done client-side in web and app, and pre-processed by gulp
-    in PDF and epub outputs.
+    This is used both in the browser
+    and by gulp for PDF and epub outputs.
   */
   ebIndexLists(ebIndexTargets)
 }

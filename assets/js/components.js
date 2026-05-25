@@ -1,4 +1,5 @@
 import { locales, pageLanguage } from './locales'
+import ebSanitizeHtml from './santize-html'
 
 function ebComponentShareLinks (href) {
   // Need to edit all of the links in the share menu,
@@ -77,7 +78,7 @@ function ebComponentAddTitle (href) {
   componentTitleDiv.classList.add('component-title')
 
   const componentTitleText = document.createElement('p')
-  componentTitleText.innerHTML = componentTitle
+  componentTitleText.appendChild(ebSanitizeHtml(componentTitle))
 
   componentTitleDiv.appendChild(componentTitleText)
   componentTitleDiv.appendChild(ebComponentAddCloseButton(href))
@@ -85,7 +86,7 @@ function ebComponentAddTitle (href) {
 
   // Create the subtitle from the pieces
   const componentSubtitle = document.createElement('p')
-  componentSubtitle.innerHTML = ebComponentBuildSubtitle(href)
+  componentSubtitle.appendChild(ebSanitizeHtml(ebComponentBuildSubtitle(href)))
   componentSubtitle.classList.add('component-subtitle')
   componentTitleWrapper.appendChild(componentSubtitle)
 
@@ -100,7 +101,10 @@ function ebComponentAddCloseButton (href) {
   const fromFile = ebGetComponentParameters(href).from
   const fromID = ebGetComponentParameters(href).id
 
-  const buttonHref = fromFile + fromID
+  // Reject any scheme in fromFile (e.g. javascript:) — valid values are
+  // relative filenames like 'page.html' or 'volume_02.html', never URLs.
+  const safeFromFile = fromFile.includes(':') ? '' : fromFile
+  const buttonHref = safeFromFile + fromID
 
   const closeButton = document.createElement('a')
   closeButton.classList.add('component-close-button')
