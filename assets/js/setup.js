@@ -74,24 +74,26 @@ function ebAssignFingerprints (element, ancestorTagNames) {
   // to pass to child elements.
   const descendantTagNames = fingerprint
 
-  // Add an opening [a-z] string
-  const openingString = ebSlugify(element.innerText.slice(0, 20)).replace(/-/g, '')
-  // Add a closing [a-z] string
-  const closingString = ebSlugify(element.innerText.slice(-20)).replace(/-/g, '')
+  if (element.innerText) {
+    // Add an opening [a-z] string
+    const openingString = ebSlugify(element.innerText.slice(0, 20)).replace(/-/g, '')
+    // Add a closing [a-z] string
+    const closingString = ebSlugify(element.innerText.slice(-20)).replace(/-/g, '')
 
-  // Add them to the fingerprint
-  fingerprint += openingString + '-'
-  fingerprint += closingString
+    // Add them to the fingerprint
+    fingerprint += openingString + '-'
+    fingerprint += closingString
 
-  // Set the data-fingerprint attribute
-  element.setAttribute('data-fingerprint', fingerprint)
+    // Set the data-fingerprint attribute
+    element.setAttribute('data-fingerprint', fingerprint)
 
-  // Get the children and fingerprint them, too.
-  // We need to convert the HTMLCollection to an array before doing forEach.
-  const children = Array.prototype.slice.call(element.children)
-  children.forEach(function (child) {
-    ebAssignFingerprints(child, descendantTagNames)
-  })
+    // Get the children and fingerprint them, too.
+    // We need to convert the HTMLCollection to an array before doing forEach.
+    const children = Array.prototype.slice.call(element.children)
+    children.forEach(function (child) {
+      ebAssignFingerprints(child, descendantTagNames)
+    })
+  }
 
   // Flag that fingerprints are assigned
   document.body.setAttribute('data-fingerprints-assigned', 'true')
