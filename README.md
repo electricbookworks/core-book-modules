@@ -47,7 +47,7 @@ When you install this package via npm, the `postinstall` script automatically ru
 This dependency approach can result in `npm install` not correctly updating the package when changing the version. To fix this, use the following inside your Electric Book Template after changing the version:
 
 ```sh
-rm -rf node_modules/@electricbookworks/core-book-modules && rm package-lock.json && npm install
+rm -rf node_modules package-lock.json && npm install
 ```
 
 Your template should also have a shortcut command for this: `npm run update-modules`.
