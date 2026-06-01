@@ -18,7 +18,7 @@ module.exports = {
     ...(isWebAppOutput && fs.existsSync(path.resolve(process.cwd(), 'assets/js/search.js')) && {
       search: path.resolve(process.cwd(), 'assets/js/search.js')
     }),
-    ...(isWebAppOutput && fs.existsSync(path.resolve(process.cwd(), 'assets/js/indexing.js')) && {
+    ...(fs.existsSync(path.resolve(process.cwd(), 'assets/js/indexing.js')) && {
       indexing: path.resolve(process.cwd(), 'assets/js/indexing.js')
     })
   },
