@@ -1,4 +1,4 @@
-const puppeteer = require('puppeteer')
+const cheerio = require('cheerio')
 const fs = require('fs')
 const fsPath = require('path')
 const fsPromises = require('fs/promises')
@@ -58,10 +58,6 @@ async function buildSearchIndex (outputFormat, filesData, configsObject) {
     await fsExtra.emptyDir(fsPath.normalize(process.cwd() + '/_api/content'))
   }
 
-  // Launch the browser
-  const puppeteerArgs = process.env.PUPPETEER_ARGS ? process.env.PUPPETEER_ARGS.split(' ') : []
-  const browser = await puppeteer.launch({ headless: true, args: puppeteerArgs })
-
   let i
   let count = 0
   for (i = 0; i < filesData.length; i += 1) {
@@ -71,12 +67,10 @@ async function buildSearchIndex (outputFormat, filesData, configsObject) {
     // is run from the repo root, e.g as
     // node _site/assets/js/render-search-index.js
     // in which case the repo root is the current working directory (cwd).
-    // Puppeteer requires the protocol (file://) on unix.
     // Note we do not normalise here, because we want
     // the path to use forward slashes even on Windows,
     // so we can check the string later on.
     const path = process.cwd() + '/_site/' + filesData[i].path
-    const pathWithProtocol = 'file://' + path
 
     // Check that the page exists before we
     // try to open it
@@ -95,59 +89,30 @@ async function buildSearchIndex (outputFormat, filesData, configsObject) {
       continue
     }
 
-    // Open a new tab
-    const page = await browser.newPage()
-
-    // Set debug to true to return any browser-console
-    // messages to the Node console
-    const debug = false
-    if (debug === true) {
-      page.on('console', function (consoleObj) {
-        console.log(consoleObj.text())
-      })
-    }
-
-    // Go to the page URL
-    await page.goto(pathWithProtocol)
+    // Read and parse the page's HTML
+    const html = await fsPromises.readFile(fsPath.normalize(path), 'utf8')
+    const $ = cheerio.load(html)
 
     // Get the page title
-    const title = await page.evaluate(
-      function () {
-        const titleElement = document.title
-        let titleText = ''
-        if (titleElement) {
-          titleText = document.title
-            .replace(/"/g, '\'').replace(/\s+/g, ' ').trim()
-        }
-        return titleText
-      }
-    )
+    let title = ''
+    const titleText = $('title').text()
+    if (titleText) {
+      title = titleText.replace(/"/g, '\'').replace(/\s+/g, ' ').trim()
+    }
 
     // Get the page description
-    const description = await page.evaluate(
-      function () {
-        let descriptionText = ''
-        const descriptionTag = document.querySelector('meta[name="description"]')
-        if (descriptionTag) {
-          descriptionText = descriptionTag.content
-            .replace(/"/g, '\'').replace(/\s+/g, ' ').trim()
-        }
-        return descriptionText
-      }
-    )
+    let description = ''
+    const descriptionContent = $('meta[name="description"]').attr('content')
+    if (descriptionContent) {
+      description = descriptionContent.replace(/"/g, '\'').replace(/\s+/g, ' ').trim()
+    }
 
     // Get the page content
-    const content = await page.evaluate(
-      function () {
-        const contentDiv = document.body.querySelector('.content')
-        let contentText = ''
-        if (contentDiv) {
-          contentText = contentDiv.textContent
-            .replace(/"/g, '\'').replace(/\s+/g, ' ').trim()
-        }
-        return contentText
-      }
-    )
+    let content = ''
+    const contentDiv = $('body .content')
+    if (contentDiv.length > 0) {
+      content = contentDiv.text().replace(/"/g, '\'').replace(/\s+/g, ' ').trim()
+    }
 
     // Build the API endpoint
     const endpoint = 'api/content/' +
@@ -220,18 +185,13 @@ async function buildSearchIndex (outputFormat, filesData, configsObject) {
     searchIndexEntry = ''
     pageObjectForAPIIndex = {}
     pageObjectForAPIContent = {}
-
-    // Close the page when we're done
-    await page.close()
   }
 
-  // If we've got all the pages, close the array
-  // and close the Puppeteer browser.
+  // If we've got all the pages, close the array.
   if (count === filesData.length) {
     const exportStore = 'if (store) { module.exports = store }'
     searchIndexNoDocs += ']; ' + exportStore
     searchIndexWithDocs += ']; ' + exportStore
-    browser.close()
   }
 
   // Create empty index files to write to, if they don't exist
