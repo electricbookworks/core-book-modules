@@ -35,18 +35,22 @@ const merge = require('../merge')
 // Web output
 async function web (argv) {
   try {
-    await fs.emptyDir(process.cwd() + '/_site')
-    !argv.skipwebpack && await webpack(argv)
-    await jekyll(argv)
+    if (!argv.skipbuild) {
+      await fs.emptyDir(process.cwd() + '/_site')
+      !argv.skipwebpack && await webpack(argv)
+      await jekyll(argv)
+    }
   } catch (error) {
     console.log(error)
   }
 }// PDF output
 async function pdf (argv) {
   try {
-    await fs.emptyDir(process.cwd() + '/_site')
-    !argv.skipwebpack && await webpack(argv)
-    await jekyll(argv)
+    if (!argv.skipbuild) {
+      await fs.emptyDir(process.cwd() + '/_site')
+      !argv.skipwebpack && await webpack(argv)
+      await jekyll(argv)
+    }
     await processContent(argv)
     await renderIndexComments(argv)
     await renderIndexLinks(argv)
@@ -63,9 +67,11 @@ async function pdf (argv) {
 // Epub output
 async function epub (argv) {
   try {
-    await fs.emptyDir(process.cwd() + '/_site')
-    !argv.skipwebpack && await webpack(argv)
-    await jekyll(argv)
+    if (!argv.skipbuild) {
+      await fs.emptyDir(process.cwd() + '/_site')
+      !argv.skipwebpack && await webpack(argv)
+      await jekyll(argv)
+    }
     await processContent(argv)
     await epubHTMLTransformations(argv)
     await renderIndexComments(argv)
@@ -154,9 +160,11 @@ async function epub (argv) {
 // App output
 async function app (argv) {
   try {
-    await fs.emptyDir(process.cwd() + '/_site')
-    !argv.skipwebpack && await webpack(argv)
-    await jekyll(argv)
+    if (!argv.skipbuild) {
+      await fs.emptyDir(process.cwd() + '/_site')
+      !argv.skipwebpack && await webpack(argv)
+      await jekyll(argv)
+    }
 
     await fsPromises.mkdir(process.cwd() + '/_site/app/www')
     await assembleApp()

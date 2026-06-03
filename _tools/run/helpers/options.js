@@ -187,6 +187,13 @@ const options = {
     default: '_site',
     defaultDescription: '_site',
     type: 'string'
+  },
+  skipbuild: {
+    description: 'Whether to skip the build process. Assumes _site is in ready state.',
+    alias: 'sb',
+    default: false,
+    defaultDescription: 'false',
+    type: 'boolean'
   }
 }
 

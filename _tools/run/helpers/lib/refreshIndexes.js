@@ -12,7 +12,6 @@ const configsObject = require('./configsObject.js')
 // Refresh indexes
 async function refreshIndexes (argv) {
   try {
-    await fs.emptyDir(process.cwd() + '/_site')
     /*
     Much of _tools doesn't properly cater for the baseurl.
     The assumption in most methods is that baseurl is ''.
@@ -26,8 +25,11 @@ async function refreshIndexes (argv) {
       ...argv,
       baseurl: ''
     }
-    await webpack(_argv)
-    await jekyll(_argv)
+    if (!_argv.skipbuild) {
+      await fs.emptyDir(process.cwd() + '/_site')
+      await webpack(_argv)
+      await jekyll(_argv)
+    }
     if (argv.format === 'print-pdf' ||
       argv.format === 'screen-pdf' ||
       argv.format === 'epub') {
