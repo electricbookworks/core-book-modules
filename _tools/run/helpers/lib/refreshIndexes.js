@@ -16,10 +16,6 @@ async function refreshIndexes (argv) {
     Much of _tools doesn't properly cater for the baseurl.
     The assumption in most methods is that baseurl is ''.
     Setting baseurl here is a temporary/safe fix to avoid further regressions for now.
-    TODO: rewrite all of _tools to address the following issues:
-      – Functions too tightly coupled across disparate operations
-      - Lacks clear order of operations
-      – The 'helpers' are not pure functions (i.e. they have many, hard-to-trace side effects)
     */
     const _argv = {
       ...argv,

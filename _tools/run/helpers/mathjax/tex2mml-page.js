@@ -73,7 +73,7 @@ global.MathJax = {
     paths: { mathjax: '@mathjax/src/bundle' },
     source: (argv.dist ? {} : require('@mathjax/src/components/js/source.js').source),
     require,
-    load: ['adaptors/liteDOM', 'input/tex']
+    load: ['core', 'adaptors/liteDOM', 'input/tex']
   },
   options: {
     renderActions: {
@@ -90,6 +90,14 @@ global.MathJax = {
     typeset: true,
     document: htmlfile,
     ready () {
+      // In source (non-dist) mode, liteDOM lazily async-loads named-entity
+      // tables from '[mathjax]/util/entities/*.js'. The loader resolves
+      // '[mathjax]' to the bundle dir, which has no entities, so the load
+      // fails and cascades into 'Can't find handler for document'.
+      // Preload all entity tables up front to avoid any async load.
+      if (!argv.dist) {
+        require('@mathjax/src/cjs/util/entities/all.js')
+      }
       global.MathJax.startup.defaultReady()
     }
   }
