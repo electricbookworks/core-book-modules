@@ -198,7 +198,49 @@ async function renderIndexCommentsAsTargets (done) {
           $('[data-target-type=block]').each(function (unusedIndex, link) {
             link = $(link) // wrap it for cheerio
             const indexedElement = $(link).nextAll(':not(.index-target)').first()
-            indexedElement.prepend(link)
+
+            // If there is no following element to move into, leave the target
+            // where it is. (Calling .prop()/.find() on an empty selection throws
+            // in the cheerio version bundled with gulp-cheerio, which would abort
+            // the whole transformation and drop every index target on the page.)
+            if (indexedElement.length === 0) {
+              return
+            }
+
+            // Some elements may not contain an anchor as a direct child
+            // (e.g. dl, ul, ol, table). Prepending an `<a>` directly into
+            // them produces invalid XHTML and fails EPUB validation
+            // (e.g. EPUBCheck RSC-005, '"a" not allowed here').
+            // For these, move the target into the first descendant that
+            // can legitimately contain it; otherwise fall back to placing
+            // the target immediately before the element, which is always valid.
+            const invalidAnchorParents = {
+              dl: 'dt',
+              ul: 'li',
+              ol: 'li',
+              menu: 'li',
+              table: 'caption, td, th',
+              thead: 'td, th',
+              tbody: 'td, th',
+              tfoot: 'td, th',
+              tr: 'td, th'
+            }
+
+            const indexedNode = indexedElement.get(0)
+            const tag = indexedNode && indexedNode.name
+              ? indexedNode.name.toLowerCase()
+              : ''
+
+            if (invalidAnchorParents[tag]) {
+              const childTarget = indexedElement.find(invalidAnchorParents[tag]).first()
+              if (childTarget.length > 0) {
+                childTarget.prepend(link)
+              } else {
+                link.insertBefore(indexedElement)
+              }
+            } else {
+              indexedElement.prepend(link)
+            }
           })
 
           // Finally, flag that we're done.

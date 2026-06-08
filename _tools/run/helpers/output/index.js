@@ -93,8 +93,28 @@ async function epub (argv) {
     }
     await addToEpub(bookAssetPaths(argv, 'images'), imagesDestination)
 
-    await addToEpub(bookAssetPaths(argv, 'styles'),
-      argv.book + '/styles')
+    // Styles. A translation that has its own styles links to BOTH the
+    // parent stylesheet and its own stylesheet (the translation styles
+    // override the parent's). So both must be copied into the epub at
+    // their matching paths, otherwise the translation stylesheet is
+    // missing and EPUBCheck reports RSC-001 (file could not be found).
+    const translatedStylesDir = fsPath.normalize(process.cwd() + '/_site/' +
+      argv.book + '/' + (argv.language || '') + '/styles')
+    const hasTranslatedStyles = argv.language &&
+      pathExists(translatedStylesDir) &&
+      fs.readdirSync(translatedStylesDir).length > 0
+
+    if (hasTranslatedStyles) {
+      // The translation's own stylesheet, into its language styles folder.
+      await addToEpub(bookAssetPaths(argv, 'styles'),
+        argv.book + '/' + argv.language + '/styles')
+      // The parent stylesheet, which the translation styles override.
+      await addToEpub(bookAssetPaths(argv, 'styles', null, { parentOnly: true }),
+        argv.book + '/styles')
+    } else {
+      await addToEpub(bookAssetPaths(argv, 'styles'),
+        argv.book + '/styles')
+    }
     await addToEpub(bookAssetPaths(argv, 'images', 'assets'),
       'assets/images/epub')
 
