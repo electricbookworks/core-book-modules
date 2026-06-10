@@ -3,6 +3,8 @@ const fs = require('fs')
 const fsPath = require('path')
 const fsPromises = require('fs/promises')
 const fsExtra = require('fs-extra')
+const cleanIndexFiles = require('./clean-index-files.js')
+const toStandardJsLiteral = require('./js-literal.js')
 
 // This function writes a single file for the content API
 async function writeContentAPIFile (pageObject) {
@@ -36,13 +38,10 @@ function generateContentAPI (outputFormat, configsObject) {
 
 // The main process for generating a search index
 async function buildSearchIndex (outputFormat, filesData, configsObject) {
-  // This will be the elasticllunr index without /docs.
-  // We'll close the array when we've added all its objects.
-  let searchIndexNoDocs = 'const store = ['
-
-  // This will be the elasticllunr index with /docs.
-  // We'll close the array when we've added all its objects.
-  let searchIndexWithDocs = 'const store = ['
+  // These hold the elasticlunr index page objects.
+  // One set includes /docs pages, the other excludes them.
+  const storeNoDocs = []
+  const storeWithDocs = []
 
   // Are we generating the API?
   const api = generateContentAPI(outputFormat, configsObject)
@@ -148,15 +147,8 @@ async function buildSearchIndex (outputFormat, filesData, configsObject) {
     //   title: "Title of page",
     //   content: "Content of page",
     // }
-    let searchIndexEntry = JSON.stringify(pageObjectForAPIContent)
-
-    // Add entry to the searchIndex array
-    searchIndexWithDocs += searchIndexEntry
-
-    // Add a comma if this isn't the last entry
-    if (i !== (filesData.length - 1)) {
-      searchIndexWithDocs += ','
-    }
+    // Add entry to the with-docs store.
+    storeWithDocs.push(pageObjectForAPIContent)
 
     // If this page isn't a doc, include it
     // in the no-docs search index and the API index,
@@ -165,12 +157,7 @@ async function buildSearchIndex (outputFormat, filesData, configsObject) {
     // above, since it would have backslashes on Windows
     // if the path had been normalised.
     if (!path.includes('/_site/docs/')) {
-      searchIndexNoDocs += searchIndexEntry
-
-      // Add a comma if this isn't the last entry
-      if (i !== (filesData.length - 1)) {
-        searchIndexNoDocs += ','
-      }
+      storeNoDocs.push(pageObjectForAPIContent)
 
       if (api) {
         contentIndexForAPI.push(pageObjectForAPIIndex)
@@ -181,61 +168,49 @@ async function buildSearchIndex (outputFormat, filesData, configsObject) {
     // Increment counter
     count += 1
 
-    // Reset the entry and pageObjects
-    searchIndexEntry = ''
+    // Reset the pageObjects
     pageObjectForAPIIndex = {}
     pageObjectForAPIContent = {}
   }
 
-  // If we've got all the pages, close the array.
-  if (count === filesData.length) {
-    const exportStore = 'if (store) { module.exports = store }'
-    searchIndexNoDocs += ']; ' + exportStore
-    searchIndexWithDocs += ']; ' + exportStore
+  // Build the store file contents.
+  // The data is written as a Standard-style JS literal so the files
+  // are human-readable and pass linting; webpack minifies them later.
+  function buildStoreFile (store) {
+    return 'const store = ' + toStandardJsLiteral(store) + '\n\n' +
+        'if (store) { module.exports = store }\n'
   }
 
-  // Create empty index files to write to, if they don't exist
+  // Work out the search-index file paths and names.
+  const fileNameNoDocs = 'search-index-' + outputFormat + '.js'
+  const fileNameWithDocs = 'search-index-with-docs-' + outputFormat + '.js'
   const indexFilePathNoDocs = fsPath.normalize(process.cwd() +
-      '/_indexes/search-index-' + outputFormat + '.js')
+      '/_indexes/' + fileNameNoDocs)
   const indexFilePathWithDocs = fsPath.normalize(process.cwd() +
-      '/_indexes/search-index-with-docs-' + outputFormat + '.js')
+      '/_indexes/' + fileNameWithDocs)
   const indexFilePathForAPI = fsPath.normalize(process.cwd() +
       '/_api/content/index.json')
 
-  if (!fs.existsSync(indexFilePathNoDocs)) {
-    console.log('Creating ' + indexFilePathNoDocs)
-    await fsPromises.writeFile(indexFilePathNoDocs, '')
-  }
-  if (!fs.existsSync(indexFilePathWithDocs)) {
-    console.log('Creating ' + indexFilePathWithDocs)
-    await fsPromises.writeFile(indexFilePathWithDocs, '')
-  }
-  if (api && (!fs.existsSync(indexFilePathForAPI))) {
-    console.log('Creating ' + indexFilePathForAPI)
-    await fsPromises.writeFile(indexFilePathForAPI, '')
-  }
-
   // Write the search index files.
+  // fsExtra.outputFile creates the path and file if they don't exist.
+  await fsExtra.outputFile(indexFilePathWithDocs, buildStoreFile(storeWithDocs))
+  console.log('Writing ' + indexFilePathWithDocs)
+
+  await fsExtra.outputFile(indexFilePathNoDocs, buildStoreFile(storeNoDocs))
+  console.log('Writing ' + indexFilePathNoDocs)
+
+  // Write the API index file.
   // Note: contentIndexForAPI is an object and must be stringified.
-  fs.writeFile(indexFilePathWithDocs,
-    searchIndexWithDocs, function () {
-      console.log('Writing ' + indexFilePathWithDocs)
-      console.log('Done.')
-    })
-
-  fs.writeFile(indexFilePathNoDocs,
-    searchIndexNoDocs, function () {
-      console.log('Writing ' + indexFilePathNoDocs)
-      console.log('Done.')
-    })
-
   if (api) {
-    fs.writeFile(indexFilePathForAPI,
-      JSON.stringify(contentIndexForAPI), function () {
-        console.log('Writing ' + indexFilePathForAPI)
-        console.log('Done.')
-      })
+    await fsExtra.outputFile(indexFilePathForAPI, JSON.stringify(contentIndexForAPI))
+    console.log('Writing ' + indexFilePathForAPI)
   }
+
+  // Remove any stale or legacy index files that don't match the
+  // current output naming patterns for any format.
+  await cleanIndexFiles()
+
+  console.log('Done.')
 }
 
 // Run the rendering process

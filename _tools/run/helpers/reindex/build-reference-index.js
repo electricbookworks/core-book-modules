@@ -5,6 +5,8 @@ const fsPromises = require('fs/promises')
 const { decode } = require('entities')
 const { marked } = require('marked')
 const ebSlugify = require('../../../utilities/slugify')
+const cleanIndexFiles = require('./clean-index-files.js')
+const toStandardJsLiteral = require('./js-literal.js')
 
 // A cheerio equivalent of ebDecodeHtmlEntitiesPreservingTags
 // from assets/js/utilities.js
@@ -173,11 +175,38 @@ function renderIndexCommentsAsTargets ($) {
   $('body').attr('data-index-targets', 'loaded')
 }
 
+// Work out the reference-index filename for a book/language group.
+// Book index targets are split per book and per language, so the
+// generated files are smaller and more performant. Targets that don't
+// belong to a book fall back to the global filename.
+function referenceIndexFileName (book, language, outputFormat) {
+  if (!book) {
+    return 'book-index-' + outputFormat + '.js'
+  }
+
+  // Omit the language segment for the default language.
+  const languageSegment = language ? '-' + language : ''
+  return outputFormat + '-' + book + languageSegment + '-index.js'
+}
+
 // The main process for generating an index of targets.
 async function buildReferenceIndex (outputFormat, filesData) {
-  // Initialise an array that will store an index
-  // or 'database' of the book-index targets.
-  const targetsIndex = []
+  // Group the book-index targets by book and language. Each group is
+  // a 'database' of the targets for one book/language combination.
+  // Files that don't belong to a book fall back to a global group.
+  const groups = new Map()
+
+  function getGroup (book, language) {
+    const key = book ? book + '|' + (language || '') : '__global__'
+    if (!groups.has(key)) {
+      groups.set(key, {
+        book: book || '',
+        language: language || '',
+        pages: []
+      })
+    }
+    return groups.get(key)
+  }
 
   let i
   for (i = 0; i < filesData.length; i += 1) {
@@ -214,11 +243,6 @@ async function buildReferenceIndex (outputFormat, filesData) {
       console.log('No index targets found for ' + filename + ', skipping.')
       continue
     }
-
-    // Read book-level data from the wrapper element.
-    const wrapper = $('.wrapper')
-    const bookTitle = wrapper.attr('data-title')
-    const translationLanguage = wrapper.attr('data-translation')
 
     // Collect the index targets on this page.
     // Note that we do not sort the entries. The items are added in
@@ -264,39 +288,45 @@ async function buildReferenceIndex (outputFormat, filesData) {
         entryTree: JSON.stringify(entriesByLevel),
         id,
         range,
-        bookTitle,
-        translationLanguage,
         filename
       })
     })
 
-    // Add the entries to the master index,
+    // Add the entries to the group for this file's book and language,
     // if there are any.
     if (indexEntries.length > 0) {
-      targetsIndex.push(indexEntries)
+      getGroup(filesData[i].book, filesData[i].language).pages.push(indexEntries)
     }
   }
 
-  // Create empty index file to write to, if it doesn't exist
-  const indexFilePath = fsPath.normalize(process.cwd() +
-      '/_indexes/book-index-' + outputFormat + '.js')
-  if (!fs.existsSync(indexFilePath)) {
-    console.log('Creating ' + indexFilePath)
-    await fsPromises.writeFile(indexFilePath, '')
+  // Ensure the _indexes directory exists.
+  const indexesDir = fsPath.normalize(process.cwd() + '/_indexes')
+  if (!fs.existsSync(indexesDir)) {
+    fs.mkdirSync(indexesDir, { recursive: true })
   }
 
-  // Write the book index 'database' file.
+  // Write a book index 'database' file for each book/language group.
   // We add module.exports so that we can use indexTargets
   // in Node processes (i.e. gulp with cheerio)
   // and in other JS modules.
-  fs.writeFile(indexFilePath,
-    'var ebIndexTargets = ' + JSON.stringify(targetsIndex) + ';' +
-        'module.exports = ebIndexTargets',
-    function () {
-      console.log('Writing ' + indexFilePath)
-      console.log('Done.')
-    }
-  )
+  // The data is written as a Standard-style JS literal so the files
+  // are human-readable and pass linting; webpack minifies them later.
+  for (const group of groups.values()) {
+    const fileName = referenceIndexFileName(group.book, group.language, outputFormat)
+    const indexFilePath = fsPath.normalize(indexesDir + '/' + fileName)
+    const fileContents = 'const ebIndexTargets = ' +
+        toStandardJsLiteral(group.pages) + '\n\n' +
+        'module.exports = ebIndexTargets\n'
+
+    await fsPromises.writeFile(indexFilePath, fileContents)
+    console.log('Writing ' + indexFilePath)
+  }
+
+  // Remove any stale or legacy index files that don't match the
+  // current output naming patterns for any format.
+  await cleanIndexFiles()
+
+  console.log('Done.')
 }
 
 // Run the rendering process.

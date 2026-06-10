@@ -8,10 +8,7 @@ const { decode } = require('entities')
 const { marked } = require('marked')
 
 // Local helpers
-const {
-  printpdfIndexTargets, screenpdfIndexTargets,
-  epubIndexTargets, appIndexTargets
-} = require('../helpers/paths.js')
+const { indexTargets } = require('../helpers/paths.js')
 const { ebSlugify } = require('../helpers/utilities.js')
 const { format } = require('../helpers/args.js')
 const htmlFilePaths = require('../../run/helpers/paths/htmlFilePaths.js')
@@ -344,11 +341,6 @@ async function renderIndexListReferences (done) {
           // and save its slug.
           const listItemSlug = ebSlugify(listItemTree.join(' \\ '), true)
 
-          // Get the book title and translation language (if any)
-          // for the HTML page we're processing.
-          const currentBookTitle = $('.wrapper').attr('data-title')
-          const currentTranslation = $('.wrapper').attr('data-translation')
-
           // Look through the index 'database' of targets
           // Each child in the ebIndexTargets array represents
           // the index anchor targets on one HTML page.
@@ -359,75 +351,29 @@ async function renderIndexListReferences (done) {
           let pageReferenceSequenceNumber = 1
 
           ebIndexTargets.forEach(function (pageEntries) {
-            // Reset variables
-            let titleMatches = false
-            let languageMatches = false
-            let bookIsTranslation = false
-            let entryHasTranslationLanguage = false
-
-            // First, check if the entries for this page
-            // of entries are for files in the same book.
-            // We just check against the first entry for the page.
-            if (currentBookTitle === pageEntries[0].bookTitle) {
-              titleMatches = true
-            }
-
-            // Check if this is the same language.
-            // If the book we're in has a translation language...
-            if (currentTranslation) {
-              bookIsTranslation = true
-
-              // ... and if the entry also has one
-              if (pageEntries[0].translationLanguage) {
-                entryHasTranslationLanguage = true
-
-                // ... and if they're the same, the language matches.
-                if (bookIsTranslation && entryHasTranslationLanguage) {
-                  if (currentTranslation === pageEntries[0].translationLanguage) {
-                    languageMatches = true
-                  }
+            // Find this entry's page numbers
+            let rangeOpen = false
+            pageEntries.forEach(function (entry) {
+              if (entry.entrySlug === listItemSlug) {
+                // If a 'from' link has started a reference range,
+                // skip links till the next 'to' link that closes the range.
+                if (entry.range === 'from') {
+                  rangeOpen = true
+                  ebIndexAddLink(listItem, pageReferenceSequenceNumber, entry)
+                  pageReferenceSequenceNumber += 1
                 }
-              }
-            } else {
-              // Otherwise, if there was no translation language
-              // for the book above, and there IS a language
-              // noted for this entry, then there's no match.
-              if (pageEntries[0].translationLanguage) {
-                languageMatches = false
-              } else {
-                // Finally, if there was neither a currentTranslation
-                // above, nor a translation language for this entry,
-                // then it must be a match, because no languages defined
-                // means both are the default language for this project.
-                languageMatches = true
-              }
-            }
-
-            if (titleMatches && languageMatches) {
-              // Find this entry's page numbers
-              let rangeOpen = false
-              pageEntries.forEach(function (entry) {
-                if (entry.entrySlug === listItemSlug) {
-                  // If a 'from' link has started a reference range,
-                  // skip links till the next 'to' link that closes the range.
-                  if (entry.range === 'from') {
-                    rangeOpen = true
+                if (rangeOpen) {
+                  if (entry.range === 'to') {
                     ebIndexAddLink(listItem, pageReferenceSequenceNumber, entry)
                     pageReferenceSequenceNumber += 1
+                    rangeOpen = false
                   }
-                  if (rangeOpen) {
-                    if (entry.range === 'to') {
-                      ebIndexAddLink(listItem, pageReferenceSequenceNumber, entry)
-                      pageReferenceSequenceNumber += 1
-                      rangeOpen = false
-                    }
-                  } else {
-                    ebIndexAddLink(listItem, pageReferenceSequenceNumber, entry)
-                    pageReferenceSequenceNumber += 1
-                  }
+                } else {
+                  ebIndexAddLink(listItem, pageReferenceSequenceNumber, entry)
+                  pageReferenceSequenceNumber += 1
                 }
-              })
-            }
+              }
+            })
           })
         }
 
@@ -451,16 +397,9 @@ async function renderIndexListReferences (done) {
         if (indexLists.length > 0) {
           let indexListsProcessed = 0
           indexLists.each(function () {
-            // Process for epub output by default
-            if (format === 'print-pdf') {
-              ebIndexPopulate(printpdfIndexTargets)
-            } else if (format === 'screen-pdf') {
-              ebIndexPopulate(screenpdfIndexTargets)
-            } else if (format === 'app') {
-              ebIndexPopulate(appIndexTargets)
-            } else {
-              ebIndexPopulate(epubIndexTargets)
-            }
+            // paths.js already loads the index targets for the current
+            // book, language and output format, so we use them directly.
+            ebIndexPopulate(indexTargets)
 
             // Flag when we're done
             indexListsProcessed += 1
