@@ -51,6 +51,7 @@ import ebShiftElements from '../shift-elements'
 import ebShowHide from '../show-hide'
 import ebSidenotes from '../sidenotes'
 import ebSlides from '../slides'
+import ebStudents from '../students'
 import ebSvgManagement from '../svg-management'
 import ebTables from '../tables'
 import ebTranscripts from '../transcripts'
@@ -221,6 +222,10 @@ if (process.env.output === 'screen-pdf' || process.env.output === 'print-pdf') {
 // This script generates a "For instructors' use only" footer in screen-pdfs
 if (process.env.output === 'screen-pdf') {
   ebFooterNotice()
+}
+
+if (process.env.config?.audience === 'students') {
+  ebStudents()
 }
 
 // Scripts for epub output. Do not expect support in many readers.

@@ -1,7 +1,5 @@
 /* global MutationObserver */
 
-const settings = process.env.settings
-
 function ebStudentsRemoveSectionNumbers () {
   const sectionHeadings = document.querySelectorAll('h2')
   if (sectionHeadings.length > 0) {
