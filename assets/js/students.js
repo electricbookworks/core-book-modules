@@ -1,7 +1,5 @@
 /* global MutationObserver */
 
-const settings = process.env.settings
-
 function ebStudentsRemoveSectionNumbers () {
   const sectionHeadings = document.querySelectorAll('h2')
   if (sectionHeadings.length > 0) {
@@ -26,16 +24,37 @@ function ebStudentsHideNavItems () {
   hiddenNavItems.forEach(function (item) {
     const expanderList = item.parentNode
     const expander = expanderList.previousElementSibling
-    item.remove()
+
+    // Use parentNode.removeChild rather than Element.remove(): Prince's
+    // built-in JS engine does not implement ChildNode.remove(), so calling
+    // item.remove() in a PDF build throws 'remove': undefined is not a function.
+    if (item.parentNode) {
+      item.parentNode.removeChild(item)
+    }
 
     // If the list now has no children, remove the expander,
     // after checking that we're targeting a list and expander
     if (expanderList && expander &&
                 expanderList.tagName === 'OL' &&
                 expander.tagName === 'BUTTON') {
-      if (expanderList.children.length === 0) {
-        expander.remove()
+      if (expanderList.children.length === 0 && expander.parentNode) {
+        expander.parentNode.removeChild(expander)
       }
+    }
+  })
+}
+
+function ebStudentsRemoveEmptyTocLists () {
+  // Some toc-list elements are generated empty, e.g. for a chapter
+  // whose child entries are all 'students-hidden' and have been removed.
+  // Empty <ol class="toc-list"> elements still take up space (margins),
+  // so remove any that have no element children.
+  const tocLists = document.querySelectorAll('ol.toc-list')
+  tocLists.forEach(function (tocList) {
+    if (tocList.children.length === 0 && tocList.parentNode) {
+      // Use parentNode.removeChild rather than Element.remove(): Prince's
+      // built-in JS engine does not implement ChildNode.remove().
+      tocList.parentNode.removeChild(tocList)
     }
   })
 }
@@ -61,9 +80,11 @@ export default function ebStudents () {
     // We need to wait for the accordion to load
     ebStudentNumbersWaitForAccordion()
     ebStudentsHideNavItems()
+    ebStudentsRemoveEmptyTocLists()
   } else {
     // For PDFs, we don't need to wait for the accordion
     ebStudentsRemoveSectionNumbers()
     ebStudentsHideNavItems()
+    ebStudentsRemoveEmptyTocLists()
   }
 }
