@@ -45,9 +45,11 @@ function isXMLMode () {
   }
 }
 
-// Turn HTML comments for book indexes into anchor tags.
-// This is a pre-processing alternative to assets/js/_src/index-targets.js,
-// which dynamically adds index targets in web clients.
+// Turn HTML comments for book indexes into index targets by marking
+// the indexed element with an ID (reusing any existing ID) and recording
+// its entries in a `data-index-entries` attribute.
+// This is a pre-processing alternative to assets/js/index-targets.js,
+// which dynamically marks index targets in web clients.
 // It duplicates much of what index-targets.js does. So, if you
 // update it, you may need to update index-targets.js as well.
 async function renderIndexCommentsAsTargets (done) {
@@ -55,194 +57,150 @@ async function renderIndexCommentsAsTargets (done) {
   gulp.src(paths, { base: './', allowEmpty: true })
     .pipe(cheerio({
       run: function ($) {
-        // Check whether we have already completed this process
-        if ($('body').attr('data-index-targets') !== 'loaded') {
-          // Create an empty array to store entries.
-          const entries = []
+        // Skip if we've already completed this process.
+        if ($('body').attr('data-index-targets') === 'loaded') {
+          return
+        }
 
-          $('*').contents()
-          // Return only text nodes...
-            .filter(function () {
-              return this.nodeType === 8
-            })
+        // Track generated IDs so that each one is unique on the page.
+        // An indexed element with no existing ID gets an ID built from
+        // its first entry's slug plus an occurrence counter.
+        const generatedIdCounts = {}
+
+        $('*').contents()
+          // Return only comment nodes...
+          .filter(function () {
+            return this.nodeType === 8
+          })
           // .. that start with `index:`
-            .filter(function () {
-              return (/^\s*index:/).test(this.data)
-            })
-            .each(function (unusedIndex, comment) {
-              // Is this comment between elements ('block')
-              // or inline (e.g. inside a paragraph)?
-              const startsWithLinebreak = /^\n/
-              let position
-              if (comment.prev &&
-                  comment.next &&
-                  startsWithLinebreak.test(comment.prev.data) &&
-                  startsWithLinebreak.test(comment.next.data)) {
-                position = 'block'
-              } else {
-                position = 'inline'
-              }
+          .filter(function () {
+            return (/^\s*index:/).test(this.data)
+          })
+          .each(function (unusedIndex, comment) {
+            // Is this comment between elements ('block')
+            // or inline (e.g. inside a paragraph)?
+            const startsWithLinebreak = /^\n/
+            let position
+            if (comment.prev &&
+                comment.next &&
+                startsWithLinebreak.test(comment.prev.data) &&
+                startsWithLinebreak.test(comment.next.data)) {
+              position = 'block'
+            } else {
+              position = 'inline'
+            }
 
-              // Split the lines into an array.
-              const commentText = this.data
-              const commentLines = commentText.split('\n')
+            // The element this comment indexes. For a block comment this
+            // is the following element; for an inline comment it is the
+            // element that contains the comment. Setting an ID on this
+            // element is always valid, so we avoid the invalid-child
+            // problems (e.g. EPUBCheck RSC-005) that came from inserting
+            // anchors into elements like dl, ul, ol or table.
+            let indexedElement
+            if (position === 'block') {
+              indexedElement = $(comment).nextAll().first()
+            } else {
+              indexedElement = $(comment).parent()
+            }
 
-              // Process each line, i.e. each index target in the comment.
-              commentLines.forEach(function (line) {
-                // Remove the opening 'index:' prefix.
-                const indexKeywordRegex = /^\s*index:/
-                if (indexKeywordRegex.test(line)) {
-                  line = line.replace(indexKeywordRegex, '')
-                }
-
-                // Strip white space at start and end of line.
-                line = line.trim()
-
-                // Exit if the stripped line is now empty.
-                // We only want to process actual book-index terms.
-                if (line === '') {
-                  return
-                }
-
-                // Split the line into its entry components.
-                // It might be a nested entry, where each level
-                // of nesting appears after double backslashes.
-                // e.g. software \\ book-production
-                const rawEntriesByLevel = line.split('\\')
-
-                // Trim whitespace from each entry
-                // https://stackoverflow.com/a/41183617/1781075
-                // and remove any leading or trailing tildes.
-                const entriesByLevel = rawEntriesByLevel.map(function (str) {
-                  return str.trim().replace(/^~+|~+$/, '')
-                })
-
-                // Check for starting or ending tildes.
-                // If one exists, flag the target as `from` or `to`,
-                // starting or ending a reference range. Then strip the tildes.
-                // Note, JS's `startsWith` and `endsWith` are not supported
-                // in PrinceXML, so we didn't use those in case using this in Prince.
-                let rangeClass = 'index-target-specific'
-
-                if (line.substring(0, 1) === '~') {
-                  rangeClass = 'index-target-to'
-                  line = line.substring(1)
-                } else if (line.substring(line.length - 1) === '~') {
-                  rangeClass = 'index-target-from'
-                  line = line.substring(0, line.length - 1)
-                }
-
-                // Slugify the target text to use in an ID
-                // and to check for duplicate instances later.
-                // We process the text as markdown, because we need
-                // HTML tag content included, as it is for listItemSlug.
-                // But we remove HTML entities before slugifying.
-                const processedLine = decodeHtmlEntitiesPreservingTags(marked.parseInline(line))
-                const entrySlug = ebSlugify(processedLine, true)
-
-                // Add the slug to the array of entries,
-                // where will we count occurrences of this entry.
-                entries.push(entrySlug)
-
-                // Create an object that counts occurrences
-                // of this entry on the page so far.
-                const entryOccurrences = entries.reduce(function (allEntries, entry) {
-                  if (entry in allEntries) {
-                    allEntries[entry] += 1
-                  } else {
-                    allEntries[entry] = 1
-                  }
-                  return allEntries
-                }, {})
-
-                // Get the number of occurrences of this entry so far.
-                const occurrencesSoFar = entryOccurrences[entrySlug]
-
-                // Use that to add a unique index-ID suffix to the entry slug.
-                const id = entrySlug + '--iid-' + occurrencesSoFar
-
-                // Create a target for each line.
-                // Note: we can't use one target element for several index entries,
-                // because one element can't have multiple IDs.
-                // And we don't try to link index entries to IDs of existing elements
-                // because those elements' IDs could change, and sometimes
-                // we want our target at a specific point inline in a textnode.
-
-                // Create an anchor tag for each line.
-                // Note: this tag contains a zero-width space, so that it
-                // actually appears in Prince, which doesn't render empty elements.
-                const newAnchorElement = $('<a>​</a>')
-                  .addClass('index-target')
-                  .addClass(rangeClass)
-                  .attr('data-target-type', position)
-                  .attr('id', id)
-                  .attr('data-index-markup', line)
-                  .attr('data-index-entry', entriesByLevel.slice(-1).pop())
-                  .attr('style', 'position: absolute')
-
-                newAnchorElement.insertAfter(comment)
-              })
-            })
-
-          // If the comment was between blocks, it has `data-target-type=block`.
-          // So the anchor targets need to move inside the following block.
-          // Since this noob can't seem to get the element after a comment
-          // in Cheerio above, we must do a second pass here, after creating
-          // anchor targets above, to move them into position. To do this:
-          // we get the next element that is not an .index-target
-          // then prepend the link to it.
-
-          $('[data-target-type=block]').each(function (unusedIndex, link) {
-            link = $(link) // wrap it for cheerio
-            const indexedElement = $(link).nextAll(':not(.index-target)').first()
-
-            // If there is no following element to move into, leave the target
-            // where it is. (Calling .prop()/.find() on an empty selection throws
-            // in the cheerio version bundled with gulp-cheerio, which would abort
-            // the whole transformation and drop every index target on the page.)
-            if (indexedElement.length === 0) {
+            // If there's no element to index, skip this comment.
+            if (!indexedElement || indexedElement.length === 0) {
               return
             }
 
-            // Some elements may not contain an anchor as a direct child
-            // (e.g. dl, ul, ol, table). Prepending an `<a>` directly into
-            // them produces invalid XHTML and fails EPUB validation
-            // (e.g. EPUBCheck RSC-005, '"a" not allowed here').
-            // For these, move the target into the first descendant that
-            // can legitimately contain it; otherwise fall back to placing
-            // the target immediately before the element, which is always valid.
-            const invalidAnchorParents = {
-              dl: 'dt',
-              ul: 'li',
-              ol: 'li',
-              menu: 'li',
-              table: 'caption, td, th',
-              thead: 'td, th',
-              tbody: 'td, th',
-              tfoot: 'td, th',
-              tr: 'td, th'
-            }
+            // Split the lines into an array. Each line is an index entry.
+            const commentLines = comment.data.split('\n')
 
-            const indexedNode = indexedElement.get(0)
-            const tag = indexedNode && indexedNode.name
-              ? indexedNode.name.toLowerCase()
-              : ''
+            // Collect the entries this comment adds to the indexed element.
+            const entriesForElement = []
 
-            if (invalidAnchorParents[tag]) {
-              const childTarget = indexedElement.find(invalidAnchorParents[tag]).first()
-              if (childTarget.length > 0) {
-                childTarget.prepend(link)
-              } else {
-                link.insertBefore(indexedElement)
+            // Process each line, i.e. each index entry in the comment.
+            commentLines.forEach(function (line) {
+              // Remove the opening 'index:' prefix.
+              const indexKeywordRegex = /^\s*index:/
+              if (indexKeywordRegex.test(line)) {
+                line = line.replace(indexKeywordRegex, '')
               }
-            } else {
-              indexedElement.prepend(link)
+
+              // Strip white space at start and end of line.
+              line = line.trim()
+
+              // Exit if the stripped line is now empty.
+              // We only want to process actual book-index terms.
+              if (line === '') {
+                return
+              }
+
+              // Split the line into its entry components.
+              // It might be a nested entry, where each level
+              // of nesting appears after double backslashes.
+              // e.g. software \\ book-production
+              const rawEntriesByLevel = line.split('\\')
+
+              // Trim whitespace from each entry
+              // https://stackoverflow.com/a/41183617/1781075
+              // and remove any leading or trailing tildes.
+              const entriesByLevel = rawEntriesByLevel.map(function (str) {
+                return str.trim().replace(/^~+|~+$/, '')
+              })
+
+              // Check for starting or ending tildes.
+              // If one exists, flag the entry as `from` or `to`,
+              // starting or ending a reference range. Then strip the tildes.
+              let range = ''
+
+              if (line.substring(0, 1) === '~') {
+                range = 'to'
+                line = line.substring(1)
+              } else if (line.substring(line.length - 1) === '~') {
+                range = 'from'
+                line = line.substring(0, line.length - 1)
+              }
+
+              // Slugify the target text to use in an ID and to look up
+              // the entry in the index list. We process the text as
+              // markdown, because we need HTML tag content included, as
+              // it is for listItemSlug. But we remove HTML entities first.
+              const processedLine = decodeHtmlEntitiesPreservingTags(marked.parseInline(line))
+              const entrySlug = ebSlugify(processedLine, true)
+
+              entriesForElement.push({
+                slug: entrySlug,
+                text: entriesByLevel.slice(-1).pop(),
+                tree: entriesByLevel,
+                range: range // eslint-disable-line
+              })
+            })
+
+            // If the comment held no actual entries, there's nothing to mark.
+            if (entriesForElement.length === 0) {
+              return
             }
+
+            // Give the element an ID if it doesn't already have one.
+            // If it does, we reuse it for the index links.
+            if (!indexedElement.attr('id')) {
+              const idBase = entriesForElement[0].slug
+              const occurrencesSoFar = (generatedIdCounts[idBase] || 0) + 1
+              generatedIdCounts[idBase] = occurrencesSoFar
+              indexedElement.attr('id', idBase + '--iid-' + occurrencesSoFar)
+            }
+
+            // Flag the element as an index target and record its entries,
+            // merging with any entries an earlier comment added to it.
+            indexedElement.addClass('index-target')
+
+            let existingEntries = []
+            const existingEntriesAttribute = indexedElement.attr('data-index-entries')
+            if (existingEntriesAttribute) {
+              existingEntries = JSON.parse(existingEntriesAttribute)
+            }
+            indexedElement.attr('data-index-entries',
+              JSON.stringify(existingEntries.concat(entriesForElement)))
           })
 
-          // Finally, flag that we're done.
-          $('body').attr('data-index-targets', 'loaded')
-        }
+        // Finally, flag that we're done.
+        $('body').attr('data-index-targets', 'loaded')
       },
       parserOptions: {
         // XML mode necessary for epub output

@@ -29,13 +29,15 @@ function decodeHtmlEntitiesPreservingTags (html) {
   return $.root().html()
 }
 
-// Turn HTML comments for book indexes into anchor tags.
+// Turn HTML comments for book indexes into index targets.
 // In web output, index targets are added dynamically in the browser
 // by assets/js/index-targets.js, so they are not present in the static
 // HTML we read here. This replicates that process server-side so we can
 // scrape the targets without a headless browser. It mirrors
 // renderIndexCommentsAsTargets in _tools/gulp/processors/indexes.js,
 // so if you update one you may need to update the others.
+// Each indexed element is marked with an ID (reusing any existing ID)
+// and its entries are recorded in a `data-index-entries` attribute.
 function renderIndexCommentsAsTargets ($) {
   // If the targets have already been baked in (e.g. by the gulp
   // pre-processing used for PDF and epub), there's nothing to do.
@@ -43,8 +45,10 @@ function renderIndexCommentsAsTargets ($) {
     return
   }
 
-  // Create an empty array to store entries.
-  const entries = []
+  // Track generated IDs so that each one is unique on the page.
+  // An indexed element with no existing ID gets an ID built from
+  // its first entry's slug plus an occurrence counter.
+  const generatedIdCounts = {}
 
   $('*').contents()
     // Return only comment nodes...
@@ -69,11 +73,28 @@ function renderIndexCommentsAsTargets ($) {
         position = 'inline'
       }
 
-      // Split the lines into an array.
-      const commentText = this.data
-      const commentLines = commentText.split('\n')
+      // The element this comment indexes. For a block comment this is
+      // the following element; for an inline comment it is the element
+      // that contains the comment.
+      let indexedElement
+      if (position === 'block') {
+        indexedElement = $(comment).nextAll().first()
+      } else {
+        indexedElement = $(comment).parent()
+      }
 
-      // Process each line, i.e. each index target in the comment.
+      // If there's no element to index, skip this comment.
+      if (!indexedElement || indexedElement.length === 0) {
+        return
+      }
+
+      // Split the lines into an array. Each line is an index entry.
+      const commentLines = comment.data.split('\n')
+
+      // Collect the entries this comment adds to the indexed element.
+      const entriesForElement = []
+
+      // Process each line, i.e. each index entry in the comment.
       commentLines.forEach(function (line) {
         // Remove the opening 'index:' prefix.
         const indexKeywordRegex = /^\s*index:/
@@ -104,72 +125,59 @@ function renderIndexCommentsAsTargets ($) {
         })
 
         // Check for starting or ending tildes.
-        // If one exists, flag the target as `from` or `to`,
+        // If one exists, flag the entry as `from` or `to`,
         // starting or ending a reference range. Then strip the tildes.
-        let rangeClass = 'index-target-specific'
+        let range = ''
 
         if (line.substring(0, 1) === '~') {
-          rangeClass = 'index-target-to'
+          range = 'to'
           line = line.substring(1)
         } else if (line.substring(line.length - 1) === '~') {
-          rangeClass = 'index-target-from'
+          range = 'from'
           line = line.substring(0, line.length - 1)
         }
 
-        // Slugify the target text to use in an ID
-        // and to check for duplicate instances later.
-        // We process the text as markdown, because we need
-        // HTML tag content included, as it is for listItemSlug.
-        // But we remove HTML entities before slugifying.
+        // Slugify the target text to use in an ID and to look up
+        // the entry in the index list. We process the text as
+        // markdown, because we need HTML tag content included, as
+        // it is for listItemSlug. But we remove HTML entities first.
         const processedLine = decodeHtmlEntitiesPreservingTags(marked.parseInline(line))
         const entrySlug = ebSlugify(processedLine, true)
 
-        // Add the slug to the array of entries,
-        // where will we count occurrences of this entry.
-        entries.push(entrySlug)
-
-        // Create an object that counts occurrences
-        // of this entry on the page so far.
-        const entryOccurrences = entries.reduce(function (allEntries, entry) {
-          if (entry in allEntries) {
-            allEntries[entry] += 1
-          } else {
-            allEntries[entry] = 1
-          }
-          return allEntries
-        }, {})
-
-        // Get the number of occurrences of this entry so far.
-        const occurrencesSoFar = entryOccurrences[entrySlug]
-
-        // Use that to add a unique index-ID suffix to the entry slug.
-        const id = entrySlug + '--iid-' + occurrencesSoFar
-
-        // Create an anchor tag for each line.
-        // Note: this tag contains a zero-width space, so that it
-        // actually appears in Prince, which doesn't render empty elements.
-        const newAnchorElement = $('<a>​</a>')
-          .addClass('index-target')
-          .addClass(rangeClass)
-          .attr('data-target-type', position)
-          .attr('id', id)
-          .attr('data-index-markup', line)
-          .attr('data-index-entry', entriesByLevel.slice(-1).pop())
-          .attr('style', 'position: absolute')
-
-        newAnchorElement.insertAfter(comment)
+        entriesForElement.push({
+          slug: entrySlug,
+          text: entriesByLevel.slice(-1).pop(),
+          tree: entriesByLevel,
+          range
+        })
       })
-    })
 
-  // If the comment was between blocks, it has `data-target-type=block`.
-  // So the anchor targets need to move inside the following block.
-  // We get the next element that is not an .index-target
-  // then prepend the link to it.
-  $('[data-target-type=block]').each(function (unusedIndex, link) {
-    link = $(link) // wrap it for cheerio
-    const indexedElement = $(link).nextAll(':not(.index-target)').first()
-    indexedElement.prepend(link)
-  })
+      // If the comment held no actual entries, there's nothing to mark.
+      if (entriesForElement.length === 0) {
+        return
+      }
+
+      // Give the element an ID if it doesn't already have one.
+      // If it does, we reuse it for the index links.
+      if (!indexedElement.attr('id')) {
+        const idBase = entriesForElement[0].slug
+        const occurrencesSoFar = (generatedIdCounts[idBase] || 0) + 1
+        generatedIdCounts[idBase] = occurrencesSoFar
+        indexedElement.attr('id', idBase + '--iid-' + occurrencesSoFar)
+      }
+
+      // Flag the element as an index target and record its entries,
+      // merging with any entries an earlier comment added to it.
+      indexedElement.addClass('index-target')
+
+      let existingEntries = []
+      const existingEntriesAttribute = indexedElement.attr('data-index-entries')
+      if (existingEntriesAttribute) {
+        existingEntries = JSON.parse(existingEntriesAttribute)
+      }
+      indexedElement.attr('data-index-entries',
+        JSON.stringify(existingEntries.concat(entriesForElement)))
+    })
 
   // Finally, flag that we're done.
   $('body').attr('data-index-targets', 'loaded')
@@ -249,46 +257,40 @@ async function buildReferenceIndex (outputFormat, filesData) {
     // order of appearance in the DOM, even if their ID numbers don't
     // run in order. Their array order should match the order they're
     // used for page references at each entry in the book index.
+    // Each indexed element can carry several entries (all sharing its
+    // ID), recorded in its `data-index-entries` attribute.
     const indexEntries = []
     $('.index-target').each(function (i, element) {
       const entry = $(element)
 
-      // Check if this target starts or ends a reference range
-      let range = ''
-      if (entry.hasClass('index-target-from')) {
-        range = 'from'
-      }
-      if (entry.hasClass('index-target-to')) {
-        range = 'to'
-      }
+      // The ID we link to is the indexed element's own ID.
+      const id = entry.attr('id')
 
-      // Get the entry's nesting as an array.
-      // It might be a nested entry, where each level
-      // of nesting appears after double back slashes \\.
-      // e.g. software \\ book-production
-      const rawEntriesByLevel = entry.attr('data-index-markup').split('\\')
-
-      // Trim whitespace from each entry
-      // https://stackoverflow.com/a/41183617/1781075
-      const entriesByLevel = rawEntriesByLevel.map(str => str.trim())
+      // Read the entries recorded on this element.
+      let elementEntries = []
+      const entriesAttribute = entry.attr('data-index-entries')
+      if (entriesAttribute) {
+        elementEntries = JSON.parse(entriesAttribute)
+      }
 
       // We want this for each entry on each page:
       // {
       //   entrySlug: 'entry-text'
       //   entryText: 'Entry Text',
-      //   filename: 'filename.html',
-      //   id: '#entry-text--iid-1',
-      //   path: samples/filename.html
+      //   entryTree: '["Entry Text"]',
+      //   id: 'entry-text--iid-1',
+      //   range: '',
+      //   filename: 'filename.html'
       // }
-      const id = entry.attr('id')
-
-      indexEntries.push({
-        entrySlug: id.split('--iid-')[0],
-        entryText: entry.attr('data-index-entry'),
-        entryTree: JSON.stringify(entriesByLevel),
-        id,
-        range,
-        filename
+      elementEntries.forEach(function (elementEntry) {
+        indexEntries.push({
+          entrySlug: elementEntry.slug,
+          entryText: elementEntry.text,
+          entryTree: JSON.stringify(elementEntry.tree),
+          id,
+          range: elementEntry.range || '',
+          filename
+        })
       })
     })
 

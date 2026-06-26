@@ -7,12 +7,16 @@ import marked from './marked'
 // It finds all HTML comments that start with
 // <!-- index or <!--index and parses each line,
 // assuming each line represents an entry in the index.
-// It then adds <a> targets to the start of the element
-// that follows the comment, using slugs of the line.
-// Comment lines that start or end with a hyphen
+// It then marks the element the comment indexes (the
+// following element for a block comment, or the containing
+// element for an inline comment) with an ID, reusing the
+// element's existing ID if it has one. The book index links
+// to that ID. We no longer insert a separate anchor target,
+// so we never reserialise the DOM or add invalid children.
+// Comment lines that start or end with a tilde
 // start or end ranges of content that contain the
-// ongoing presence of a given concept. Those targets
-// take 'to' or 'from' classes, which are important
+// ongoing presence of a given concept. Each entry records
+// a 'to' or 'from' range, which is important
 // for the separate process that generates hyperlinks
 // in the final book index.
 
@@ -36,10 +40,10 @@ import marked from './marked'
 // -------
 // Block-level elements are those tags that will be
 // index targets for any index comment that appears
-// immediately before them in the DOM. Any other elements
-// not included in this list will not be targets.
-// Rather, index targets will be inserted inside them
-// where the index comment appears in the DOM.
+// immediately before them in the DOM. For any other
+// element not included in this list, the index comment
+// is treated as inline and indexes the element that
+// contains the comment instead.
 // Note that element names must be uppercase here.
 // (Note: our gulp equivalent uses a different logic
 // that may be more reliable than this.)
@@ -51,12 +55,15 @@ const ebIndexOptions = {
     'P', 'BLOCKQUOTE', 'OL', 'UL', 'TABLE', 'DL', 'DIV', 'SCRIPT']
 }
 
-// Process the comments, inserting anchor-tag targets
-// into the DOM, which we'll link to from the book index.
+// Process the comments, marking each indexed element with an ID
+// (reusing any existing ID), which we'll link to from the book index.
+// We no longer insert a separate anchor target, so we never reserialise
+// or destroy the surrounding DOM, and never add invalid child elements.
 function ebIndexProcessComments (comments) {
-  // Create an array to store IDs, which we'll test
-  // for uniqueness when we create anchor tags.
-  const entries = []
+  // Track generated IDs so that each one is unique on the page.
+  // An indexed element with no existing ID gets an ID built from
+  // its first entry's slug plus an occurrence counter.
+  const generatedIdCounts = {}
 
   // If there are no comments, note that in the
   // `data-index-targets` attribute.
@@ -64,17 +71,20 @@ function ebIndexProcessComments (comments) {
     document.body.setAttribute('data-index-targets', 'none')
   }
 
-  // Create a counter for tracking this process
-  let commentCounter = 0
-
   // Process each comment in the `comments` array.
   comments.forEach(function (comment) {
-    // Parse each line: add to an array called
-    // `commentLines`, because each line in the comment
-    // will be a separate index target.
+    // The element this comment indexes. For a comment between blocks
+    // this is the following block element; for an inline comment it is
+    // the element that contains the comment.
+    const indexedElement = comment.element
+
+    // Each line in the comment is a separate index entry.
     const commentLines = comment.commentText.split('\n')
 
-    // Process each line, i.e. each index target in the comment.
+    // Collect the entries this comment adds to the indexed element.
+    const entriesForElement = []
+
+    // Process each line, i.e. each index entry in the comment.
     commentLines.forEach(function (line) {
       // Remove the opening 'index:' prefix.
       const indexKeywordRegex = /^\s*index:/
@@ -98,143 +108,85 @@ function ebIndexProcessComments (comments) {
 
       // Trim whitespace from each entry
       // https://stackoverflow.com/a/41183617/1781075
-      // and remove any leading or trailing hyphens.
+      // and remove any leading or trailing tildes.
       const entriesByLevel = rawEntriesByLevel.map(function (str) {
         return str.trim().replace(/^~+|~+$/, '')
       })
 
-      // Check for starting or ending hyphens.
-      // If one exists, flag it as `from` or `to`.
-      // Then strip the hyphen.
+      // Check for starting or ending tildes.
+      // If one exists, flag the entry as `from` or `to`,
+      // starting or ending a reference range. Then strip the tilde.
       // Note, JS's `startsWith` and `endsWith` are not
-      // supported in PrinceXML, so we didn't use those
-      // in early dev. Prince output is now handled by
-      // our alternative gulp/cheerio process. So, we could
-      // use them now. But this code isn't broken, so doesn't
-      // need fixing.
-      let from = false
-      let to = false
+      // supported in PrinceXML, so we didn't use those.
+      let range = ''
 
       if (line.substring(0, 1) === '~') {
-        to = true
+        range = 'to'
         line = line.substring(1)
       }
       if (line.substring(line.length - 1) === '~') {
-        from = true
+        range = 'from'
         line = line.substring(0, line.length - 1)
       }
 
       // Slugify the target text to use in an ID
-      // and to check for duplicate instances later.
+      // and to look up the entry in the index list.
       // The second argument indicates that we are slugifying an index term.
       // Process the text as markdown, because we need
       // HTML tag content included, as it is for listItemSlug.
       const processedLine = ebDecodeHtmlEntitiesPreservingTags(marked.parseInline(line))
       const entrySlug = ebSlugify(processedLine, true)
 
-      // Add the slug to the array of entries,
-      // where will we count occurrences of this entry.
-      entries.push(entrySlug)
-
-      // Create an object that counts occurrences
-      // of this entry on the page so far.
-      const entryOccurrences = entries.reduce(function (allEntries, entry) {
-        if (entry in allEntries) {
-          allEntries[entry] += 1
-        } else {
-          allEntries[entry] = 1
-        }
-        return allEntries
-      }, {})
-
-      // Get the number of occurrences of this entry so far.
-      const occurrencesSoFar = entryOccurrences[entrySlug]
-
-      // Use that to add a unique index-ID suffix to the entry slug.
-      const id = entrySlug + '--iid-' + occurrencesSoFar
-
-      // Create a target for each line.
-      // Note: we can't use one target element for several index entries,
-      // because one element can't have multiple IDs.
-      // And we don't try to link index entries to IDs of existing elements
-      // because those elements' IDs could change, and sometimes
-      // we want our target at a specific point inline in a textnode.
-
-      // Create a target element to link to from the index.
-      const target = document.createElement('a')
-      target.id = id
-      target.classList.add('index-target')
-      target.setAttribute('data-index-entry', entriesByLevel.slice(-1).pop())
-      target.setAttribute('data-index-markup', line)
-
-      // If this target starts or ends an indexed range,
-      // add the relevant class.
-      if (to) {
-        target.classList.add('index-target-to')
-      }
-      if (from) {
-        target.classList.add('index-target-from')
-      }
-
-      // Set a string that we'll use for the target below.
-      // It's easiest to use `outerHTML` for this,
-      // but PrinceXML doesn't support `outerHTML`, so
-      // if this script ever runs in PrinceXML we have to use
-      // `innerHTML`, putting the target in a temporary container.
-      // This could be refactored now that we handle Prince
-      // output in pre-processing with gulp/cheerio.
-      let targetElementString = ''
-      // if (typeof Prince === 'object') {
-      if (process.env.output === 'screen-pdf' || process.env.output === 'print-pdf') {
-        // Prince requires that the element contain a string
-        // in order for the target to be present at all in the DOM.
-        // So we give it a zero-width space character and keep it
-        // out of the flow with position: absolute.
-        target.innerHTML = '​' // contains zero-width space character
-        target.style.position = 'absolute'
-
-        const temporaryContainer = document.createElement('span')
-        temporaryContainer.appendChild(target)
-        targetElementString = temporaryContainer.innerHTML
-      } else {
-        targetElementString = target.outerHTML
-      }
-
-      // If the comment is between elements (e.g. between two paras)
-      // then we insert the target as the first child of the next element.
-      // (Look out for CSS problems caused by this. You may need CSS tweaks.)
-      // Otherwise, if it's *inline* between two text nodes, we insert
-      // the target exactly where it appears between those text nodes.
-      // This way, a target can appear at any exact point in the text.
-
-      if (comment.targetType === 'inline') {
-        const positionOfTarget = comment.element.innerHTML.indexOf(comment.targetText)
-        const newInnerHTML = comment.element.innerHTML.slice(0, positionOfTarget) +
-                        targetElementString +
-                        comment.element.innerHTML.slice(positionOfTarget)
-        comment.element.innerHTML = newInnerHTML
-      } else {
-        comment.element.insertBefore(target, comment.element.firstChild)
-      }
+      // Note: do not use ES6 Object Property Shorthand,
+      // it is not supported by Prince. Hence eslint-disable-line here.
+      entriesForElement.push({
+        slug: entrySlug,
+        text: entriesByLevel.slice(-1).pop(),
+        tree: entriesByLevel,
+        range: range // eslint-disable-line
+      })
     })
 
-    // Add this comment to the counter
-    commentCounter += 1
+    // If the comment held no actual entries, there's nothing to mark.
+    if (entriesForElement.length === 0) {
+      return
+    }
 
-    // Add an attribute to flag that we're done.
-    if (commentCounter === comments.length) {
-      document.body.setAttribute('data-index-targets', 'loaded')
+    // Give the element an ID if it doesn't already have one.
+    // If it does, we reuse it for the index links.
+    if (!indexedElement.id) {
+      const idBase = entriesForElement[0].slug
+      const occurrencesSoFar = (generatedIdCounts[idBase] || 0) + 1
+      generatedIdCounts[idBase] = occurrencesSoFar
+      indexedElement.id = idBase + '--iid-' + occurrencesSoFar
+    }
 
-      // If the URL hash matches a newly added index target, scroll to it.
-      const hash = window.location.hash
-      if (hash) {
-        const targetElement = document.getElementById(hash.slice(1))
-        if (targetElement && targetElement.classList.contains('index-target')) {
-          targetElement.scrollIntoView()
-        }
+    // Flag the element as an index target and record its entries,
+    // merging with any entries an earlier comment added to it.
+    indexedElement.classList.add('index-target')
+
+    let existingEntries = []
+    const existingEntriesAttribute = indexedElement.getAttribute('data-index-entries')
+    if (existingEntriesAttribute) {
+      existingEntries = JSON.parse(existingEntriesAttribute)
+    }
+    indexedElement.setAttribute('data-index-entries',
+      JSON.stringify(existingEntries.concat(entriesForElement)))
+  })
+
+  // Flag that we're done, if there were any comments to process.
+  if (comments.length > 0) {
+    document.body.setAttribute('data-index-targets', 'loaded')
+
+    // If the URL hash matches a newly marked index target, scroll to it.
+    const hash = window.location.hash
+    if (hash) {
+      const targetElement = document.getElementById(hash.slice(1))
+      if (targetElement && targetElement.classList.contains('index-target')) {
+        targetElement.scrollIntoView()
       }
     }
-  })
+  }
 }
 
 // Get all the comments and add them to an array.
