@@ -146,26 +146,32 @@ if (!Element.prototype.closest) {
 
 // remove()
 // from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
-if (typeof CharacterData === 'function') {
-  (function (arr) {
-    arr.forEach(function (item) {
-      if (Object.prototype.hasOwnProperty.call(item, 'remove')) {
-        return
-      }
-      Object.defineProperty(item, 'remove', {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        value: function remove () {
-          if (this.parentNode === null) {
-            return
-          }
-          this.parentNode.removeChild(this)
+// Note: guard each prototype independently rather than gating the whole block
+// on `typeof CharacterData === 'function'`, because PrinceXML's ES5 engine does
+// not expose CharacterData as a function and would otherwise skip the polyfill
+// for Element.prototype too.
+;(function (arr) {
+  arr.forEach(function (item) {
+    if (!item || Object.prototype.hasOwnProperty.call(item, 'remove')) {
+      return
+    }
+    Object.defineProperty(item, 'remove', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: function remove () {
+        if (this.parentNode === null) {
+          return
         }
-      })
+        this.parentNode.removeChild(this)
+      }
     })
-  })([Element.prototype, CharacterData.prototype, DocumentType.prototype])
-}
+  })
+})([
+  typeof Element !== 'undefined' && Element.prototype,
+  typeof CharacterData !== 'undefined' && CharacterData.prototype,
+  typeof DocumentType !== 'undefined' && DocumentType.prototype
+])
 
 // Array.from()
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
