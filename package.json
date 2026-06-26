@@ -1,6 +1,6 @@
 {
   "name": "@electricbookworks/core-book-modules",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "A distributable package of modules used in CORE projects originally derived from the Electric Book Template.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
