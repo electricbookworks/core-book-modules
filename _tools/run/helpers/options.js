@@ -181,6 +181,13 @@ const options = {
     defaultDescription: 'false',
     type: 'boolean'
   },
+  deploytype: {
+    description: 'Type of deployment. Custom options are "staging" and "live".',
+    alias: 'dt',
+    default: 'development',
+    defaultDescription: 'development',
+    type: 'string'
+  },
   destination: {
     description: 'Output destination directory',
     alias: 'dest',
