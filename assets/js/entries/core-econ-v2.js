@@ -231,7 +231,6 @@ if (process.env.config?.audience === 'students') {
 // Scripts for epub output. Do not expect support in many readers.
 if (process.env.output === 'epub') {
   ebShowHide()
-  ebTables()
   ebEpubMCQs()
 }
 
