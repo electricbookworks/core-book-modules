@@ -154,7 +154,17 @@ if (devAnnotation || liveAnnotation) {
   ebAnnotation()
 }
 
-if (outputSettings.accordion?.enabled === true) {
+// Invoke the accordion when the project enables it in _data/settings.yml, OR
+// when the current page opts in via `accordion: true` frontmatter (emitted as
+// data-accordion-page="true"). outputSettings is inlined by webpack as a
+// build-time constant, so if we only checked it, a `false` project setting
+// would let the minifier dead-code-eliminate this whole block and the module
+// would never load — meaning a page's own opt-in could never activate it. We
+// therefore also read the runtime attribute here; the module's
+// ebAccordionIsPageOff() still makes the final per-page decision.
+const accordionPageOptsIn = document.querySelector('.wrapper')
+  ?.getAttribute('data-accordion-page') === 'true'
+if (outputSettings.accordion?.enabled === true || accordionPageOptsIn) {
   ebAccordion()
 }
 
@@ -231,7 +241,6 @@ if (process.env.config?.audience === 'students') {
 // Scripts for epub output. Do not expect support in many readers.
 if (process.env.output === 'epub') {
   ebShowHide()
-  ebTables()
   ebEpubMCQs()
 }
 
