@@ -37,8 +37,43 @@ function ebAccordionPageSetting () {
 
 export function ebAccordionIsPageOff () {
   const accordionPageSetting = ebAccordionPageSetting()
-  const accordionBookSetting = process.env.settings[process.env.output]?.accordion?.enabled
-  return accordionBookSetting === false || accordionPageSetting !== 'true'
+
+  // A page that sets `accordion: true` (emitted as data-accordion-page="true")
+  // opts in explicitly. We check this first and at runtime, so the page
+  // override still works even when the project-level setting was compiled into
+  // the bundle as `false`. process.env.settings is inlined by webpack at build
+  // time, so if the project setting were consulted first, a `false` value would
+  // let the minifier constant-fold this whole function to "always off" and
+  // strip out the page check entirely.
+  if (accordionPageSetting === 'true') {
+    return false
+  }
+
+  // No page opt-in, so fall back to the original rule: the accordion is off
+  // when the project disables it in _data/settings.yml, or when the page hasn't
+  // opted in with 'true'.
+  const accordionProjectSetting = process.env.settings[process.env.output]?.accordion?.enabled
+  return accordionProjectSetting === false || accordionPageSetting !== 'true'
+}
+
+function ebAccordionOpenFirstSetting () {
+  // Should the first section be open by default?
+  // A page's `accordion-open-first` frontmatter (emitted as
+  // data-accordion-open-first) overrides the project-level setting
+  // settings[output].accordion.open-first in _data/settings.yml.
+  const pageSetting = document.body
+    .querySelector('.wrapper')
+    .getAttribute('data-accordion-open-first')
+
+  if (pageSetting === 'true') {
+    return true
+  }
+  if (pageSetting === 'false') {
+    return false
+  }
+
+  // No page-level override, so fall back to the project setting
+  return process.env.settings[process.env.output]?.accordion?.['open-first'] === true
 }
 
 // function ebAccordionDefaultAccordionHeadID () {
@@ -211,6 +246,30 @@ function ebAccordionShowAll () {
   headings.forEach(function (heading) {
     ebAccordionOpenSection(heading)
   })
+}
+
+function ebAccordionOpenFirstSection () {
+  // Open the first accordion section, leaving the others closed.
+  // accordionHeads is '.content > h2', so querySelector returns the
+  // first heading, and ebAccordionOpenSection opens its sibling section.
+  const firstHeading = document.querySelector(accordionHeads)
+  if (firstHeading) {
+    ebAccordionOpenSection(firstHeading)
+
+    // Lazyload the images inside the section we just auto-opened.
+    // ebAccordionOpenSection only toggles visibility, so without this
+    // the first section's data-src images are never converted to src
+    // (unlike ebAccordionShow, which lazyloads the sections it opens).
+    // Select [data-src] (not just [data-srcset]) so images without a
+    // srcset are converted too.
+    const firstSection = firstHeading.nextElementSibling
+    if (firstSection) {
+      const lazyimages = firstSection.querySelectorAll('[data-src]')
+      if (lazyimages.length > 0) {
+        ebLazyLoadImages(lazyimages)
+      }
+    }
+  }
 }
 
 function ebAccordionHideAllExceptThisOne (targetID) {
@@ -626,8 +685,13 @@ function ebAccordify () {
   ebAccordionShowAllButton()
 
   if (!window.location.hash) {
-    // Default view is all sections closed
+    // Default view is all sections closed...
     ebAccordionHideAll()
+
+    // ...unless open-first is enabled, in which case open the first section
+    if (ebAccordionOpenFirstSetting()) {
+      ebAccordionOpenFirstSection()
+    }
   } else {
     // If there is a URL hash, open up the section that it corresponds to
     // and close all the other sections
