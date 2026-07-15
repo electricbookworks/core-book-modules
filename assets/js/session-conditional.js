@@ -10,6 +10,7 @@ export default async function ebSessionConditional () {
   try {
     const response = await fetch('/api/session/', {
       headers: {
+        cache: 'no-store',
         'content-type': 'application/json; charset=UTF-8'
       }
     })
