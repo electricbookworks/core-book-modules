@@ -1,6 +1,6 @@
 async function ebUserSession () {
   try {
-    const ebSessionApi = await fetch('/api/session/')
+    const ebSessionApi = await fetch('/api/session/', { cache: 'no-store' })
     const ebHasSessionApi = ebSessionApi.status !== 404
     const result = await ebSessionApi.json()
     // return empty object if session API exists but not logged in

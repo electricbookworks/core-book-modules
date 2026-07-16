@@ -2,6 +2,7 @@ import { ebReplaceCanonicalURL } from './utilities'
 
 const userDetailUrl = '/api/session/'
 const params = {
+  cache: 'no-store',
   headers: {
     'content-type': 'application/json; charset=UTF-8'
   }
