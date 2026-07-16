@@ -184,8 +184,8 @@ const options = {
   deploytype: {
     description: 'Type of deployment. Custom options are "staging" and "live".',
     alias: 'dt',
-    default: 'development',
-    defaultDescription: 'development',
+    default: 'editing',
+    defaultDescription: 'editing',
     type: 'string'
   },
   destination: {
