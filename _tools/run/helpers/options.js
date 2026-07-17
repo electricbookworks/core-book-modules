@@ -182,10 +182,10 @@ const options = {
     type: 'boolean'
   },
   deploytype: {
-    description: 'Type of deployment. Custom options are "staging" and "live".',
+    description: 'The type of environment for which you want to deploy, such as live, staging, or dev.',
     alias: 'dt',
-    default: 'development',
-    defaultDescription: 'development',
+    default: 'editing',
+    defaultDescription: 'editing',
     type: 'string'
   },
   destination: {

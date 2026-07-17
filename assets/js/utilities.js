@@ -1,7 +1,5 @@
 /* global Node, ActiveXObject, XMLHttpRequest, DOMParser */
 
-const settings = process.env.settings
-
 // Current page URL
 let currentUrlPath = null
 if (typeof window !== 'undefined') {
@@ -302,41 +300,6 @@ function ebReplaceCanonicalURL (anchor) {
   }
 
   return anchor
-}
-
-// If we've got a live build on a non-production server, use the staging images
-// on CloudFront rather than the production ones
-function ebReplaceRemoteImageURL () {
-  if (settings?.['remote-media']?.cloudFrontLive && settings?.['remote-media']?.cloudFrontStaging) {
-    const allImages = document.querySelectorAll('img')
-    allImages.forEach(function (image) {
-    // Replace the live CloudFront subdomain with the staging CloudFront subdomain
-    // Need to do so in src, src-set, data-src, data-srcset
-      const attrs = ['src', 'src-set', 'data-src', 'data-srcset']
-      attrs.forEach(function (attr) {
-        if (image.getAttribute(attr)) {
-          image.setAttribute(attr, image.getAttribute(attr).replaceAll(
-            settings['remote-media'].cloudFrontLive,
-            settings['remote-media'].cloudFrontStaging
-          ))
-        }
-      })
-    })
-  }
-}
-
-// Check whether we're using remote media on a live build. If we are, and we're
-// not on the production server, we need to use the staging remote images.
-// Only run this in a browser, not in Node, hence `window` check.
-// This will fail in Node because `settings` is not global there,
-// where we are importing ebSlugify from this file as is.
-if (typeof window !== 'undefined') {
-  if (settings?.site?.build === 'live' && settings?.remoteMedia?.live) {
-    // Check that we are not on the production server
-    if (window.location.origin !== process.env.config['canonical-url']) {
-      ebReplaceRemoteImageURL()
-    }
-  }
 }
 
 function ebInIframe () {
