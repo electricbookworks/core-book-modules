@@ -12,13 +12,24 @@ const settings = process.env.settings
 //
 // 1. Use CSS selectors to list the headings that will
 //    define each accordion section, e.g. '#content h2'
-const headingLevel = 'h2'
-const subheadingLevel = 'h3'
+//    Read the configured level, then verify it's a real heading tag (h1–h6).
+//    Anything missing or malformed (e.g. 'h7', '3', true) falls back to 'h2'.
+const configuredLevel = settings[process.env.output]?.accordion?.level
+const headingLevel = /^h[1-6]$/.test(configuredLevel) ? configuredLevel : 'h2'
+
+//    Derive the subheading level as one level below the heading level,
+//    e.g. 'h2' -> 'h3' and 'h4' -> 'h5'. We strip the 'h', add 1 to the
+//    number, and cap at 6 (the deepest HTML heading level).
+const headingLevelNumber = parseInt(headingLevel.replace('h', ''), 10)
+const subheadingLevel = 'h' + Math.min(headingLevelNumber + 1, 6)
 const accordionHeads = '.content > ' + headingLevel
+
 // 2. Which heading's section should we show by default?
 const defaultAccordionHead = '.content > ' + headingLevel + ':first-of-type'
+
 // 3. Auto close last accordion when you open a new one?
 const autoCloseAccordionSections = false
+
 // Unique key for storing last-opened section on this page
 const storageKey = window.location.pathname + '-accordion'
 // --------------------------------------------------------------
@@ -661,9 +672,15 @@ function ebAccordify () {
 
   document.body.setAttribute('data-accordion-active', 'true')
 
-  // Exit if there aren't any headings
+  // Exit if there are one or no headings
   const sectionHeadings = document.querySelectorAll(accordionHeads)
-  if (!sectionHeadings) {
+  if (sectionHeadings.length < 2) {
+
+    // Turn off the accordion on this page
+    // to avoid CSS that expects accordion layout
+    document.querySelector("div.wrapper").setAttribute("data-accordion-page", false)
+
+    // Stop accordifying
     return
   }
 
