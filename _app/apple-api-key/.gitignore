@@ -1,0 +1,4 @@
+# Ignore all content in this directory except this file
+# Allows the addition of images for app and epub builds
+*
+!.gitignore
