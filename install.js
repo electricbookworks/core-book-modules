@@ -9,7 +9,7 @@ const path = require('path')
  */
 
 // Folders to sync to parent package
-const FOLDERS_TO_SYNC = ['_tools', '_webpack', '_docs']
+const FOLDERS_TO_SYNC = ['_tools', '_webpack', '_docs', '_app']
 
 let moduleRoot
 let parentRoot

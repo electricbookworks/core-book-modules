@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="cordova-plugin-youtube-referer" version="1.0.0"
+    xmlns="http://apache.org/cordova/ns/plugins/1.0">
+    <name>YouTubeReferer</name>
+    <description>Sets Referer header on YouTube embed requests to prevent bot detection in Android WebView</description>
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="YouTubeReferer">
+                <param name="android-package" value="com.electricbookworks.youtubereferer.YouTubeReferer"/>
+                <param name="onload" value="true"/>
+            </feature>
+        </config-file>
+        <source-file src="src/android/YouTubeReferer.java" target-dir="src/com/electricbookworks/youtubereferer"/>
+    </platform>
+</plugin>
