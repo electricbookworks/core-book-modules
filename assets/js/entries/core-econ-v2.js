@@ -148,10 +148,10 @@ if (process.env.output === 'web' || process.env.output === 'app') {
   ebLazyLoad()
 }
 
-const editingAnnotation = process.env.build === 'editing' && outputSettings.annotator?.editing === true
-const devAnnotation = process.env.build === 'dev' && outputSettings.annotator?.dev === true
+const testAnnotation = process.env.build === 'test' && outputSettings.annotator?.test === true
+const devAnnotation = process.env.build === 'development' && outputSettings.annotator?.development === true
 const liveAnnotation = process.env.build === 'live' && outputSettings.annotator?.live === true
-if (editingAnnotation || devAnnotation || liveAnnotation) {
+if (testAnnotation || devAnnotation || liveAnnotation) {
   ebAnnotation()
 }
 
