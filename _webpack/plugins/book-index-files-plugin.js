@@ -46,7 +46,7 @@ class BookIndexFilesPlugin {
           // Replace the expression `process.env.bookIndexFiles`
           // with the *content* of this.definition.
           const dep = new ConstDependency(this.definition, expr.range)
-          dep.loc = expr.loc
+          dep.loc = parser.getLocation(expr)
           parser.state.current.addDependency(dep)
           return true // Stop parsing this branch
         })

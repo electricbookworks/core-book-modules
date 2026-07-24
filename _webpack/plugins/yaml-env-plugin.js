@@ -86,7 +86,7 @@ class YamlEnvPlugin {
             // Because this.definitions is updated in `beforeCompile`,
             // this will always use the latest data.
             const dep = new ConstDependency(this.definitions[key], expr.range)
-            dep.loc = expr.loc
+            dep.loc = parser.getLocation(expr)
             parser.state.current.addDependency(dep)
             // Stop parsing this expression branch
             return true
