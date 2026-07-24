@@ -275,7 +275,7 @@ function ebAccordionOpenFirstSection () {
     // srcset are converted too.
     const firstSection = firstHeading.nextElementSibling
     if (firstSection) {
-      const lazyimages = firstSection.querySelectorAll('[data-src]')
+      const lazyimages = firstSection.querySelectorAll('[data-srcset], [data-src]')
       if (lazyimages.length > 0) {
         ebLazyLoadImages(lazyimages)
       }
@@ -405,8 +405,9 @@ function ebAccordionShow (targetID) {
     ebAccordionOpenSection(heading)
 
     // Lazyload the images inside
-    const lazyimages = sectionToShow.querySelectorAll('[data-srcset]')
+    const lazyimages = sectionToShow.querySelectorAll('[data-srcset], [data-src]')
     if (lazyimages.length > 0) {
+      console.log(lazyimages)
       ebLazyLoadImages(lazyimages)
     }
 
@@ -675,10 +676,9 @@ function ebAccordify () {
   // Exit if there are one or no headings
   const sectionHeadings = document.querySelectorAll(accordionHeads)
   if (sectionHeadings.length < 2) {
-
     // Turn off the accordion on this page
     // to avoid CSS that expects accordion layout
-    document.querySelector("div.wrapper").setAttribute("data-accordion-page", false)
+    document.querySelector('div.wrapper').setAttribute('data-accordion-page', false)
 
     // Stop accordifying
     return
