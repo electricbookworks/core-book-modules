@@ -47,6 +47,11 @@ function ebAccordionPageSetting () {
 }
 
 export function ebAccordionIsPageOff () {
+  const sectionHeadings = document.querySelectorAll(accordionHeads)
+  if (sectionHeadings.length < 2) {
+    return true
+  }
+
   const accordionPageSetting = ebAccordionPageSetting()
 
   // A page that sets `accordion: true` (emitted as data-accordion-page="true")
