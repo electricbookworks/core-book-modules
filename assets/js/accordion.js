@@ -48,7 +48,7 @@ function ebAccordionPageSetting () {
 
 export function ebAccordionIsPageOff () {
   const sectionHeadings = document.querySelectorAll(accordionHeads)
-  if (sectionHeadings.length < 2) {
+  if (!sectionHeadings || sectionHeadings.length < 2) {
     return true
   }
 
@@ -691,20 +691,6 @@ function ebAccordify () {
   if (!sectionHeadings || sectionHeadings.length < 2) {
     ebAccordionDisablePage()
     return
-  }
-
-  // Exit if this isn't a chapter
-  const thisIsFrontmatter = (document.querySelector('.wrapper').classList.contains('frontmatter-page'))
-  const thisIsNotAChapter = !(document.querySelector('.wrapper').classList.contains('default-page'))
-  const thisHasNoH2s = (document.querySelector(accordionHeads) === null)
-  const thisIsEndmatter = (document.querySelector('.wrapper').classList.contains('endmatter-page'))
-  if (thisIsFrontmatter || thisIsNotAChapter || thisHasNoH2s || thisIsEndmatter) {
-    // override if accordion is set to true for the page
-    const pageSetToTrue = document.querySelector('.wrapper[data-accordion-page="true"]')
-    if (!pageSetToTrue) {
-      ebAccordionDisablePage()
-      return
-    }
   }
 
   ebAccordionSetUpSections(sectionHeadings)
