@@ -48,7 +48,7 @@ function ebAccordionPageSetting () {
 
 export function ebAccordionIsPageOff () {
   const sectionHeadings = document.querySelectorAll(accordionHeads)
-  if (sectionHeadings.length < 2) {
+  if (!sectionHeadings || sectionHeadings.length < 2) {
     return true
   }
 
@@ -669,6 +669,15 @@ function ebAccordionShowAllButton () {
   }
 }
 
+function ebAccordionDisablePage () {
+  // Turn off the accordion on this page
+  // to avoid CSS that expects accordion layout
+  const wrapper = document.querySelector('div.wrapper')
+  if (wrapper) {
+    wrapper.setAttribute('data-accordion-page', false)
+  }
+}
+
 function ebAccordify () {
   // Early exit for older browsers
   if (!ebAccordionInit()) {
@@ -679,26 +688,9 @@ function ebAccordify () {
 
   // Exit if there are one or no headings
   const sectionHeadings = document.querySelectorAll(accordionHeads)
-  if (sectionHeadings.length < 2) {
-    // Turn off the accordion on this page
-    // to avoid CSS that expects accordion layout
-    document.querySelector('div.wrapper').setAttribute('data-accordion-page', false)
-
-    // Stop accordifying
+  if (!sectionHeadings || sectionHeadings.length < 2) {
+    ebAccordionDisablePage()
     return
-  }
-
-  // Exit if this isn't a chapter
-  const thisIsFrontmatter = (document.querySelector('.wrapper').classList.contains('frontmatter-page'))
-  const thisIsNotAChapter = !(document.querySelector('.wrapper').classList.contains('default-page'))
-  const thisHasNoH2s = (document.querySelector(accordionHeads) === null)
-  const thisIsEndmatter = (document.querySelector('.wrapper').classList.contains('endmatter-page'))
-  if (thisIsFrontmatter || thisIsNotAChapter || thisHasNoH2s || thisIsEndmatter) {
-    // override if accordion is set to true for the page
-    const thisPageHasAccordionProperty = (document.querySelector('.wrapper[data-accordion-page]'))
-    if (!thisPageHasAccordionProperty) {
-      return
-    }
   }
 
   ebAccordionSetUpSections(sectionHeadings)
@@ -738,6 +730,8 @@ function ebLoadAccordion () {
     ebAccordionListenForNavClicks()
     ebChangeHashOnScroll()
     ebAccordionListenForHashChange()
+  } else {
+    ebAccordionDisablePage()
   }
 }
 
