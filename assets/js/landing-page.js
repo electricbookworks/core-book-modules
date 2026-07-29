@@ -21,14 +21,21 @@ function ebLandingPageAccordionAction (parentClass, parentSection, parentHeading
 }
 
 function ebLandingPageAccordionStart (parentClass, parentSection, parentHeading, upArrow, downArrow) {
-  // Get the default visual-TOC position
+  // Get the project's default visual-TOC position (from _data/settings.yml)
   const defaultPosition = settings[process.env.output]['landing-page']['visual-toc-accordion-default'] === 'open' ? 'open' : 'closed'
 
-  // Look at localStorage to see whether the user left the page in non-default state
+  // The desired state is the user's saved choice from a previous visit,
+  // or the project default when they haven't set one yet.
   const storageKey = 'accordion-' + parentHeading.id
+  const desiredPosition = window.localStorage.getItem(storageKey) || defaultPosition
 
-  // If the user changed a section position last time, do that again
-  if (window.localStorage.getItem(storageKey) !== defaultPosition) {
+  // The current state is whatever the server-rendered markup shipped.
+  const currentPosition = parentSection.classList.contains(parentClass + '-open') ? 'open' : 'closed'
+
+  // Only toggle when the desired state differs from what's already on screen.
+  // Comparing against the current state (rather than blindly toggling) avoids
+  // flipping the section on a first visit, when no preference is stored.
+  if (desiredPosition !== currentPosition) {
     ebLandingPageAccordionAction(parentClass, parentSection, parentHeading, upArrow, downArrow)
   }
 }
