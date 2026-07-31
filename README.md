@@ -82,7 +82,7 @@ Add this `postyalc` property to `scripts` inside the consuming template's packag
 }
 ```
 
-To push changes to the book server template consuming it, run this inside this repo:
+To push changes to the book template consuming it, run this inside this repo:
 
 ```
 yalc push
