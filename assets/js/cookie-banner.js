@@ -1,9 +1,10 @@
 import { ebInIframe } from './utilities'
 
 function ebLoadPardotTracking () {
-  // const piAId = '1016132'
-  // const piCId = '1682'
-  // const piHostname = 'pi.pardot.com';
+  // Exposed on window so the external pd.js script can read them
+  window.piAId = '1016132'
+  window.piCId = '1682'
+  window.piHostname = 'pi.pardot.com';
 
   (function () {
     function asyncLoad () {
