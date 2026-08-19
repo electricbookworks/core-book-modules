@@ -284,24 +284,6 @@ function ebStripHtml (text) {
   return doc.body.textContent || ''
 }
 
-// In some instances, we need to replace the canonical URL for the production
-// server with that for the staging server, so that login behaviour works on
-// staging. This is done with utility JS, rather than with a variable in config,
-// so that we do not rebuild the staging HTML before it is copied to the
-// production server.
-function ebReplaceCanonicalURL (anchor) {
-  const thisOrigin = window.location.origin
-  const canonicalURL = process.env.config['canonical-url']
-
-  let href = anchor.href
-  if (process.env.config.build === 'live' && thisOrigin !== canonicalURL) {
-    href = href.replace(canonicalURL, thisOrigin)
-    anchor.setAttribute('href', href)
-  }
-
-  return anchor
-}
-
 function ebInIframe () {
   try {
     return window.self !== window.top
@@ -323,6 +305,5 @@ export {
   ebTruncatedString,
   ebToggleClickout,
   ebStripHtml,
-  ebReplaceCanonicalURL,
   ebInIframe
 }
