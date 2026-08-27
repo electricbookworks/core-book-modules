@@ -374,7 +374,7 @@ function ebWhichTarget (targetID) {
   return targetToCheck
 }
 
-function ebAccordionShow (targetID) {
+function ebAccordionShow (targetID, scrollToTarget = true) {
   const targetToCheck = ebWhichTarget(targetID)
 
   if (!targetToCheck) {
@@ -436,11 +436,13 @@ function ebAccordionShow (targetID) {
     }
 
     // Scroll to target that triggered section opening
-    const targetElement = document.getElementById(targetID)
-    if (targetElement) {
-      window.setTimeout(() => {
-        targetElement.scrollIntoView({ behavior: 'instant' })
-      }, 1)
+    if (scrollToTarget) {
+      const targetElement = document.getElementById(targetID)
+      if (targetElement) {
+        window.setTimeout(() => {
+          targetElement.scrollIntoView({ behavior: 'instant' })
+        }, 1)
+      }
     }
   }
 }
@@ -566,10 +568,12 @@ function ebAccordionListenForHashChange () {
 
     // Get the target of the link
     const targetOfLink = document.getElementById(targetID.replace(/.*#/, ''))
+    const targetAccordionID = ebAccordionFindSection(targetOfLink)
+    const isInsideAccordion = targetAccordionID !== false
     const isAccordionHeader = targetOfLink && targetOfLink.classList.contains('accordion-header')
 
-    // If it's not an accordion header, then exit
-    if (!isAccordionHeader) {
+    // If the target is not inside an accordion, exit
+    if (!isInsideAccordion) {
       return
     }
 
@@ -581,16 +585,19 @@ function ebAccordionListenForHashChange () {
     }
 
     // Otherwise, open the appropriate accordion
-    const targetAccordionID = ebAccordionFindSection(targetOfLink)
+    if (isInsideAccordion) {
+      ebAccordionShow(targetAccordionID, isAccordionHeader)
 
-    ebAccordionShow(targetAccordionID)
+      if (autoCloseAccordionSections === true) {
+        ebAccordionHideAllExceptThisOne(targetAccordionID)
+      }
 
-    if (autoCloseAccordionSections === true) {
-      ebAccordionHideAllExceptThisOne(targetAccordionID)
+      // If it's not an accordion header, scroll to the target inside the accordion section
+      // after a short delay to allow the accordion section to render first
+      !isAccordionHeader && window.setTimeout(() => {
+        targetOfLink.scrollIntoView({ behavior: 'instant' })
+      }, 1)
     }
-
-    // Now that the target is visible, scroll to it
-    targetOfLink.scrollIntoView()
   })
 }
 
