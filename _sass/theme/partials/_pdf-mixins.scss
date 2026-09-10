@@ -1,0 +1,324 @@
+@mixin pinch() {
+    background-image: url("../images/pinch-top.svg"), url("../images/pinch-bottom.svg");
+    background-repeat: no-repeat;
+    background-position: top center, bottom center;
+    background-size: 18mm;
+}
+
+@mixin head-1() {
+
+    // Appearance
+    font-family: $font-display-main;
+    font-weight: bold;
+    font-size: $font-size-default * 2.4;
+    line-height: $line-height-default * 2;
+    text-align: left;
+
+    // Position
+    position: relative; // required for positioning children
+    margin-bottom: $line-height-default * 3;
+
+    // The chapter number, if <strong> in the HTML
+    strong:first-of-type {
+        color: $color-accent;
+        display: block;
+        font-size: $font-size-default * 1.2;
+        line-height: $line-height-default;
+        margin-bottom: $line-height-default * 0.5;
+        text-transform: uppercase;
+        letter-spacing: 0.075em;
+    }
+}
+
+@mixin head-1-reverse() {
+    color: $color-accent;
+    background: none;
+
+    &:before {
+        border-color: $color-accent;
+    }
+
+    &:after {
+        background-color: white;
+    }
+}
+
+@mixin head-2() {
+    font-family: $font-display-main;
+    font-size: $font-size-default * 1.2;
+    font-weight: bold;
+    line-height: $line-height-default;
+    color: $color-accent;
+    margin-top: $line-height-default * 1.5;
+    margin-bottom: $line-height-default * 0.5;
+    text-indent: 0; // necessary for when this mixin is used for paragraphs
+}
+
+@mixin head-3() {
+    color: $color-accent;
+    font-family: $font-text-main;
+    font-size: $font-size-default * 1.1;
+    font-weight: 600;
+    font-style: italic;
+    line-height: $line-height-default;
+    margin-top: $line-height-default;
+    margin-bottom: 0;
+
+    em {
+        font-style: normal;
+    }
+}
+
+@mixin head-4() {
+    font-family: $font-text-main;
+    font-size: $font-size-default * 1.1;
+    font-weight: 600;
+    font-style: italic;
+    line-height: $line-height-default;
+    margin-top: $line-height-default;
+    margin-bottom: 0;
+
+    em {
+        font-style: normal;
+    }
+}
+
+@mixin head-5() {
+    font-family: $font-text-main;
+    font-weight: 600;
+    line-height: $line-height-default;
+    margin-top: $line-height-default;
+    margin-bottom: 0;
+}
+
+@mixin head-6() {
+    font-family: $font-text-main;
+    line-height: $line-height-default;
+    margin-top: $line-height-default;
+    margin-bottom: 0;
+}
+
+@mixin figure-text() {
+    font-family: $font-text-secondary;
+    font-size: $font-size-default * 0.8;
+    font-style: normal;
+    line-height: $line-height-default;
+    text-align: left;
+    padding: 0;
+    margin: 0;
+
+    em {
+        font-style: italic;
+    }
+}
+
+@mixin slides-show-figures() {
+    column-count: 1;
+
+    .figure {
+        width: $main-text-width;
+        margin-bottom: $line-height-default;
+
+        &:last-child {
+            margin-bottom: 0;
+
+            .figure-body, .slide-caption {
+                margin-bottom: 0;
+            }
+        }
+
+        .figure-body {
+            width: $main-text-width;
+        }
+
+        .figure-images {
+            display: block;
+        }
+
+        &:nth-child(2) {
+            page-break-before: avoid;
+
+            .figure-images {
+                display: none;
+            }
+        }
+
+        &.summary {
+            margin-bottom: 0; // space between figures takes care of this space
+        }
+
+        // Override shifting of slides when there are only 3 slides
+        &:nth-child(2):nth-last-child(2),
+        &:nth-child(3):nth-last-child(1) {
+            margin-outside: 0;
+        }
+    }
+
+    &.slides-show-figures-compact {
+
+        .figure {
+            margin-bottom: 0;
+
+            .figure-body .figure-images {
+                margin-bottom: $line-height-default / 2;
+            }
+
+            &.summary, &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+}
+
+@mixin endmatter-text() {
+    font-size: $font-size-default * 0.8;
+}
+
+// If small caps aren't working,
+// you can force 'fake' small caps
+@mixin force-allsmallcaps($size: 0.85em) {
+    .allsmallcaps {
+
+        // Prince does not support font-feature-settings
+        // but has prince-opentype() instead.
+        // -moz-font-feature-settings: normal;
+        // -ms-font-feature-settings: normal;
+        // -o-font-feature-settings: normal;
+        // -webkit-font-feature-settings: normal;
+        // font-feature-settings: normal;
+        font-variant: prince-opentype();
+
+        font-style: inherit;
+        font-weight: inherit;
+        font-size: $size;
+        text-transform: uppercase;
+    }
+}
+
+@mixin allsmallcaps-disabled() {
+    .allsmallcaps {
+
+        // Prince does not support font-feature-settings
+        // but has prince-opentype() instead.
+        // -moz-font-feature-settings: normal;
+        // -ms-font-feature-settings: normal;
+        // -o-font-feature-settings: normal;
+        // -webkit-font-feature-settings: normal;
+        // font-feature-settings: normal;
+        font-variant: prince-opentype();
+
+        font-style: inherit;
+        font-weight: inherit;
+        font-size: 100%;
+        text-transform: none;
+    }
+}
+
+@mixin wide-sidenotes() {
+
+    &.pdf-wide {
+        -prince-float: wide outside;
+        margin-inside: $sidebar-gap-width;
+        margin-top: $line-height-default;
+        margin-bottom: $line-height-default;
+        width: $sidebar-content-width + ($main-text-width * 0.25);
+    }
+
+    &.pdf-body-width {
+        -prince-float: none;
+        width: $main-text-width;
+        margin-top: $line-height-default;
+        margin-bottom: $line-height-default;
+
+        // Footnotes inside these
+        .footnote-detail {
+            @include sidenote();
+        }
+
+        &.bottom {
+            -prince-float: bottom;
+            margin-bottom: 0;
+        }
+    }
+
+    &.pdf-full-width {
+        -prince-float: wide top-bottom;
+        width: $content-width;
+        margin-top: $line-height-default;
+        margin-bottom: $line-height-default;
+        column-count: 2;
+        column-gap: $sidebar-gap-width;
+
+        h3, h4, h5 {
+            column-span: all;
+        }
+
+        &.bottom {
+            -prince-float: bottom wide;
+            margin-bottom: 0;
+        }
+    }
+}
+
+@mixin wide-boxes() {
+    &.pdf-wide,
+    &.pdf-full-width {
+        -prince-float: wide top-bottom;
+        max-width: none;
+        width: $content-width;
+        columns: 2;
+
+        h3, h4, h5, h6 {
+            column-span: all;
+        }
+
+        // Slides inside wide boxes
+        .slides {
+            column-span: all;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            .figure {
+
+                // Narrower for less space in a shaded box
+                // width: (($main-text-width - $paragraph-indent * 1.5) * 0.5) - $paragraph-indent;
+                width: 100%;
+                display: inline-block;
+                column-span: inherit;
+
+                .figure-body {
+                    width: auto;
+                }
+            }
+        }
+
+        .figure {
+            display: block;
+            column-span: all;
+
+            .figure-images {
+                background-color: white;
+                width: $content-width - $paragraph-indent;
+
+                // Multi-image figures need a different max-width
+                &.contains-2, &.contains-4, &.contains-8, &.contains-10 {
+
+                    img {
+                        max-width: ($content-width * 0.5) - ($paragraph-indent) - 4mm;
+                    }
+                }
+            }
+
+            &.figure-no-source.figure-no-caption {
+                margin-bottom: $line-height-default;
+            }
+        }
+
+        .sidenote {
+            float: none;
+            width: 100%; // i.e. one column of text
+        }
+    }
+}
