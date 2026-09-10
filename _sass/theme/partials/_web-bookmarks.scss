@@ -1,0 +1,49 @@
+// Bookmarks 
+
+.content {
+
+  .bookmark-pending {
+
+    & > .bookmark-button {
+
+      // This will have no effect when bookmark-button-position-* is 'auto',
+      // which is when no text is selected. So this only affects bookmark icons
+      // that appear at the end of selected text. 
+      left: calc(var(--bookmark-button-position-x) - 2.2rem);
+      top: calc(var(--bookmark-button-position-y) + 2.5rem);
+
+      // When the bookmark icon is on click/tap, not after selected text,
+      // move the icon to the left to minimise overlap with text.
+      // Overlap can obscure clickable items like definition popups.
+      &[style*="--bookmark-button-position-x: auto"] svg {
+        left: -1rem;
+      }
+    }
+  }
+
+  li.bookmark-pending {
+
+    // When it's on an li, move the icon further left,
+    // given the indent on the li
+    .bookmark-button[style*="--bookmark-button-position-x: auto"] svg {
+      left: -2.2rem;
+    }
+  }
+}
+
+.last-location-prompt {
+  background: $color-background;
+  border: $rule-thickness solid $bookmark-icon-outline-color-active;
+  margin: ($bookmark-icon-text-size / 8) -0.3em 0.25rem 0; // must touch icon, magic number
+  top: 4.25rem;
+
+  a {
+    color: $color-links;
+    white-space: nowrap;
+  }
+
+  // Close button
+  button {
+    color: $color-links;
+  }
+}

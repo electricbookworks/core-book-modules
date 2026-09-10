@@ -1,0 +1,542 @@
+// Dark mode
+
+// Dark mode control
+.dark-mode-control {
+  cursor: pointer;
+  text-align: right;
+  z-index: 100;
+
+  svg.dark-mode-icon {
+    display: inline-block;
+    height: 1.5em;
+    margin-left: 0.5em;
+    width: 1.5em;
+
+    .dark-mode-icon-outline {
+      fill: $color-accent;
+    }
+
+    .dark-mode-icon-fill {
+      fill: $color-background;
+    }
+  }
+}
+
+// Dark-mode styles
+$dark-mode-black: #222222 !default;
+$dark-mode-grey: #444444 !default;
+$dark-mode-light-grey: #ccc !default;
+$dark-mode-white: #f2f0f0 !default;
+$dark-mode-links: lighten($color-links, 30%) !default;
+
+body.dark-mode {
+  // Wrappers
+  color: $color-ghost;
+
+  .wrapper {
+    background-color: $color-charcoal;
+  }
+
+  [role="main"] {
+    background-color: $color-charcoal;
+  }
+
+  .component .content {
+    background-color: $color-charcoal;
+  }
+
+  // Landing page
+  .landing-page {
+    .landing-page-banner {
+      background-color: $color-charcoal;
+
+      &::before {
+        background-color: $color-shadow;
+      }
+
+      .landing-page-banner-bottom {
+        background-color: $color-shadow;
+
+        p {
+          color: $color-ghost;
+        }
+      }
+    }
+
+    .landing-page-body {
+      .landing-page-content {
+        .landing-page-flex-section {
+          background-color: $color-shadow;
+          background-image: radial-gradient($color-pewter 1%, transparent 13%);
+          box-shadow: 0 -1px $color-shadow;
+
+          h2 {
+            color: $color-ghost;
+          }
+
+          .landing-page-flex-section-container {
+            a {
+              text-decoration: none;
+            }
+
+            .carousel-item {
+              @media only screen and (max-width: $breakpoint-carousel) {
+                background-color: $color-charcoal;
+              }
+            }
+
+            .landing-page-flex-section-item {
+              h3, p {
+                color: $color-ghost;
+              }
+            }
+          }
+        }
+
+        .landing-page-toc {
+          background-color: $color-shadow;
+          box-shadow: 0 -1px $color-shadow;
+
+          h2 {
+            color: $color-ghost;
+          }
+
+          .landing-page-toc-section {
+            h3 {
+              color: $color-ghost;
+            }
+
+            .landing-page-toc-flex-section {
+              a {
+                text-decoration: none;
+              }
+
+              .landing-page-toc-flex-item {
+                .landing-page-toc-flex-text {
+                  h4 {
+                    color: $color-ghost;
+                  }
+
+                  p {
+                    color: $color-ghost;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Nav
+  #nav {
+    background-color: $color-shadow;
+    border-right-color: $color-accent;
+
+    ol {
+      background-color: $color-shadow;
+
+      li {
+        a {
+          color: $color-ghost;
+        }
+
+        &.active li a {
+          color: $color-ghost;
+        }
+      }
+    }
+    
+    [data-toggle-nav]:after {
+      color: $color-ghost;
+    }
+
+    .search {
+      background-color: $color-shadow;
+
+      input[type="text"] {
+        background-color: $color-shadow;
+        color: $color-ghost;
+      }
+    }
+  }
+
+  // Typography
+  p, ul, ol, dl {
+    color: $color-ghost;
+  }
+
+  .wrapper:not(.landing-page) [role="main"] {
+    a {
+      color: $dark-mode-links;
+    }
+
+    sup a,
+    a.reversefootnote, 
+    a.toggle {
+      color: $color-ghost;
+    }
+
+    a.anchorjs-link {
+      color: $color-accent;
+    }
+
+    a.component-close-button {
+      color: $color-ghost;
+    }
+  }
+
+  .section h1 {
+    background-color: $color-charcoal;
+  }
+
+  // Progress bar
+  .progress-bar-container {
+    background-color: $color-shadow;
+  }
+
+  // Pagination
+  .pagination {
+    background-color: $color-charcoal;
+
+    .pagination-marker {
+      background-color: $color-charcoal;
+    }
+  }
+
+  // Filter input
+  .filter-input {
+    background-color: $color-shadow;
+  }
+
+  // Footnotes
+  .footnote-detail {
+    background-color: $color-shadow;
+  }
+
+  .footnotes .reverse-footnote-arrow path {
+    fill: $dark-mode-links;
+  }
+
+  // Accordion
+  [role="tab"] a {
+    color: $color-accent;
+  }
+
+  [data-accordion="open"]::after,
+  [data-accordion="closed"]::after {
+    color: $color-accent;
+  }
+  
+  .accordion-show-all-button {
+    border-color: $color-accent;
+    color: $color-accent !important;
+  }
+
+  button[aria-expanded] {
+    background-color: $color-charcoal;
+  }
+
+  // Table of contents
+  .contents-page .content .toc-list li  {
+    a {
+      color: $color-accent !important;
+    }
+
+    ol li a {
+      color: $color-ghost !important;
+    }
+  }
+
+  // Figures and slides
+  .slides {
+    background-color: $color-shadow;
+    border-top-color: $color-shadow;
+
+    .nav-slides {
+      background-color: $color-shadow;
+
+      a {
+        background-color: $color-shadow;
+      }
+    }
+
+    .figure-summary-meta {
+      background-color: $color-charcoal;
+
+      .figure-source a {
+        color: $dark-mode-links;
+      }
+    }
+  }
+
+  // Questions
+  .question {
+    background-color: $color-charcoal;
+    border: 2 * $rule-thickness solid $color-accent;
+  }
+
+  .js-mcq & .mcq-feedback {
+    background-color: $color-shadow;
+  }
+
+  // Boxes
+  .sidenote {
+    background-color: $color-charcoal;
+  }
+
+  .prerequisites {
+    background-color: $color-charcoal;
+  }
+
+  .summary {
+    background-color: $color-charcoal;
+    border-bottom: 2 * $rule-thickness solid $color-accent;
+    border-right: 2 * $rule-thickness solid $color-accent;
+    border-top: 2 * $rule-thickness solid $color-accent;
+  }
+
+  .einstein,
+  .great-economist,
+  .great-economists,
+  .economists,
+  .economist,
+  .expandable-box {
+    background-color: $color-shadow;
+
+    h4, h5, h6 {
+      color: $color-ghost;
+    }
+
+    .preview-read-more {
+      background-color: $color-shadow;
+    }
+
+    .slides {
+      .figure-summary-meta {
+        background-color: $color-shadow;
+      }
+    }
+  }
+
+  // Maths
+  .MathJax_Display {
+    color: $color-ghost;
+  }
+
+  // Definitions
+  [data-term] {
+    color: $dark-mode-links;
+  }
+
+  .definition-description-hover {
+    background-color: $color-shadow;
+    color: $color-ghost;
+  }
+
+  // Video
+  .video .video-options .video-options-content ul li a {
+    background-color: $color-charcoal;
+    color: $color-ghost !important;
+  }
+
+  // Transcripts
+  .transcript .name-and-timestamp {
+    color: $color-smoke;
+  }
+
+  // Bookmarks
+  .bookmarks {
+    svg.bookmark-icon {
+      .bookmark-icon-fill {
+        fill: $color-shadow;
+      }
+    }
+
+    svg.history-icon {
+      path {
+        fill: $color-accent;
+      }
+    }
+  }
+
+  .last-location-prompt {
+    background-color: $color-shadow;
+    
+    a {
+      color: $color-accent;
+    }
+    
+    button {
+      color: $color-accent;
+    }
+  }
+
+  .bookmarks-modal {
+    background-color: $color-charcoal;
+
+    .bookmarks-list,
+    .last-locations-list {
+      .bookmarks-list-header,
+      .last-locations-list-header {
+        color: $dark-mode-links;
+
+        &.bookmarks-list-header-open {
+          border-bottom-color: $color-charcoal;
+          color: $color-ghost;
+        }
+      }
+
+      .bookmarks-list-content,
+      .last-locations-list-content {
+        a {
+          color: $dark-mode-links;
+        }
+
+        .bookmarks-list-tip,
+        .last-locations-list-tip {
+          color: $color-smoke;
+        }
+      }
+    }
+  }
+
+  .bookmark-button {
+    svg.bookmark-icon {
+      .bookmark-icon-fill {
+        fill: $color-shadow;
+      }
+
+      .bookmark-icon-outline {
+        fill: $color-accent;
+      }
+    }
+
+    svg.history-icon {
+      path {
+        fill: $color-accent;
+      }
+    }
+  }
+
+  [data-bookmarked] {
+    & > button svg[class*="icon"].bookmark-icon .bookmark-icon-fill {
+      fill: $color-accent;
+    }
+  }
+
+  // Language selector
+  .language-select {
+    svg {
+      fill: $color-shadow;
+    }
+
+    .language-select-list {
+      background-color: $color-shadow;
+
+      a {
+        color: $dark-mode-links;
+      }
+    }
+  }
+
+  // Share links
+  #share-links {
+    background-color: $color-shadow;
+    .share-links-close, .copy-to-clipboard {
+      background-color: $color-shadow;
+    }
+  }
+
+  // Dark mode switch
+  svg.dark-mode-icon {
+    .dark-mode-icon-fill {
+      fill: $color-shadow;
+    }
+  }
+
+  // Notifications
+  .notification {
+    color: $color-charcoal;
+  }
+
+  // Overrides
+  // ---------
+    
+  // Thumbnail-style homepage (CORE Insights)
+  &.landing-page.thumbnail-homepage {
+    .wrapper {
+      background-color: $dark-mode-black;
+    }
+
+    h1 {
+      background-color: $dark-mode-black;
+      color: $color-accent;
+      strong::after, &::after {
+        border-top-color: $color-accent;
+      }
+    }
+    
+    .homepage-container {
+      background-color: $color-accent;
+      border-top: 2px solid $color-accent;
+  
+      .homepage-thumbnail {
+        box-shadow: 2px 2px 24px 12px rgba(256, 256, 256, 0.1);
+        background-color: $dark-mode-black;
+      }
+    }
+  }
+
+  // Search page
+  &.search-page {
+    h1 {
+      color: $color-accent;
+    }
+
+    #search-box {
+      background-color: $dark-mode-black;
+    }
+
+    #___gcse_0,
+    .gsc-control-cse,
+    .gsc-control-wrapper-cse,
+    .gsc-webResult.gsc-result,
+    .gsc-results .gsc-imageResult,
+    .gs-no-results-result .gs-snippet, .gs-error-result .gs-snippet {
+      background-color: $dark-mode-black;
+      border-color: $dark-mode-black;
+    }
+
+    #___gcse_0 .gsc-results .gs-title a, #___gcse_0 .gsc-results .gs-title b, #___gcse_0 .gs-result .gs-title a, #___gcse_0 .gs-result .gs-title b, #___gcse_1 .gsc-results .gs-title a, #___gcse_1 .gsc-results .gs-title b, #___gcse_1 .gs-result .gs-title a, #___gcse_1 .gs-result .gs-title b, #___gcse_2 .gsc-results .gs-title a, #___gcse_2 .gsc-results .gs-title b, #___gcse_2 .gs-result .gs-title a, #___gcse_2 .gs-result .gs-title b,
+    .gcsc-find-more-on-google {
+      color: $dark-mode-links;
+    }
+
+    .gcsc-find-more-on-google-magnifier {
+      fill: $dark-mode-white;
+    }
+
+    .gs-webResult .gs-snippet, .gs-imageResult .gs-snippet, .gs-fileFormatType {
+      color: $dark-mode-white;
+    }
+  }
+
+  .search-results-nav {
+    background-color: $dark-mode-black;
+  }
+
+  // Code
+  // Rouge syntax highlighting
+  @include dark-mode-code();
+
+  // Add options for testing
+  &.fruity {
+    @include dark-mode-code('fruity');
+  }
+
+  &.native {
+    @include dark-mode-code('native');
+  }
+}

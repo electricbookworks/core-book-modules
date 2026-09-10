@@ -1,0 +1,32 @@
+// FRONTMATTER
+
+.frontmatter-page {
+  h1 {
+    @include head-1();
+    color: $color-accent;
+    margin-bottom: 0;
+  }
+
+  .figure, .figure.figure-no-source {
+    width: 45%;
+    margin: 0 auto $line-height-default auto;
+
+    .figure-body {
+      img {
+        width: 100%;
+      }
+
+      table {
+        width: 100%;
+      }
+    }
+
+    &.pdf-wide {
+      width: 95%;
+    }
+  }
+
+  table {
+    width: auto;
+  }
+}

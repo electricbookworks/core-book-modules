@@ -1,0 +1,92 @@
+// Buttons
+
+
+// Mixins
+@mixin button {
+  @include h5();
+  font-weight: 400;
+  padding: 0.5rem 1rem;
+  border-radius: 2.5rem;
+  cursor: pointer;
+}
+
+@mixin button-dark {
+  @include button;
+  background-color: $color-charcoal;
+  border: $rule-thickness solid $color-ghost;
+  color: $color-ghost;
+  
+  &:hover, &:active, &:focus {
+    background-color: $color-granite;
+  }
+}
+
+@mixin button-light {
+  @include button;
+  background-color: $color-ghost;
+  border: $rule-thickness solid $color-ghost;
+  color: $color-charcoal;
+
+  &:hover, &:active, &:focus {
+    background-color: $color-smoke;
+    border: $rule-thickness solid $color-smoke;
+  }
+}
+
+@mixin button-empty {
+  @include button;
+  background-color: $color-ghost;
+  border: $rule-thickness solid $color-accent;
+  color: $color-accent;
+
+  &:hover, &:active, &:focus {
+    background-color: $color-accent-light;
+  }
+}
+
+@mixin button-filled {
+  @include button;
+  background-color: $color-accent;
+  border: $rule-thickness solid $color-accent;
+  color: $color-ghost;
+
+  &:hover, &:active, &:focus {
+    background-color: $color-accent-dark;
+    border: $rule-thickness solid $color-accent-dark;
+  }
+}
+
+// Anchor links, fullscreen buttons
+@mixin link-button($thumbnail: false) {
+  @include p5($factor: $font-serif-sans-ratio);
+  font-family: $font-text-secondary;
+  background-color: transparent;
+  border-radius: $button-border-radius;
+  border: $rule-thickness solid $color-accent;
+  color: $color-accent;
+  cursor: pointer;
+  display: inline-block;
+  font-style: normal;
+  font-weight: bold;
+  padding: 0.15rem 0.25rem;
+  text-transform: uppercase;
+
+  @if $thumbnail {
+    font-size: 0.4rem !important;
+    padding: 0.1rem 0.15rem;
+  }
+}
+
+
+// Usage
+a.button-dark {
+  @include button-dark;
+}
+
+a.button-empty {
+  @include button-empty;
+}
+
+a.button-filled {
+  @include button-filled;
+}

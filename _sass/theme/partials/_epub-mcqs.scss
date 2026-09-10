@@ -1,0 +1,214 @@
+// MCQs
+
+.mcq, .question {
+  background-color: tint($color-accent, 85%);
+  border-bottom-right-radius: $core-element-border-radius;
+  font-family: $font-text-secondary;
+  font-size: $font-size-default * 0.85;
+  line-height: $line-height-default;
+  margin: $line-height-default 0;
+  padding: ($line-height-default * 0.5) ($paragraph-indent * 0.5);
+  
+  h2, h3, h4, h5, h6 {
+    color: $color-accent;
+    font-family: $font-text-secondary;
+    font-size: $font-size-default * 1.1 * $font-serif-sans-ratio;
+    font-style: normal;
+    font-weight: normal;
+    line-height: $line-height-default;
+    margin: 0;
+
+    strong:first-of-type {
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+  }
+
+  p {
+    text-indent: 0;
+  }
+  
+  p img:only-child {
+    // add white space, same as other figures in boxes
+    border: ($line-height-default * 0.5) solid white;
+    box-sizing: border-box;
+    max-width: 95%;
+  }
+}
+
+.mcq-questions, .mcq-options {
+  margin-bottom: 0;
+
+  li {
+    margin-left: 1.25em;
+
+    // Rarely, we use inline tables inside a list item
+    .table-wrapper {
+      display: inline;
+      vertical-align: top;
+      // override bleed styles
+      width: auto;
+      left: auto;
+      transform: none;
+    }
+
+    table {
+      display: inline-block;
+      margin: 0;
+      vertical-align: middle;
+      width: calc(100% - 2em);
+      
+      tbody {
+        display: block;
+        width: 100%;
+      }
+
+      tr {
+        display: block;
+        width: 100%;
+      }
+
+      // where rows have only two cells, space them 50/50
+      td:nth-of-type(1):nth-last-of-type(2),
+      td:nth-of-type(2):nth-last-of-type(1) {
+        display: inline-block;
+        vertical-align: top;
+        width: calc(50% - 1em);
+      }
+    }
+  }
+}
+
+.mcq-feedback {
+  counter-reset: mcq-feedback;
+  display: none;
+
+  li {
+    counter-increment: mcq-feedback;
+    text-indent: -1em; // create hanging indent
+
+    &::before {
+      content: counter(mcq-feedback) ".";
+      margin-right: 0.25em;
+    }
+  }
+}
+
+.js-mcq {
+  .mcq-options {
+    list-style-type: none;
+    margin-left: 0;
+    
+    li {
+      &:before {
+        content: "\2610"; // unchecked ballot box
+        margin-right: ($line-height-default / 2);
+      }
+
+      border: $button-border-radius solid transparent;
+      border-radius: $button-border-radius;
+      cursor: pointer;
+      margin-bottom: $line-height-default / 2;
+      margin-left: -($line-height-default / 2);
+      padding: 0 ($line-height-default / 2);
+    }
+    
+    .selected {
+        border-color: $color-accent;
+        &:before {
+          content: "\2611"; // checked ballot box
+        }
+    }
+  }
+  
+  .mcq-feedback {
+    background-color: $color-light;
+    border-radius: $button-border-radius;
+    display: block;
+    list-style-type: none;
+    margin-left: 0;
+    margin-bottom: 0;
+    position: relative;
+
+    &.mcq-feedback-shown-inside {
+      margin-top: $line-height-default;
+    }
+    
+    &:before {
+      display: block;
+      padding: $line-height-default / 2 0 $line-height-default / 2 $line-height-default * 2;
+    }
+
+    &:after {
+      left: $line-height-default;
+      position: absolute;
+      top: $line-height-default / 2;
+    }
+
+    li {
+      display: block;
+      height: 0;
+      padding: 0;
+      visibility: hidden;
+    }
+
+    .mcq-feedback-show {
+      height: auto;
+      padding: 0 $line-height-default / 2 $line-height-default / 2 $line-height-default * 2;
+      visibility: visible;
+    }
+  }
+  
+  .mcq-incorrect {
+    .mcq-feedback {
+      &:before {
+        content: "Incorrect";
+        text-transform: uppercase;
+      }
+      
+      &:after {
+        content: "\2717";
+      }
+    }
+  }
+  
+  .mcq-partially-correct {
+    .mcq-feedback {
+      background-color: $color-light;
+
+      &:before {
+        content: "Good so far but you haven't selected all the correct answers.";
+      }
+    }
+  }
+  
+  .mcq-correct {
+    .mcq-feedback {
+      background-color: white;
+
+      &:before {
+        content: "Correct!";
+        text-transform: uppercase;
+      }
+      
+      &:after {
+        content: "\2713";
+      }
+    }
+  }
+}
+
+.question {
+  .check-answer-button {
+    display: none;
+  }
+}
+
+.js-mcq {
+  .question {
+    .check-answer-button {
+      @include button-filled();
+      display: inline-block;
+    }
+  }
+}

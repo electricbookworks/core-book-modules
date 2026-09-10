@@ -1,0 +1,531 @@
+.exercise {
+    font-family: $font-text-secondary;
+    font-size: $font-size-default * 0.85;
+    padding: ($line-height-default * 0.5 - $border-width) ($paragraph-indent * 0.5);
+    margin: $line-height-default 0;
+    border: $border-width solid $color-accent;
+    border-bottom-right-radius: $core-element-border-radius;
+    page-break-inside: avoid;
+
+    h2, h3, h4, h5, h6 {
+        color: $color-accent;
+        font-family: $font-text-secondary;
+        font-size: $font-size-default * 0.85;
+        font-style: normal;
+        font-weight: bold;
+        margin: 0;
+
+        strong:first-of-type {
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+
+            // Since this is capitalised,
+            // don't use small caps here
+            @include allsmallcaps-disabled();
+        }
+    }
+
+    // If heading is mid-exercise (e.g. a second exercise)
+    // add space before the heading.
+    // Exclude dynamic indexing links
+    *:not(a) + h2, *:not(a) + h3, *:not(a) + h4, *:not(a) + h5, *:not(a) + h6 {
+        margin-top: $line-height-default;
+    }
+
+    // Don't add this headspace if the thing
+    // before the heading is a dynamic-indexing tag
+    .index-comment-span + h2, .index-comment-span + h3, .index-comment-span + h4,
+    .index-comment-span + h5, .index-comment-span + h6 {
+        margin-top: 0;
+    }
+
+    // no space above lists that follow exercise headings
+    h3 + ol, h3 + ul {
+        margin-top: 0;
+    }
+
+    // no space above nested lists
+    ul, ol {
+
+        ul, ol {
+            margin-top: 0;
+        }
+
+        li {
+
+            &:last-child {
+
+                // If a table is the last child of a last item in a list,
+                // don't include a line space below the table.
+                table {
+
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
+            }
+        }
+    }
+
+    img {
+
+        // fit inside box padding
+        max-width: $main-text-width - $paragraph-indent;
+    }
+
+    p {
+
+        // Images in kramdown are wrapped in a p.
+        // This selects those images, so that
+        // we can override the text indent on paragraphs
+        // that follow other paragraphs,
+        // and apply other spacing improvements.
+        & + p > img:only-child {
+            margin-top: $line-height-default;
+            margin-left: -$paragraph-indent;
+        }
+    }
+
+    table {
+
+        &.pdf-wide {
+            column-span: all;
+        }
+    }
+
+    // No space after last element.
+    // Parent padding takes care of this.
+    & > *:last-child {
+        margin-bottom: 0;
+    }
+
+    .figure {
+        float: none;
+        width: $main-text-width - $paragraph-indent - ($border-width * 2);
+
+        .figure-body {
+            width: $main-text-width - $paragraph-indent - ($border-width * 2);
+
+            // Add space where these figures are not normally floated ...
+            margin-bottom: $line-height-default;
+        }
+
+        // ... except where the figure is the last child,
+        // and the caption floats to the margin as usual
+        // and does not have a wide source. There, a space
+        // below the figure-body will leave too much
+        // empty space at the bottom of the exercise box.
+        &:last-child {
+
+            .figure-body {
+                margin-bottom: 0;
+            }
+        }
+        &.pdf-wide-source:last-child {
+
+            .figure-body {
+                margin-bottom: $line-height-default;
+            }
+        }
+
+        .figure-source {
+
+            // TODO: confirm if this spacing works.
+            // account for narrower figure-body
+            margin-outside: -($sidebar-content-width + $sidebar-gap-width) - ($paragraph-indent * 0.5);
+        }
+
+        &.figure-no-source {
+            float: none;
+            width: $main-text-width - $paragraph-indent - ($border-width * 2);
+
+            // TODO: confirm if necessary in TE2
+            // required to let sidebar elements float beside
+            display: inline-block;
+        }
+
+        // a clearfix-like solution for exercise boxes
+        // not expanding to height of figure
+        // when figure is last the element in an exercise box
+        &:last-child:after {
+
+            // needs some content to take up space
+            content: " ";
+
+            // needs this to fill width
+            display: block;
+
+            // must clear its parent's float
+            clear: both;
+        }
+
+        // Lists after figures don't need margin-top,
+        // because the figure has margin-bottom
+        & + ol, & + ul {
+            margin-top: 0;
+        }
+
+        // Since figures here are fixed,
+        // don't indent the following para.
+        & + p {
+            text-indent: 0;
+        }
+
+        // But avoid overrides if this is a sidenote figure
+        &.sidenote, &.thumbnail {
+            @include sidenote();
+        }
+    }
+
+    &.contains-figures {
+
+        // If an exercise contains figures, its height can collapse,
+        // leaving figures outside its borders. By adding .contains-figures
+        // to the exercise, we float the entire figure, which forces it
+        // to expand to its children's height. We also don't float the
+        // figures, in order to keep them inside the exercise's borders.
+        float: inside;
+
+        .figure, .slides {
+            float: none;
+        }
+    }
+
+    // TODO: confirm if these overrides work, or are necessary
+    // given how EBT styles support slides.
+    .slides {
+        margin: $line-height-default 0;
+        column-count: 1;
+        float: none;
+
+        .figure {
+            margin: 0;
+
+            // allow for padding on parent box
+            width: (($main-text-width - $paragraph-indent * 1.5) * 0.5);
+
+            .figure-body {
+
+                // allow for padding on parent box
+                width: (($main-text-width - $paragraph-indent * 1.5) * 0.5);
+            }
+
+            .figure-images {
+                width: 100%;
+            }
+
+            .figure-source {
+                display: none;
+            }
+
+            &.summary {
+                float: none;
+                width: ($main-text-width + $sidebar-content-width + $sidebar-gap-width) - $paragraph-indent;
+                margin-outside: -($sidebar-content-width + $sidebar-gap-width);
+                margin-inside: 0;
+                margin-bottom: $line-height-default;
+
+                &.figure-no-source {
+                    width: $main-text-width - ($paragraph-indent);
+
+                    // only way to prevent slides from floating over the summary
+                    display: block;
+                }
+
+                // Clear the float before slides begin
+                &:after {
+                    content: "";
+                    display: block;
+                    clear: both;
+                }
+
+                .figure-body {
+                    float: inside;
+                    width: ($main-text-width) - ($paragraph-indent);
+                    margin: 0;
+                }
+
+                .figure-source {
+                    width: $sidebar-content-width;
+                    float: outside;
+                    margin-outside: 0;
+
+                    // reverse display: none
+                    display: inline-block;
+
+                    .source {
+                        width: $sidebar-content-width;
+                        padding: 0;
+
+                        // reverse display: none
+                        display: inline-block;
+                    }
+                }
+            }
+        }
+        // Also see .slides-show-figures for overrides
+    }
+
+    // Allow manual positioning in sidebar
+    &.pdf-sidebar {
+        @include sidenote();
+
+        border: $border-width solid $color-accent;
+        border-bottom-right-radius: $core-element-border-radius;
+
+        // the $border-width is for the border
+        padding-top: ($line-height-default * 0.5) - $border-width;
+        padding-bottom: ($line-height-default * 0.5) - $border-width;
+        width: $sidebar-content-width - $sidebar-gap-width - ($border-width);
+        font-family: $font-text-secondary;
+        font-size: $font-size-default * 0.8;
+        color: $color-text-main;
+
+        h2, h3, h4, h5, h6 {
+            font-family: $font-text-secondary;
+            font-size: $font-size-default * 0.8; // 8pt;
+            font-style: normal;
+            color: $color-accent;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 0.01em;
+            margin: 0;
+        }
+
+        // Space after paragraphs and lists in these elements
+        p, ul, ol {
+            margin-bottom: $line-height-default;
+            text-indent: 0;
+
+            // But no space between paras and lists, or lists and nested lists
+            + ul, + ol {
+                margin-top: -($line-height-default);
+            }
+        }
+
+        // No space after last element.
+        // Parent padding takes care of this.
+        & > *:last-child {
+            margin-bottom: 0;
+        }
+
+        blockquote {
+            margin: 0;
+        }
+
+        // When pdf-sidebar floats an exercise out of the main text area
+        // put the text-indent back on the following paragraph.
+        + p {
+            text-indent: $paragraph-indent;
+        }
+
+        // unless it follows a list, in which case we don't indent the para
+        ul + & + p {
+            text-indent: 0;
+        }
+
+        // Inline images, which in kramdown are always
+        // the only child of their parent paragraph
+        img {
+            max-width: $sidebar-content-width - $sidebar-gap-width - $paragraph-indent;
+        }
+    }
+
+    // These are complex enough that we don't just use @include wide-boxes()
+    &.pdf-wide,
+    &.pdf-full-width {
+
+        // gets $content-width correct, given padding on this element
+        box-sizing: border-box;
+
+        h3, h4, h5, h6 {
+            column-span: all;
+        }
+
+        float: wide top-bottom;
+        width: $content-width;
+        columns: 2;
+        column-gap: $sidebar-gap-width;
+
+        // This approach is better is some contexts, but not enough.
+        // -prince-float: none;
+        // margin-outside: -($sidebar-content-width + $sidebar-gap-width);
+
+        table {
+
+            // should only fill column width
+            width: 100%;
+        }
+
+        .sidenote, .footnote-detail {
+            float: column-bottom-corner;
+            width: (($content-width - ($paragraph-indent * 2)) * 0.5) - ($paragraph-indent * 0.5) - $border-width;
+            padding: 0 0 0 ($paragraph-indent * 0.5);
+            margin: 0 0 $line-height-default 0;
+            border-left: $border-width solid $color-accent;
+        }
+
+        .figure {
+
+            // let figures span columns to be readable
+            display: block;
+
+            float: none;
+            column-span: all;
+            width: auto;
+            margin-top: $line-height-default;
+
+            .figure-body {
+                width: auto;
+                float: none;
+            }
+
+            .figure-images {
+                background-color: white;
+                margin-left: auto;
+                margin-right: auto;
+                width: $main-text-width - $paragraph-indent;
+
+                img {
+                    max-width: 100%;
+                }
+
+                // Multi-image figures need a different max-wdith
+                &.contains-2, &.contains-4, &.contains-8, &.contains-10 {
+                    width: auto;
+
+                    img {
+                        max-width: ($content-width - $paragraph-indent - $sidebar-gap-width) * 0.5 - ($border-width * 2);
+                    }
+                }
+            }
+
+            .caption {
+                width: $main-text-width;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            // Wide figures in wide exercises.
+            &.wide {
+                width: $content-width - ($paragraph-indent * 2);
+                margin-outside: 0;
+
+                .figure-body {
+                    width: $content-width - ($paragraph-indent * 2);
+
+                    .caption {
+                        width: $main-text-width;
+                        margin-outside: $sidebar-content-width + $sidebar-gap-width;
+                    }
+                }
+
+                // Put the source under the figure caption
+                .figure-source {
+                    width: $main-text-width;
+                    margin-outside: $sidebar-content-width + $sidebar-gap-width;
+                    margin-bottom: $line-height-default;
+                    float: none;
+
+                    .source {
+                        padding: 0;
+                    }
+                }
+
+                // override inherited width
+                // TODO: is this width correct?
+                &.figure-no-source {
+                    width: $content-width - ($paragraph-indent * 2);
+                }
+
+                // In a wide exercise, if a wide figure has no caption or reference,
+                // but it does have a source, remove a line space above the source
+                &.figure-no-caption:not(.figure-no-source) {
+                    .figure-body {
+                        margin-bottom: 0;
+                    }
+                }
+            }
+
+            // Single-column figures in wide exercises
+            &.pdf-single-column {
+                column-span: none;
+            }
+
+            // A one wide, two small figure layout in a wide exercise
+            &.image-rows-1-2 {
+
+                .figure-images {
+                    width: auto;
+
+                    &.contains-3 {
+
+                        img:nth-of-type(2),
+                        img:nth-of-type(3) {
+                            max-width: ($content-width - $paragraph-indent - $sidebar-gap-width) * 0.5 - ($border-width * 2);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Slides in wide exercises
+        .slides {
+
+            .figure {
+
+                // Fit figures into column width
+                display: inline-block;
+                width: ($content-width - $sidebar-gap-width - $paragraph-indent) * 0.5;
+                margin: 0;
+
+                &.summary {
+                    margin-bottom: $line-height-default;
+                }
+
+                .figure-images {
+
+                    // Override inherited to fit slides into 2-column layout
+                    width: ($content-width - $sidebar-gap-width - $paragraph-indent) * 0.5;
+                    margin-left: 0;
+                    margin-right: 0;
+                }
+            }
+        }
+
+        // Interaction of lists with figures
+        // Lists have a line-space after, and figures have a line space before.
+        // When a list is followed by a figure, remove the figure's margin-top.
+        ol, ul {
+
+            & + .figure {
+                margin-top: 0;
+            }
+        }
+
+        .column-break-before {
+            column-break-before: always;
+        }
+    }
+
+    // Allows an element to be the full height of the page
+    &.full-page {
+        margin: 0;
+    }
+
+    // Sidenotes in exercise boxes
+    .sidenote,
+    .footnote-detail {
+
+        &:before {
+
+            // remove pseudo-'border' from sidenotes in boxes,
+            // but retain position and spacing.
+            background: transparent;
+        }
+    }
+
+    // Small caps
+    // Include/repeat this here for CSS specificity reasons
+    @include force-allsmallcaps();
+}

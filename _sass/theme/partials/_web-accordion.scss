@@ -1,0 +1,63 @@
+// Accordions
+
+[data-accordion-page="true"] {
+  .accordion-show-all-button-wrapper {
+    text-align: right;
+  }
+  
+  a.accordion-show-all-button {
+    @include link-button();
+  
+    & + * {
+      clear: both;
+    }
+  }
+  
+  h2 {
+    display: block;
+    margin: 0;
+
+    .anchorjs-link {
+      display: none !important;
+    }
+
+    button {
+      span {
+        text-align: left;
+      }
+    }
+  }
+  
+  button[aria-expanded] {
+    @include h2($factor: $font-serif-sans-ratio);
+  
+    background-color: $color-background;
+    color: $color-accent;
+  
+    margin: 1.6875rem 0;
+    padding-right: $line-height-default;
+    width: 100%;
+  
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  
+    &:hover {
+      cursor: pointer;
+    }
+
+    &[aria-expanded="false"] {
+      @include h2($factor: 0.7);
+    }
+  }
+  
+  // Don't let floating elements from previous section
+  // overlap with next section.
+  section[aria-labelledby] {
+    clear: both;
+  }
+  
+  section[aria-hidden="true"] {
+    display: none;
+  }
+}

@@ -1,0 +1,86 @@
+// Sidenotes
+
+.sidenote {
+	@include p5($factor: $font-serif-sans-ratio);
+	background-color: $color-background;
+	border-top: $rule-thickness solid $color-light;
+	margin-bottom: 1rem;
+	padding: 1rem 0;
+
+	p {
+		font-size: inherit;
+	}
+	
+	&.visuallyhidden {
+		// extra overrides for sidenote styles
+		border-top: 0;
+		padding: 0;
+		margin: 0;
+		background-color: transparent;
+	}
+
+	// Headings in sidenotes
+	h1, h2, h3, h4, h5, h6 {
+		&:first-child {
+			margin-top: 0;
+		}
+	}
+	
+	// Images in sidenotes
+	& p img:only-child, & p svg:only-child {
+		margin-top: 0;
+	}
+
+	// on medium-sized screens, text wraps around sidenotes
+	@media (min-width: $break-point-m) {
+		float: right;
+		clear: right;
+		position: relative;
+		min-width: 5em;
+		max-width: 40%;
+		margin: $line-height-default 0 $line-height-default $line-height-default;
+
+		// unless full-width
+		&.web-full-width {
+			margin-left: 0;
+			margin-right: 0;
+		}
+	}
+
+	// Sidenotes that links to component look different
+	&.link-to-component {
+		background-color: $color-accent-light;
+		padding: 1rem;
+
+		// Style the heading
+		strong:first-of-type {
+			color: $color-accent;
+			@include p4();
+		}
+
+		// Always on the right
+		@media (min-width: $break-point-m) {
+			float: right !important;
+			clear: right !important;
+		}
+		
+	}
+
+	// on very large screens, place sidenotes in the margin
+	@include outside-right();	
+}
+
+.expandable-box {
+	.sidenote {
+		@media (min-width: $break-point-m) {
+			float: none;
+			margin-left: 0;
+			margin-right: 0;
+			max-width: 100%;
+		}
+		
+		@media (min-width: $break-point-xl) {
+			@include outside-right();
+		}
+	}
+}

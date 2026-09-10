@@ -1,0 +1,76 @@
+// NOTE: this file is not shared between CORE repos, as different titles
+// are produced by different printers and on differently-sized paper.
+
+// Set the current output destination here.
+// Options: oup | ingram | a4 | hackett
+$output-destination: hackett;
+
+// Initialise variables, otherwise they
+// are not available outside each if statement.
+$page-setup-oup: null;
+$page-setup-pod: null;
+$page-setup-a4: null;
+$page-width: null;
+$page-height: null;
+$margin-top: null;
+$margin-bottom: null;
+$margin-outside: null;
+$margin-inside: null;
+$running-head-depth: null;
+$page-number-border-margin: null;
+$color-profile: null !default;
+
+@if $output-destination == oup {
+    $page-setup-oup: true; // can be used in logic elsewhere
+    $page-setup-pod: false; // can be used in logic elsewhere
+    $page-setup-a4: false; // can be used in logic elsewhere
+    $page-width: 195mm;
+    $page-height: 265mm;
+    $margin-top: 19mm;
+    $margin-bottom: 21mm;
+    $margin-outside: 12mm; // 8mm;
+    $margin-inside: 25mm;
+    $running-head-depth: 12pt; // must be a multiple of the line-height default
+    $page-number-border-margin: 12pt; // must be a multiple of the line-height default
+} @else if $output-destination == ingram {
+    $page-setup-oup: false; // can be used in logic elsewhere
+    $page-setup-pod: true; // can be used in logic elsewhere
+    $page-setup-a4: false; // can be used in logic elsewhere
+    $page-width: 203mm;
+    $page-height: 276mm;
+    $margin-top: 24mm;
+    $margin-bottom: 27mm;
+    $margin-outside: 17mm;
+    $margin-inside: 28mm;
+    $running-head-depth: 24pt; // must be a multiple of the line-height default
+    $page-number-border-margin: 24pt; // must be a multiple of the line-height default
+    $pdf-page-setup-ingram-pod: false; // hides crops, adjusts trim
+    $color-profile: "SWOP-coated-240-ink-limit.icc";
+} @else if $output-destination == a4 {
+    $page-setup-oup: false; // can be used in logic elsewhere
+    $page-setup-pod: false; // can be used in logic elsewhere
+    $page-setup-a4: true; // can be used in logic elsewhere
+    $page-width: 210mm;
+    $page-height: 297mm;
+    $margin-top: 30mm;
+    $margin-bottom: 42mm;
+    $margin-outside: 21mm;
+    $margin-inside: 31mm;
+    $running-head-depth: 36pt; // must be a multiple of the line-height default
+    $page-number-border-margin: 48pt; // must be a multiple of the line-height default
+    $pdf-page-setup-ingram-pod: false; // hides crops, adjusts trim
+} @else if $output-destination == hackett {
+    $page-setup-oup: false; // can be used in logic elsewhere
+    $page-setup-pod: false; // can be used in logic elsewhere
+    $page-setup-a4: false; // can be used in logic elsewhere
+    $page-setup-hackett: true; // can be used in logic elsewhere
+    $page-width: 203mm;
+    $page-height: 254mm;
+    $margin-top: 20mm;
+    $margin-bottom: 20mm;
+    $margin-outside: 15mm;
+    $margin-inside: 25mm;
+    $running-head-depth: 12pt; // must be a multiple of the line-height default
+    $page-number-border-margin: 8pt;
+    $pdf-page-setup-ingram-pod: false; // hides crops, adjusts trim
+}

@@ -1,0 +1,72 @@
+// NAV
+
+.landing-page {
+  .landing-page-body {
+    nav {
+      width: 17rem;
+      position: fixed;
+      top: $wordpress-buttons-height + 1rem; // wordpress button height + masthead padding
+      z-index: 3;
+      background-color: $color-charcoal;
+      left: 0;
+      height: 100%;
+
+      @media only screen and (min-width: $breakpoint-masthead) {
+        top: $wordpress-buttons-height + 2rem; // wordpress button height + masthead padding
+      }
+
+      ul {
+        list-style-type: none;
+        margin: 0;
+    
+        li {
+          border-bottom: $rule-thickness solid $color-pewter;
+          
+          a {
+            display: block;
+            padding: 1rem 0 1rem 5rem;
+            text-decoration: none;
+            
+            &:hover, &:active {
+              background-color: $color-granite;
+            }
+          }
+        }
+      }
+
+      &.invisible {
+        @media only screen and (max-width: $breakpoint-nav) {
+          @include visuallyhidden;
+        }
+      }
+
+      // SEARCH
+      .search {
+        margin: 0;
+        background-color: $color-accent;
+
+        input.search-box {
+          flex-shrink: 1;
+          margin: 0.5rem 0.75rem 0.5rem 0.75em;
+          width: 100%;
+          height: 2.5rem;
+        }
+        
+        input.search-submit {
+          display: none;
+        }
+      }
+    }
+
+    // WIDE SCREEN NAV
+    @media only screen and (min-width: $breakpoint-nav) {
+      nav {
+        width: 17rem;
+        flex-shrink: 0;
+        position: sticky;
+        top: 0;
+        align-self: flex-start;
+      }
+    }
+  }
+}

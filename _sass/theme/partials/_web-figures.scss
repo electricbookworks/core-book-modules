@@ -1,0 +1,296 @@
+// Figures
+
+img {
+  border-width: 0;
+  height: auto;
+  max-width: 100%;
+  vertical-align: middle;
+  -ms-interpolation-mode: bicubic;
+
+  &.thumbnail {
+    @media (min-width: $break-point-s) {
+      clear: right;
+      float: right;
+      max-width: 40%;
+      padding: 0 0 $line-height-default ($line-height-default / 2);
+    }
+  }
+
+  &.inline-icon {
+    height: 1em;
+  }
+}
+
+svg.inject-svg {
+  width: 100%;
+  height: auto;
+}
+
+img[src$="svg"] {
+  background-color: $color-background;
+}
+
+.figure {
+  background-color: transparent; // overrides inherit from figure partial
+  clear: left;
+  font-family: inherit;
+  padding: $line-height-default / 2;
+  
+  :not(.MathJax_SVG) > svg {
+    background-color: $color-background;
+  }
+
+  img, p img {
+    object-fit: contain;
+  }
+  
+  @media screen and (max-height: $break-point-height) {
+    img, p img {
+      max-height: $break-point-height / 2;
+    }
+  }
+  
+  @media screen and (max-height: ($break-point-height * 0.7)) {
+    img, p img {
+      max-height: $break-point-height * 0.35;
+    }
+  }
+      
+  &.x-small, &.small, &.large {
+    p img, img {
+      max-height: inherit;
+    }
+  }
+  
+  @media screen and (min-width: $break-point-width) {
+    &.large {
+      img, p img {
+        max-height: $break-point-width;
+      }
+    }
+  }
+  
+  &.thumbnail, &.web-thumbnail, &.sidenote, .sidenote & {
+    .figure-body {
+      @include p5();
+
+      .title, .caption {
+        @include p5();
+      }
+    }
+  }
+
+  // Thumbnail figures
+  &.thumbnail, &.web-thumbnail {
+    position: static;
+
+    .figure-images a {
+      width: 100%;
+    }
+    
+    // on larger screens, text wraps around thumbnails
+    @media (min-width: $break-point-m) {
+      max-width: 25%;
+      float: right;
+      margin: 0 0 0 ($line-height-default / 2);
+    }
+    
+    // on very large screens, place thumbnails in the margin
+    @media (min-width: $break-point-xl) {
+      margin-right: -$outside-margin;
+    }
+  }
+
+  .figure-body {
+    .title {
+      display: none;
+    }
+    
+    .caption {
+      line-height: inherit;
+      @include figure-caption();  
+      margin-bottom: 1.5rem;  
+    }
+    
+    .figure-images {
+      margin-bottom: 0; // overrides template $line-height-default
+      max-width: 100%; // required for IE to prevent images expanding out of viewport
+      
+      @media (min-width: $break-point-m) {
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .figure-flex-container {
+        padding: 0 $line-height-default/4 0 $line-height-default/4;
+      }
+      
+      // Remove padding from first and last .figure-flex-container
+      @for $i from 1 through 4 {
+        &.contains-#{$i} .figure-flex-container {
+          @media (min-width: $break-point-m) {
+            flex-basis: 100%;
+
+            &:first-child {
+              padding-left: 0;
+            }
+
+            &:nth-child(#{$i}) {
+              padding-right: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .figure-source {
+    @include figure-source();
+  }
+  
+  &.image-rows-1-2 {
+    .figure-images.contains-3 {
+      @media (min-width: $break-point-m) {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+
+        .figure-flex-container {
+          // take up 50% of the space
+          flex-basis: calc(50% - #{$line-height-default});
+
+          &:first-child {
+            // except the first one, which should be full-width
+            flex-basis: $max-width-default;
+            padding-left: $line-height-default / 4;
+          }
+
+          &:nth-of-type(3) {
+            padding-right: $line-height-default / 4;
+          }
+        }
+      }
+    }
+  }
+  
+  &.image-rows-1 {
+    .figure-images.contains-1 {
+      @media (min-width: $break-point-m) {
+        flex-wrap: wrap;
+        justify-content: space-around;
+
+        .figure-flex-container {
+          // take up 33% of the space
+          flex-basis: $max-width-default/3 - $line-height-default;
+
+          &:first-child {
+            padding-left: $line-height-default / 4;
+          }
+
+          &:nth-of-type(1) {
+            padding-right: $line-height-default / 4;
+          }
+        }
+      }
+    }
+  }
+  
+  &.image-rows-1-1-1 {
+    .figure-images.contains-3 {
+      @media (min-width: $break-point-m) {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    
+        .figure-flex-container {
+          // each image should fill the row
+          flex-basis: $max-width-default - $line-height-default;
+
+          &:first-child {
+            padding-left: $line-height-default / 4;
+          }
+
+          &:nth-of-type(3) {
+            padding-right: $line-height-default / 4;
+          }
+        }
+      }
+    }
+  }
+  
+  &.image-rows-1-1 {
+    .figure-images.contains-2 {
+      @media (min-width: $break-point-m) {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        
+        .figure-flex-container {
+          // each image should fill the row
+          flex-basis: $max-width-default - $line-height-default;
+
+          &:first-child {
+            padding-left: $line-height-default / 4;
+          }
+
+          &:nth-of-type(2) {
+            padding-right: $line-height-default / 4;
+          }
+        }
+      }
+    }
+  }
+
+  p {
+    @include p3 ($factor: $font-serif-sans-ratio);
+    font-family: $font-text-secondary;
+    font-style: normal;
+    text-align: left;
+    
+    &.source {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  em {
+    font-style: italic;
+  }
+
+  .caption {
+    .figure-reference {
+      font-weight: bold;
+    }
+  }
+
+  // override _web-figures.scss default
+  .caption,
+  p:nth-child(2),
+  p:nth-child(2) + p,
+  p:nth-child(2) + p + p,
+  p:nth-child(2) + p + p + p,
+  p:nth-child(2) + p + p + p + p {
+    text-align: left;
+  }
+}
+
+.figure.visuallyhidden {
+  margin: -1px;
+  padding: 0;
+}
+
+// Buttons
+.figure-buttons {
+  display: block;
+  margin: 0.25rem 0;
+  text-align: right;
+  width: 100%;
+  
+  button.copy-to-clipboard, .fullscreen-button {
+    @include link-button();
+
+    .thumbnail &, .sidenote & {
+      @include link-button($thumbnail: true);
+    }
+  }
+}

@@ -1,0 +1,332 @@
+// FIGURES
+
+.figure {
+  // Ensure the sidebar is clear for
+  // the source. Also see .figure-no-source below.
+  clear: both;
+
+  // required to override template, and for source in sidebar
+  max-width: none;
+
+  h1, h2, h3, h4, h5, h6 {
+    text-align: center;
+  }
+
+  p {
+    // override inherited template styles
+    clear: none;
+  }
+
+  img {
+    background-color: white;
+  }
+
+  // Small-caps utility class
+  @include force-allsmallcaps();
+
+  .figure-body {
+    float: inside;
+    width: 100%;
+  }
+
+  .figure-images {
+    a.figure-image-link {
+      // don't let the link take up space
+      display: block;
+      line-height: 0;
+    }
+
+    // If there is no reference or caption, figure-images is the only child
+    // of .figure. In that case, we don't need its margin-bottom.
+    &:only-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .figure-html,
+  .figure-md {
+    @include figure-text();
+    margin-bottom: $line-height-default;
+
+    // Tables normally have space above. But if they are the first
+    // thing in a figure, they must not have this space.
+    &:first-child {
+      table:first-of-type {
+        margin-top: 0;
+      }
+    }
+  }
+
+  .title {
+    @include figure-text();
+    font-weight: bold;
+    margin-bottom: $line-height-default;
+  }
+
+  .description {
+    @include figure-text();
+    margin-bottom: $line-height-default;
+    text-align: center;
+  }
+
+  .caption, .slide-caption {
+    @include figure-text();
+    // need !important; don't know what's got precedence over this
+    text-align: left !important;
+
+    .figure-reference {
+      font-weight: bold;
+    }
+  }
+
+  .figure-source {
+    .source {
+      color: $color-pewter;
+      display: inline-block;
+      font-family: $font-text-secondary;
+      font-style: normal;
+      font-size: $font-size-default * 0.7;
+      margin: 0;
+      margin-top: $line-height-default * 0.5;
+      padding: 0;
+      line-height: $line-height-default * (9 / 12);
+      // !important to override precedence of inherited styles :(
+      text-align: left !important;
+
+      a.show-url-only {
+        @include button-filled;
+      }
+
+      // If source is after caption in HTML (better flow):
+      // see alternative figure-as-table CSS below.
+      em {
+        font-style: italic;
+      }
+    }
+
+    .figure-more {
+      margin-bottom: $line-height-default * 0.5;
+
+      // Make link the accent colour
+      a:after {
+        color: $color-accent;
+      }
+    }
+  }
+
+  // If a figure has no source, we don't need to occupy the sidebar
+  &.figure-no-source {
+    clear: none;
+    width: 100%;
+  }
+
+  // We can deliberately hide the source (e.g. if it's repeated),
+  // in which case we also don't need to occupy the sidebar area.
+  &.hide-source {
+    width: 100%;
+
+    .figure-source {
+      display: none;
+    }
+  }
+
+  // Sometimes a source doesn't fit
+  // in the sidebar, or it overlaps with
+  // a sidebar element. Then we use this class
+  // to place it beneath the figure.
+  &.pdf-wide-source,
+  &.pdf-source-below {
+
+    .figure-source {
+      width: auto;
+
+      .source {
+        padding: 0;
+      }
+    }
+  }
+
+  &.thumbnail,
+  &.sidenote {
+    @include sidenote();
+
+    p, p.caption {
+      font-size: $font-size-default * $font-size-smaller;
+      line-height: $line-height-default * $font-size-smaller;
+    }
+
+    &.figure-no-source {
+      width: 25%;
+    }
+
+    .figure-body {
+      width: 100%;
+    }
+
+    img {
+      border: 0;
+    }
+
+    .figure-source {
+      float: none;
+      margin: 0;
+      width: 100%;
+
+      .source {
+        display: block;
+        float: none;
+        margin: 0;
+        padding: 0;
+      }
+    }
+  }
+}
+
+.figure.epub-float-none {
+  float: none;
+  max-width: 100%;
+  width: 100% !important;
+
+  .figure-images {
+    max-width: 25%;
+  }
+}
+
+// No indent on paras that follow figures that follow headings or lists
+h1, h2, h3, h4, h5, h6,
+.subheadline, ol, ul {
+
+  & + .figure + p {
+    text-indent: 0;
+  }
+}
+
+// When figure captions are used outside of a .figure,
+// e.g. after a table
+.caption,
+.figure-caption {
+  @include figure-text();
+  margin-bottom: $line-height-default;
+}
+
+// Figures with multiple images
+.figure {
+  .figure-images {
+    text-align: center;
+
+    &.contains-2, &.contains-4, &.contains-8, &.contains-10 {
+
+      img {
+        max-width: 45%;
+        padding: 2px;
+      }
+    }
+
+    &.contains-3, &.contains-6, &.contains-9 {
+      img {
+        max-width: 30%;
+        padding: 2px;
+      }
+    }
+
+    &.contains-5 {
+      img {
+        max-width: 30%;
+        padding: 2px;
+      }
+
+      img:nth-last-child(1), img:nth-last-child(2) {
+        max-width: 45%;
+      }
+    }
+
+    &.contains-7 {
+      img {
+        max-width: 45%;
+        padding: 2px;
+      }
+
+      img:nth-last-child(3),
+      img:nth-last-child(2),
+      img:nth-last-child(1) {
+        max-width: 30%;
+      }
+    }
+  }
+
+  // Let users specify a class for the figure
+  // that controls how multi-image figures are laid out:
+  // two large images
+  &.image-rows-1-1 {
+    .figure-images {
+      &.contains-2 {
+        img {
+          max-width: none;
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  // one large, then two small...
+  &.image-rows-1-2 {
+    .figure-images {
+      &.contains-3 {
+        img {
+          max-width: 45%;
+        }
+
+        img:nth-of-type(1) {
+          max-width: 45%;
+        }
+      }
+    }
+  }
+
+  // ...two small, then one large
+  &.image-rows-2-1 {
+    .figure-images {
+      &.contains-3 {
+        img {
+          max-width: 45%;
+        }
+
+        img:nth-of-type(3) {
+          max-width: 45%;
+        }
+      }
+    }
+  }
+
+  // All images full width
+  &.image-rows-1-1-1 {
+    .figure-images {
+      &.contains-3 {
+        img {
+          max-width: none;
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  // All images full width
+  &.image-rows-1-1-1-1 {
+    .figure-images {
+      &.contains-4 {
+        img {
+          max-width: none;
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+// Don't show titles and descriptions by default.
+// We'll show these later, in .slides
+.figure {
+  .title, .description {
+    display: none;
+  }
+}

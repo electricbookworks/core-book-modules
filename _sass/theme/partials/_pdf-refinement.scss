@@ -1,0 +1,216 @@
+// Fixes and layout hacks
+
+// Fix elements in place, for when they must keep their position
+// in the text flow, and not float to the top or bottom of the page.
+.fixed#{$edition-suffix},
+.float-none#{$edition-suffix} {
+    float: none;
+}
+
+// Float an element to the top or bottom of a page.
+// Is part of _pdf-fitting.scss, but gets overridden by custom CSS
+// so we're repeating it here.
+.float-top#{$edition-suffix} {
+    float: top;
+}
+
+.float-top-next#{$edition-suffix} {
+    float: top next;
+}
+
+.float-bottom#{$edition-suffix} {
+    float: bottom;
+}
+
+.float-bottom-next#{$edition-suffix} {
+    float: bottom next;
+}
+
+.float-top-unless-fit#{$edition-suffix} {
+    float: top unless-fit;
+}
+
+.float-bottom-unless-fit#{$edition-suffix} {
+    float: bottom unless-fit;
+}
+
+.float-column-bottom#{$edition-suffix} {
+    float: column bottom;
+    margin-top: $line-height-default * 2;
+    margin-bottom: 0;
+}
+
+// Save a line (use sparingly!)
+
+// Create save-1 through save-10
+@for $i from 0 through 10 {
+    .save-#{$i} {
+        margin-top: -($line-height-default * $i);
+    }
+}
+
+@for $i from 0 through 10 {
+    .add-#{$i} {
+        padding-top: ($line-height-default * $i);
+    }
+}
+
+@for $i from 0 through 20 {
+    .add-lines-#{$i} {
+        padding-bottom: ($line-height-default * $i);
+    }
+}
+
+// Force explicit margin bottom
+@for $i from 0 through 10 {
+    .pdf-margin-bottom-#{$i} {
+        margin-bottom: $line-height-default * $i;
+    }
+}
+
+// Span columns
+.pdf-span-columns {
+    column-span: all;
+}
+
+// Break columns
+.pdf-column-break {
+    column-break-after: always;
+}
+
+// Warnings
+
+.low-res img, img.low-res {
+    filter: blur(3pt);
+}
+
+// Set a unit to start at a given page
+@for $i from 1 through 1200 {
+    .page-#{$i} {
+        counter-reset: page #{$i};
+    }
+}
+
+// Spans that keep-together need extra rules
+span.keep-together,
+a.keep-together {
+
+    // already inherits this from EB template, so not repeating it here.
+    // page-break-inside: avoid;
+
+    display: inline-block;
+
+    // weird! but seems necessary to avoid an indent here
+    text-indent: 0;
+}
+
+.keep-with-previous {
+    page-break-before: avoid;
+}
+
+// Allow orphan (bottom of page) and widow (top of page) lines
+.allow-orphans {
+    orphans: 1;
+}
+
+.allow-widows {
+    widows: 1;
+}
+
+// Turn off automatic hyphenation
+.hyphens-manual {
+    hyphens: manual;
+}
+
+// Turn on automatic hyphenation for a block element
+.hyphenate {
+    hyphens: auto;
+}
+
+// Usually used in code blocks
+.pdf-wrap-words {
+    overflow-wrap: break-word;
+}
+
+// Language-specific hyphenation
+
+:lang(fr) {
+
+    p, ul, ol, dl {
+        prince-hyphenate-patterns: url("hyph-fr.pat");
+    }
+}
+
+// ---------------------------
+// Fixes for accommodating the Italian edition
+// ---------------------------
+
+.no-show {
+    display: none;
+}
+
+// Specific solution for maths workaround
+// https://www.princexml.com/forum/topic/4944/mathml-underbrace-not-stretching
+.math-06-11-02 {
+    display: block;
+    margin: $line-height-default auto;
+    width: 60mm;
+}
+
+.math-03-07-01 {
+    display: block;
+    margin: $line-height-default auto;
+    width: 28mm;
+}
+
+.math-03-08-01 {
+    display: block;
+    margin: $line-height-default auto;
+    width: 65mm;
+}
+
+.math-03-08-02 {
+    display: block;
+    margin: $line-height-default auto;
+    width: 120mm;
+}
+
+// math-02- figures found in Insight 2 of Global South series, section 6
+.math-02-01 {
+    display: block;
+    margin: $line-height-default auto;
+    width: auto;
+    
+    // Since the formula is in a "Find out more"
+    // box, we need to override the background
+    // colour of SVGs being white
+    &[src$="svg"] {
+        background-color: transparent;
+    }
+}
+
+.math-02-02 {
+    display: block;
+    margin: $line-height-default auto;
+    width: auto;
+
+    // Since the formula is in a "Find out more"
+    // box, we need to override the background
+    // colour of SVGs being white
+    &[src$="svg"] {
+        background-color: transparent;
+    }
+}
+
+.math-02-03 {
+    display: block;
+    margin: $line-height-default auto;
+    width: auto;
+    
+    // Since the formula is in a "Find out more"
+    // box, we need to override the background
+    // colour of SVGs being white
+    &[src$="svg"] {
+        background-color: transparent;
+    }
+}
