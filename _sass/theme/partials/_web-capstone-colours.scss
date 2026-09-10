@@ -1,26 +1,40 @@
-// Capstone chapter feature colours
+// Colour-theme overrides for chapter-opener pages.
+//
+// Applies a theme colour as an accent over the project's default accent:
+// chrome bars stay charcoal while headings, borders, boxes and controls
+// take the theme colour, and the chapter opener follows the v2 design
+// (charcoal band + white title on intro pages, no band on section pages).
+// Registered per `.theme-*` class below and reusable by any v2 project.
+// ("Capstone" colour themes were a TE1.0-only concept; this is the general
+// v2 colour-theme mechanism, hence the name.)
 
-@mixin capstone-color-overrides($color, $color-hex-chars) {
+@mixin theme-color-overrides($color, $color-hex-chars) {
   .chapter-opener-image-caption {
     color: lighten($color, 30%);
   }
 
-  // background color
-  &.default-page h1 {
-    background-color: $color!important;
-    
-    &:before {
-      background-image: url("../images/pinch-top-#{$color-hex-chars}.svg");
-    }
-    
-    &:after {
-      background-image: url("../images/pinch-bottom-#{$color-hex-chars}.svg");
-    }
+  // Opener heading background. Two chapter-opener page types:
+  //  - Intro pages (.chapter-opener-wrapper) keep a charcoal band with a
+  //    white title; the theme colour is used only for the overline and the
+  //    accent borders (below).
+  //  - Section pages (.section) have no band: the heading is the overline
+  //    strong on the light page background.
+  .chapter-opener-wrapper h1 {
+    background-color: $color-charcoal !important;
   }
 
-  // h2, h3 color
-  h2, h3, .subheadline {
+  &.section h1 {
+    background-color: transparent !important;
+  }
+
+  // h2 and h3 take the theme colour; the subheadline sits on the charcoal
+  // band, so it keeps white text
+  h2, h3 {
     color: $color;
+  }
+
+  .subheadline {
+    color: $color-ghost;
   }
 
   // Override accordion styles
@@ -139,6 +153,12 @@
     a {
       color: white;
     }
+  }
+
+  // Chrome bars stay charcoal; the theme colour is used as an accent only
+  .masthead,
+  #footer {
+    background-color: $color-charcoal;
   }
 
   [href="#nav"] {
@@ -357,27 +377,122 @@
       }
     }
   }
+
+  // Chapter-opener + content accents (v2 chapter-opener pages)
+
+  // Slide-out nav drawer title
+  #nav .nav-title {
+    color: $color;
+  }
+
+  // Accent borders, including the bar to the right of the opener image
+  .chapter-opener-wrapper h1,
+  .subheadline,
+  .chapter-opener-image-caption {
+    border-left-color: $color;
+  }
+
+  .chapter-opener-image {
+    border-right-color: $color;
+  }
+
+  // Overline label and centred (non-chapter) headings
+  h1 strong,
+  .content > h1 {
+    color: $color;
+  }
+
+  // Info, exercise and citation boxes: the boxes partial colours their
+  // text/headings at a specificity the `.info { color }` rule above
+  // doesn't reach
+  .info p,
+  .info h2, .info h3, .info h4, .info h5, .info h6,
+  .exercise h2, .exercise h3, .exercise h4, .exercise h5, .exercise h6,
+  .box.citation h2, .box.citation h3, .box.citation h4, .box.citation h5, .box.citation h6 {
+    color: $color;
+  }
+
+  .box.prerequisites {
+    border-left-color: $color;
+
+    h2 {
+      color: $color;
+    }
+  }
+
+  // Numbered question counters (.text-question uses a CSS counter in ::before)
+  .text-question::before {
+    color: $color;
+  }
+
+  // Pagination (prev/next chrome): text and arrows inherit this colour
+  .pagination a {
+    color: $color;
+  }
+
+  // "Contents" nav button keeps its filled border in the theme colour
+  [href="#nav"] {
+    border-color: $color;
+  }
+
+  // "Buttons" component links (e.g. walkthrough links) are filled with the
+  // theme colour by the template button mixin
+  a.button,
+  .button a {
+    background-color: $color;
+
+    &:hover, &:active, &:focus {
+      background-color: darken($color, 20%);
+    }
+  }
+
+  // Content accordion: section toggles and "Expand all". [data-accordion-page]
+  // sits on the same element as the theme class, so match it with &.
+  &[data-accordion-page="true"] {
+    a.accordion-show-all-button {
+      border-color: $color;
+      color: $color;
+    }
+
+    button[aria-expanded] {
+      color: $color;
+    }
+  }
+
+  // Figure buttons ("Copy link", fullscreen) use the theme link-button style
+  .figure-buttons {
+    button.copy-to-clipboard,
+    .fullscreen-button {
+      border-color: $color;
+      color: $color;
+    }
+  }
+
+  // Reading progress bar fill
+  .progress-bar-container .progress-bar::after {
+    background-color: $color;
+  }
 }
 
 // Load the overrides
 .theme-17 {
-  @include capstone-color-overrides($theme-17-color, $theme-17-color-hex-chars);
+  @include theme-color-overrides($theme-17-color, $theme-17-color-hex-chars);
 }
 
 .theme-18 {
-  @include capstone-color-overrides($theme-18-color, $theme-18-color-hex-chars);
+  @include theme-color-overrides($theme-18-color, $theme-18-color-hex-chars);
 }
 
 .theme-19 {
-  @include capstone-color-overrides($theme-19-color, $theme-19-color-hex-chars);
+  @include theme-color-overrides($theme-19-color, $theme-19-color-hex-chars);
 }
 
 .theme-20 {
-  @include capstone-color-overrides($theme-20-color, $theme-20-color-hex-chars);
+  @include theme-color-overrides($theme-20-color, $theme-20-color-hex-chars);
 }
 
 .theme-21 {
-  @include capstone-color-overrides($theme-21-color, $theme-21-color-hex-chars);
+  @include theme-color-overrides($theme-21-color, $theme-21-color-hex-chars);
     
   // background shade, don't lighten as much as other units
   .mcq, .question {
@@ -386,5 +501,9 @@
 }
 
 .theme-22 {
-  @include capstone-color-overrides($theme-22-color, $theme-22-color-hex-chars);
+  @include theme-color-overrides($theme-22-color, $theme-22-color-hex-chars);
+}
+
+.theme-stone-centre {
+  @include theme-color-overrides($theme-stone-centre-color, $theme-stone-centre-color-hex-chars);
 }

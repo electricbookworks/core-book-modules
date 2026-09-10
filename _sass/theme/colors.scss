@@ -18,6 +18,9 @@ $color-highlight: #ffd54d;
 $color-notifications: #ffd54d;
 $color-notification-high-background: #ff7c4d;
 
+// Section theming colours
+$color-stone-centre: #3f61ad; // Stone Centre blue (landing-page section/TOC theming)
+
 // Capstone colours
 $theme-17-color: #9F6B5B !default; // 17 Great Depression
 $theme-18-color: #3c919e !default; // 18 World Economy
@@ -25,6 +28,7 @@ $theme-19-color: #dc764d !default; // 19 Economic Inequality
 $theme-20-color: #759757 !default; // 20 Environment
 $theme-21-color: #6064b0 !default; // 21 Innovation
 $theme-22-color: #AD80A6 !default; // 22 Politics and Power
+$theme-stone-centre-color: $color-stone-centre !default; // Extra empirical projects
 
 // We also save the hex value without the hash, to use
 // in interpolation when setting background-image file names
@@ -34,6 +38,7 @@ $theme-19-color-hex-chars: F48356 !default;
 $theme-20-color-hex-chars: 92BD6D !default;
 $theme-21-color-hex-chars: E4A95A !default;
 $theme-22-color-hex-chars: AD80A6 !default;
+$theme-stone-centre-color-hex-chars: 3f61ad !default;
 
 // Slides percentages
 $slides-current-pc: 20% !default;
