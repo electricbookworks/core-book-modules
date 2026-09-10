@@ -1,0 +1,17 @@
+$web-fitting: true !default;
+@if $web-fitting {
+
+  // Shrink the font size.
+  // Useful for wide tables.
+  .shrink {
+      font-size: 0.7em;
+  }
+
+  // Prevent spans from breaking over a line
+  span, em, strong {
+    &.keep-together#{$edition-suffix} {
+      white-space: nowrap;
+    }
+  }
+
+}
