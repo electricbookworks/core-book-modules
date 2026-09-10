@@ -1,0 +1,107 @@
+// IMPORT THE ACCENT COLOUR
+@import "theme/color-accent";
+
+// Theme colours
+$color-charcoal: #423F43;
+$color-shadow: #48444A;
+$color-granite: #5F5F5F;
+$color-pewter: #828282;
+$color-smoke: #BDBDBD;
+$color-dove: #F2F2F2;
+$color-ghost: #F9F9F9;
+$color-white: #FFFFFF;
+
+// Utility colours
+$black: #262626;
+$color-links: #037bb5;
+$color-highlight: #ffd54d;
+$color-notifications: #ffd54d;
+$color-notification-high-background: #ff7c4d;
+
+// Capstone colours
+$theme-17-color: #9F6B5B !default; // 17 Great Depression
+$theme-18-color: #3c919e !default; // 18 World Economy
+$theme-19-color: #dc764d !default; // 19 Economic Inequality
+$theme-20-color: #759757 !default; // 20 Environment
+$theme-21-color: #6064b0 !default; // 21 Innovation
+$theme-22-color: #AD80A6 !default; // 22 Politics and Power
+
+// We also save the hex value without the hash, to use
+// in interpolation when setting background-image file names
+$theme-17-color-hex-chars: 9F6B5B !default;
+$theme-18-color-hex-chars: 4BB4C5 !default;
+$theme-19-color-hex-chars: F48356 !default;
+$theme-20-color-hex-chars: 92BD6D !default;
+$theme-21-color-hex-chars: E4A95A !default;
+$theme-22-color-hex-chars: AD80A6 !default;
+
+// Slides percentages
+$slides-current-pc: 20% !default;
+$slides-focus-pc: 35% !default;
+$slides-tint: 30% !default;
+
+// CYMK values for print output
+
+@if $output-format == "print-pdf" {
+
+    // Blacks
+    $black: cmyk(0, 0, 0, 1);
+    $grey-dark: cmyk(0%, 0%, 0%, 80%);
+    $grey-mid: cmyk(0%, 0%, 0%, 40%);
+    $grey-light: cmyk(0%, 0%, 0%, 20%);
+    $white: cmyk(0%, 0%, 0%, 0%);
+
+    // Theme colours
+    $color-light: cmyk(0%, 0%, 0%, 5%);
+    $color-charcoal: cmyk(66%, 59%, 51%, 54%); // #423F43;
+    $color-shadow: cmyk(65%, 59%, 49%, 49%); // #48444A;
+    $color-granite: cmyk(58%, 47%, 47%, 37%); // #5F5F5F;
+    $color-pewter: cmyk(49%, 38%, 38%, 19%); // #828282;
+    $color-smoke: cmyk(29%, 22%, 23%, 3%); // #BDBDBD;
+    $color-dove: cmyk(6%, 4%, 5%, 0%); // #F2F2F2;
+    $color-ghost: cmyk(2%, 2%, 2%, 0%); // #F9F9F9;
+    $color-white: cmyk(0%, 0%, 0%, 0%); // #FFFFFF;
+
+    // Utility colours
+    $color-links: cmyk(84%, 42%, 9%, 1%); // #037bb5;
+    $color-highlight: cmyk(0%, 16%, 77%, 0%); // #ffd54d;
+    $color-notifications: cmyk(0%, 16%, 77%, 0%); // #ffd54d;
+    $color-notification-high-background: cmyk(0%, 63%, 69%, 0%); // #ff7c4d;
+
+    // Capstone colours
+    $theme-17-color: cmyk(29%, 56%, 56%, 24%); // #9F6B5B !default; // 17 Great Depression
+    $theme-18-color: cmyk(74%, 24%, 34%, 6%); // #3c919e !default; // 18 World Economy
+    $theme-19-color: cmyk(11%, 63%, 72%, 1%); // #dc764d !default; // 19 Economic Inequality
+    $theme-20-color: cmyk(60%, 24%, 77%, 7%); // #759757 !default; // 20 Environment
+    $theme-21-color: cmyk(72%, 63%, 0%, 0%); // #6064b0 !default; // 21 Innovation
+    $theme-22-color: cmyk(37%, 56%, 15%, 1%); // #AD80A6 !default; // 22 Politics and Power
+}
+
+// Add functions for tint and shade
+// Thanks https://css-tricks.com/snippets/sass/tint-shade-functions/
+@function tint($color, $percentage) {
+    @return mix(white, $color, $percentage);
+}
+@function shade($color, $percentage) {
+    @return mix(black, $color, $percentage);
+}
+
+// Colours set as variables
+$color-text-main: $color-charcoal !default;
+$color-text-secondary: $color-charcoal !default;
+$color-dark-grey: $color-granite !default;
+$color-background: $color-white !default;
+$color-light: $color-dove !default;
+$color-mid: $color-accent-30pc !default;
+$color-buttons: $color-accent !default;
+$color-buttons-hover: $color-accent-dark !default;
+$color-notification-low-text: $color-light !default;
+$color-notification-medium-text: $color-light !default;
+$color-notification-high-text: $color-light !default;
+$color-notification-low-background: $color-accent !default;
+$color-notification-medium-background: $color-notifications !default;
+
+@if $output-format == "print-pdf" {
+    $color-text-main: $black;
+    $color-text-secondary: $black;
+}

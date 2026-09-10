@@ -1,0 +1,91 @@
+// MASTHEAD
+
+.masthead {
+  background-color: $color-charcoal;
+  border-bottom: $rule-thickness solid $color-granite;
+  padding: 0;
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  
+  .menu-user-profile {
+    grid-column: 3 / 4;
+    grid-row: 1 / 2;
+    justify-self: end;
+  }
+
+  ul {
+    grid-column: 2 / 3;
+    display: grid;
+    grid-template-columns: 1fr auto auto 1fr;
+    grid-template-rows: auto;
+    height: 100%;
+    align-items: center;
+    font-size: 1rem;
+    padding: 0 !important;
+
+    @media only screen and (min-width: $breakpoint-typography) {
+      font-size: 1.5rem;
+    }
+
+    li {
+      display: inline-block;
+      
+      &::after {
+        content: none;
+      }
+    }
+
+    & li:first-child {
+      grid-column: 2 / 3;
+      font-weight: 700;
+    }
+
+    & li:last-child {
+      text-align: left;
+      margin-left: 0.5rem;
+      font-weight: 400;
+    }
+  }
+
+  // Hide some of the breadcrumbs when the screen is narrow, to allow room for login buttons
+  &:not(.logged-in) {
+    ul {
+      li:first-child {
+        @media only screen and (max-width: 460px) {
+          display: none;
+        }
+      }
+  
+      li:last-child {
+        @media only screen and (max-width: 590px) {
+          display: none;
+        }
+      }
+    }
+    
+    // When the screen gets really narrow, the login buttons need more than half the space
+    @media only screen and (max-width: 460px) {
+      grid-template-columns: auto auto;
+    }
+  }
+  
+  // When the user is logged in, the avatar uses less space than the buttons
+  &.logged-in {
+    ul {
+      li:first-child {
+        @media only screen and (max-width: 310px) {
+          display: none;
+        }
+      }
+
+      li:last-child {
+        @media only screen and (max-width: 430px) {
+          display: none;
+        }
+      }
+    }
+  }
+}
+

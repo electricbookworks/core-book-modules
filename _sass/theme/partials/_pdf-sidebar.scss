@@ -1,0 +1,120 @@
+// Sidebar
+
+.sidenote,
+.footnote-detail {
+    @include sidenote();
+
+    // $border-width from sidebar() border + $border-width
+    // to accommodate inside border created with :before background
+    width: $sidebar-content-width + ($paragraph-indent * 0.5) - $border-width;
+    padding: 0 ($paragraph-indent * 0.5);
+
+    // shift a little for padding
+    // and allow for faux border
+    margin-outside: -($paragraph-indent * 0.5);
+    margin-inside: $border-width;
+
+    font-family: $font-text-secondary;
+    font-size: $font-size-default * 0.8;
+    color: $color-text-secondary;
+
+    // Prince does not give us 'border-inside', only margin-inside.
+    // (http://www.princexml.com/forum/topic/717/padding-inside-padding-outside)
+    // Hence this workaround! We position this element relative
+    // and give it a background color, then we put a pseudo element
+    // with a solid background colour exactly behind it (position: absolute)
+    // adjusting top and bottom for padding if necessary.
+    // We need to put some invisible content in there to make it appear.
+    // Finally, we shift it inside slightly exposing its edge as a 'border',
+    // and hide the rest behind its parent with a negative z-index.
+    // Written up at https://gist.github.com/arthurattwell/60f46206a95b4dc2e39dcc08b83b2c4f
+    position: relative;
+    background: white;
+
+    &:before {
+        position: absolute;
+
+        // ensures red background hides behind sidenote
+        top: $border-width;
+
+        // ensures red background hides behind sidenote
+        bottom: $border-width;
+
+        left: 0;
+        right: 0;
+        background: $color-accent;
+        display: block;
+        content: "\2009"; // \2009 is a thin space
+
+        // hide red behind white
+        margin-outside: $border-width;
+
+        // show a little red as faux border
+        margin-inside: -($border-width);
+
+        z-index: -1;
+    }
+
+    ul, ol {
+        margin-top: 0;
+    }
+
+    // Put the indent back on paras after floated sidenotes.
+    & + p,
+    & + & + p {
+        text-indent: $paragraph-indent;
+    }
+
+    // Unless they follow headings, blockquotes or lists
+    h1 + & + p, h2 + & + p, h3 + & + p, h4 + & + p, h5 + & + p, h6 + & + p,
+    h1 + & + & + p, h2 + & + & + p, h3 + & + & + p, h4 + & + & + p, h5 + & + & + p, h6 + & + & + p,
+    blockquote + & + p,
+    blockquote + & + & + p,
+    ol + & + p,
+    ol + & + & + p,
+    ul + & + p,
+    ul + & + & + p {
+        text-indent: 0;
+    }
+
+    & > *:last-child {
+        margin-bottom: 0;
+    }
+
+    // Sidenotes straight after sidenotes
+    & + & {
+        // save space by removing gap between successive sidenotes
+        // margin-top: -($line-height-default);
+
+        // Bad idea, leaving it here so I don't make this mistake again.
+        // Successive sidenotes at the tops of pages end up higher than
+        // the text area, because of the negative top margin.
+    }
+
+    // Footnotes inside sidenotes
+    .footnote-detail {
+        float: none;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-top: $line-height-default;
+
+        // Remove faux border, because parent note provides one
+        &:after {
+            background-color: transparent;
+        }
+
+        // No margin below the last footnote
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    @include wide-sidenotes();
+}
+
+// footnote-detail is always above (i.e. floated beside) the para
+// it relates to, once footnotes-core-pdf.js has run. So we don't want
+// a page break after them, or they might separate from their paras.
+.footnote-detail {
+    page-break-after: avoid;
+}

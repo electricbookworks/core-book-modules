@@ -1,0 +1,173 @@
+// Base typography
+// ---------------
+
+// Global settings on body
+
+body {
+    // Allow linebreaks after em dashes by replacing them with
+    // em dash followed by zero-width space. See
+    // http://www.princexml.com/forum/topic/2613/allow-linebreak-before-or-after-em-dash
+    prince-text-replace: '\2014' '\2014\200b';
+}
+
+// Headings
+
+h1, h2, h3, h4, h5, h6 {
+    hyphens: manual;
+
+    // Don't allow a page break after
+    // a floated note that follows a heading
+    & + .sidenote,
+    & + .footnote-detail {
+        page-break-after: avoid;
+    }
+
+    &.page-break-before {
+        margin-top: 0;
+    }
+}
+
+h1 {
+    @include head-1();
+}
+
+// Subchapters are structured like normal chapters,
+// but their opening h1s look less prominent
+.subchapter h1 {
+    background: none;
+    border-radius: 0;
+    color: $color-accent;
+    text-align: left;
+    width: $main-text-width;
+
+    &:before, &:after {
+        content: normal;
+    }
+}
+
+h2 {
+    @include head-2();
+
+    // Allow numbering within h2 sections
+    // e.g. for questions
+    counter-reset: section;
+}
+
+h3 {
+    @include head-3();
+}
+
+h4 {
+    @include head-4();
+}
+
+h5 {
+    @include head-5();
+}
+
+h6 {
+    @include head-6();
+}
+
+// Adds a label above an h1, e.g. on Leibniz pages
+// Legacy from TE1.0. May not be necessary in 2.0.
+.title-label {
+    color: $color-accent;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: $font-display-main;
+    text-align: center;
+    font-size: $line-height-default;
+    line-height: $line-height-default;
+    margin-bottom: -($line-height-default * 2);
+    margin-inside: 0;
+    margin-outside: -($margin-outside - $margin-inside); // centre on full page width
+
+    & + h1 {
+        margin-top: 0;
+    }
+}
+
+p {
+
+    &.p-img-only-child-parent {
+
+        & + p {
+            text-indent: 0;
+        }
+    }
+
+    // These classes are added by mark-siblings.js
+    // to let us target elements before lists.
+    &.previous-sibling-of-ol,
+    &.previous-sibling-of-ul {
+        margin-bottom: $line-height-default;
+    }
+}
+
+ol, ul {
+
+    li {
+
+        // Allow page breaks after single-item lists.
+        // (Template styles avoids a page break after first list item.)
+
+        &:nth-child(1):nth-last-child(1) {
+            page-break-after: auto;
+        }
+
+        ol, ul {
+
+            // No space around nested lists
+            margin: 0;
+        }
+    }
+
+    &.no-bullets, li.no-bullets {
+        list-style-type: none;
+    }
+}
+
+// Nested ordered lists, OUP-style
+.default-page {
+    ol > li > ol > li::marker {
+        content: "(" counter(list-item, lower-alpha) ")";
+        font-style: italic;
+        margin-right: 0.25em; // because adding space in `content` doesn't work in Prince
+    }
+}
+
+// Allow extra emphasis in body text
+.extra-emphasis {
+    color: $color-accent;
+}
+
+blockquote {
+
+    p:last-of-type {
+
+        // Override inherited template style, which sets
+        // margin-left to 0 for last-child.
+        &.source {
+            margin-left: $paragraph-indent;
+        }
+    }
+
+    & + p {
+        text-indent: 0;
+    }
+}
+
+.valediction {
+    font-style: italic;
+    margin-top: $line-height-default;
+    text-indent: 0;
+}
+
+// Links
+
+@if $output-format == "print-pdf" {
+    a {
+        color: inherit;
+    }
+}

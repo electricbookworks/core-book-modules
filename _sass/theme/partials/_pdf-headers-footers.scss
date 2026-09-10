@@ -1,0 +1,148 @@
+// Headers and footers
+// -------------------
+
+// Page headers
+
+// The content in these is handled by other EBT partials.
+
+@mixin page-headers($theme-color) {
+
+    // Appearance
+    background-color: $theme-color;
+    color: white;
+    font-family: $font-display-main;
+    font-size: $font-size-default * 0.8;
+    letter-spacing: 0.05em;
+    line-height: $line-height-default;
+    text-transform: uppercase;
+
+    // Position
+    text-align: outside;
+    padding-top: $running-head-depth + $bleed;
+
+    // Note: Prince adds this padding to the width of the element
+    padding-left: $core-element-border-radius;
+    padding-right: $core-element-border-radius;
+
+    vertical-align: top;
+    margin-top: -($bleed);
+    margin-bottom: $line-height-default * 2;
+    margin-outside: $sidebar-content-width * 0.5 + ($core-element-border-radius * 2);
+    margin-inside: -($margin-inside);
+    width: $content-width - ($sidebar-content-width * 0.5) + $margin-inside;
+    border-bottom-right-radius: $core-element-border-radius;
+    border-bottom-left-radius: $core-element-border-radius;
+    
+    @if $page-setup-pod == true {
+        margin-top: -($bleed + $line-height-default);
+        margin-bottom: $line-height-default * 3;
+    }
+}
+
+@mixin page-header-outside-corner-box($theme-color) {
+    background-color: $theme-color;
+    margin-top: -($bleed);
+    margin-bottom: $line-height-default * 2;
+    margin-inside: -($sidebar-content-width * 0.5);
+    width: $margin-outside + ($sidebar-content-width * 0.5) + ($core-element-border-radius * 2);
+
+    // We don't have 'border-bottom-outside-radius' in Prince,
+    // so we can't use `margin-outside: $bleed` or our border-bottom-outside
+    // will show inside the page trim. Instead, we have to permanently shift
+    // the outside margin of this box off the page to hide the rounded corner.
+    margin-outside: -($core-element-border-radius * 2);
+    border-bottom-right-radius: $core-element-border-radius;
+    border-bottom-left-radius: $core-element-border-radius;
+    
+    @if $page-setup-pod == true {
+        margin-top: -($bleed + $line-height-default);
+        margin-bottom: $line-height-default * 3;
+    }
+}
+
+$core-running-head-page-styles: default-page, frontmatter-page, contents-page, endmatter-page;
+
+@each $page-style in $core-running-head-page-styles {
+    
+    @page #{$page-style}:left {
+        @top-center {
+            @include page-headers($color-accent);
+        }
+        @top-left-corner {
+            @include page-header-outside-corner-box($color-accent);
+        }
+    }
+    @page #{$page-style}:right {
+        @top-center {
+            @include page-headers($color-accent);
+        }
+        @top-right-corner {
+            @include page-header-outside-corner-box($color-accent);
+        }
+    }
+}
+
+// Page footers (numbers)
+
+@mixin page-numbers() {
+
+    // Appearance
+    color: $color-text-secondary;
+    font-family: $font-text-main;
+    font-size: $font-size-default;
+    line-height: $line-height-default;
+
+    // Position
+    // Line at middle of sidebar content.
+    margin-top: $page-number-border-margin * 1.5;
+    margin-bottom: $line-height-default * 1.5;
+    margin-inside: -($sidebar-content-width * 0.5);
+    padding: ($line-height-default * 0.5) ($paragraph-indent * 0.5);
+    text-align: inside;
+}
+
+@mixin page-number-border-recto($theme-color: $color-accent) {
+    border-left: $border-width solid $theme-color;
+}
+
+@mixin page-number-border-verso($theme-color: $color-accent) {
+    border-right: $border-width solid $theme-color;
+}
+
+$core-footer-page-styles: default-page, frontmatter-page, contents-page, endmatter-page;
+
+@each $page-style in $core-footer-page-styles {
+
+    @page #{$page-style}:left {
+    
+        @bottom-left-corner {
+            @include page-numbers();
+            @include page-number-border-verso($color-accent)
+        }
+    }
+    
+    @page #{$page-style}:right {
+        @bottom-right-corner {
+            @include page-numbers();
+            @include page-number-border-recto($color-accent)
+        }
+    }
+}
+
+// An optional notice in the footer
+
+@if $output-format == "screen-pdf" {
+
+    @page:left {
+        @bottom-center {
+            text-align: inside !important;
+            content: prince-script(footernotice) !important;
+        }
+    }
+    @page:right {
+        @bottom-center {
+            text-align: inside !important;
+            content: prince-script(footernotice) !important;
+        }
+    }
+}

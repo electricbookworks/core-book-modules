@@ -1,0 +1,51 @@
+// BUTTONS
+
+// Mixins
+@mixin button {
+  border-radius: 2.5rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 400;
+  padding: 0.5rem 1rem;
+}
+
+@mixin button-dark {
+  @include button;
+  background-color: $color-charcoal;
+  border: $rule-thickness solid $color-ghost;
+  color: $color-ghost;
+}
+
+@mixin button-light {
+  @include button;
+  background-color: $color-ghost;
+  border: $rule-thickness solid $color-ghost;
+  color: $color-charcoal;
+}
+
+@mixin button-empty {
+  @include button;
+  background-color: $color-ghost;
+  border: $rule-thickness solid $color-accent;
+  color: $color-accent;
+}
+
+@mixin button-filled {
+  @include button;
+  background-color: $color-accent;
+  border: $rule-thickness solid $color-accent;
+  color: $color-ghost;
+}
+
+// Usage
+a.button-dark {
+  @include button-dark;
+}
+
+a.button-empty {
+  @include button-empty;
+}
+
+a.button-filled {
+  @include button-filled;
+}

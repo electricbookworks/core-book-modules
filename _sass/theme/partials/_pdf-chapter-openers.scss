@@ -1,0 +1,107 @@
+// Chapter opening images
+
+$chapter-opener-image-height: $line-height-default * 18;
+
+.chapter-opener-image {
+    float: wide top-bottom;
+    height: ($margin-top + 3mm) + ($chapter-opener-image-height);
+    margin-left: -($margin-inside + 3mm);
+    margin-top: -($margin-top + 3mm);
+    overflow: hidden;
+    position: relative;
+    width: $page-width + 6mm;
+    z-index: 1;
+
+    // Credit for the following vertical-centering method:
+    // https://www.smashingmagazine.com/2013/08/absolute-horizontal-vertical-centering-css/
+    img {
+        margin: auto;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    &.chapter-opener-image-none {
+        display: none;
+    }
+
+    & + .chapter-opener-image-caption {
+        @include sidenote();
+        float: sidenote align-bottom;
+        font-family: $font-text-secondary;
+        font-size: $font-size-default * $font-size-smaller;
+        margin-top: $line-height-default * 0.5;
+    }
+}
+
+.chapter-opener-wrapper {
+    margin-bottom: $line-height-default * 2;
+    z-index: 0;
+
+    h1 {
+        // Base typography does @include head-1();
+        margin-bottom: $line-height-default * 0.5;
+        margin-top: 0;
+        max-width: $main-text-width + $sidebar-gap-width;
+    }
+}
+
+// Make opener wrapper lower
+// when it follows an opener image
+.chapter-opener-image {
+
+    & ~ .content {
+
+        .chapter-opener-wrapper {
+
+            // Use padding not margin, because Prince
+            // collapses margin at the tops of pages.
+            padding-top: ($chapter-opener-image-height) + ($line-height-default * 2);
+        }
+    }
+}
+
+.subheadline {
+    color: $color-text-main;
+    font-size: $font-size-default * 1.5;
+    hyphens: none;
+    line-height: 1;
+    margin-bottom: $line-height-default;
+    max-width: $main-text-width - ($paragraph-indent * 2);
+
+    & + p {
+        text-indent: 0;
+    }
+
+    // Only after a subheadline, paras and lists have space above them
+    // to set off the subheadline for greater visual impact.
+    // Sidebar elements should also shift down accordingly.
+    & + p, & + ul, & + ol,
+    & + .definition,
+    & + .sidenote,
+    & + .info {
+        margin-top: $line-height-default;
+    }
+}
+
+// Section openers
+
+.default-page {
+
+    // Necessary because margin-top on
+    // the section-opening h2 is collapsed.
+    margin-bottom: $line-height-default * 2;
+}
+
+.default-page.section {
+
+    h1 {
+
+        // Do not show h1s at starts of sections,
+        // we only want those to show at starts of units.
+        // Also see _pdf-pdf-bookmarks.scss
+        display: none;
+    }
+}

@@ -1,0 +1,229 @@
+// Tables
+
+table {
+  @include body();
+
+  .exercise &, .question & {
+    @include p3($factor: $font-serif-sans-ratio);
+  }
+
+  tr {
+    border-bottom: $rule-thickness solid darken($color-light, 10%);
+
+    &:first-child {
+      border-top: $rule-thickness solid darken($color-light, 10%);
+    }
+
+    td, th {
+      border: none;
+      padding: 0 0.5em 0 0;
+    }
+
+    td {
+      .MathJax_Display {
+        margin: 0;
+      }
+
+      .table-row-stub {
+        font-weight: bold;
+        text-align: left;
+      }
+    }
+
+    th {
+      &[rowspan] {
+        text-align: left;
+      }
+    }
+  }
+
+  ul, ol {
+    margin-left: 1em; // so markers don't extend into neighbouring cell
+  }
+
+  // Some special classes for layout needs
+  // even-columns can be applied to a table or to a figure include
+  &.even-columns,
+  .figure.even-columns & {
+    td:nth-of-type(1):nth-last-of-type(2) {
+      width: 50%;
+    }
+    
+    td:nth-of-type(1):nth-last-of-type(3),
+    td:nth-of-type(2):nth-last-of-type(2),
+    td:nth-of-type(3):nth-last-of-type(1) {
+      width: 33%;
+    }
+    
+    td:nth-of-type(1):nth-last-of-type(4),
+    td:nth-of-type(2):nth-last-of-type(3),
+    td:nth-of-type(3):nth-last-of-type(2),
+    td:nth-of-type(4):nth-last-of-type(4) {
+      width: 25%;
+    }
+    
+    td:nth-of-type(1):nth-last-of-type(5),
+    td:nth-of-type(2):nth-last-of-type(4),
+    td:nth-of-type(3):nth-last-of-type(3),
+    td:nth-of-type(4):nth-last-of-type(2),
+    td:nth-of-type(5):nth-last-of-type(1) {
+      width: 20%;
+    }
+  }
+  
+  // extend even-columns for variable number of columns
+  @for $i from 1 through 15 {
+    .figure.even-columns-#{$i} & td {
+      width: 100% / $i;
+    }
+  }
+
+  @for $i from 1 through 19 {
+    .figure.first-column-#{$i} & td:nth-of-type(1) {
+        width: 5% * $i;
+    }
+  }
+
+  // Let users specify cell text alignment
+  &.align-right, .align-right {
+    text-align: right;
+
+    th {
+      text-align: center;
+    }
+  }
+  
+  &.align-left, .align-left {
+    text-align: left;
+
+    th {
+      text-align: center;
+    }
+  }
+
+  &.align-center, .align-center {
+    text-align: center;
+  }
+
+  &.vertical-align-middle, .vertical-align-middle {
+    vertical-align: middle;
+  }
+
+  // Let users specify alignment of all cells with data
+  &.data-align-right, .data-align-right {
+    text-align: right;
+
+    th {
+      text-align: center;
+    }
+
+    td:first-child {
+      text-align: left;
+    }
+  }
+
+  // Let users shrink font, e.g. in big tables
+  .shrink-95pc & {
+    font-size: 95%;
+  }
+
+  // Let users shrink font, e.g. in big tables
+  .shrink-90pc & {
+    font-size: 90%;
+  }
+
+  // Let users shrink font, e.g. in big tables
+  .shrink-85pc & {
+    font-size: 85%;
+  }
+
+  // Let users shrink font, e.g. in big tables
+  .shrink-80pc & {
+    font-size: 80%;
+  }
+
+  // Let users shrink font, e.g. in big tables
+  .shrink-75pc & {
+    font-size: 75%;
+  }
+
+  // Let users shrink font, e.g. in big tables
+  .shrink-70pc & {
+    font-size: 70%;
+  }
+
+  // Let users add vertical rules between columns
+  &.table-vertical-rules {
+    td, th {
+      border-right: $rule-thickness solid darken($color-light, 10%);
+
+      &:last-of-type {
+        border-right: 0;
+        padding-left: 0.5em;
+      }
+    }
+  }
+
+  // Tables as flowcharts
+  &.flowchart {
+    border-collapse: separate;
+    border-spacing: $line-height-default / 4;
+    font-family: $font-text-secondary;
+
+    td {
+      border: $rule-thickness solid transparent;
+      padding: $line-height-default / 4;
+      text-align: center;
+    }
+
+    .flowchart-square {
+      border-color: $color-mid;
+    }
+
+    .flowchart-round {
+      border-color: $color-mid;
+      border-radius: $button-border-radius;
+    }
+  }
+}
+
+// Let users force table elements to look like thead rows
+.thead, .table-subhead {
+  font-weight: bold;
+  text-align: center;
+}
+
+// Bleed tables out of their parent container, with horizontal scrolling on small screens
+.table-wrapper {
+  overflow-x: auto;
+  width: 90vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  table {
+    max-width: $table-max-width;
+    margin-left: auto;
+    margin-right: auto;
+    .table-wider & {
+      max-width: $table-max-width-wider;
+    }
+  }
+}
+
+.table-wrapper-no-bleed {
+  width: auto;
+  left: auto;
+  transform: none;
+}
+
+// In slides and boxes, don't bleed
+.slides .table-wrapper {
+  @extend .table-wrapper-no-bleed;
+}
+@each $box in $feature-boxes {
+  .#{$box} {
+    .table-wrapper{
+      @extend .table-wrapper-no-bleed;
+    }
+  }
+}

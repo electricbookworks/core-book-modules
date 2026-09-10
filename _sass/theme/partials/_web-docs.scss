@@ -1,0 +1,18 @@
+// Docs
+
+._docs {
+  h1 {
+    // Override unit-head styles
+    background-color: transparent;
+    color: $color-accent;
+    font-family: $font-text-secondary;
+    letter-spacing: 0;
+    margin: 2em 0;
+    position: static;
+    text-transform: none;
+
+    &:before, &:after {
+      background: none;
+    }
+  }
+}

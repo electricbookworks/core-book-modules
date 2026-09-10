@@ -1,0 +1,17 @@
+// Leibniz supplements
+
+.leibniz {
+  .chapter-opener-image-none {
+    height: 5rem;
+  }
+
+  &.default-page h1 {
+    // In addition to styles set at general h1 above
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+  }
+
+  .intro {
+    font-family: $font-text-secondary;
+  }
+}

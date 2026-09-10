@@ -1,0 +1,390 @@
+// Capstone chapter feature colours
+
+@mixin capstone-color-overrides($color, $color-hex-chars) {
+  .chapter-opener-image-caption {
+    color: lighten($color, 30%);
+  }
+
+  // background color
+  &.default-page h1 {
+    background-color: $color!important;
+    
+    &:before {
+      background-image: url("../images/pinch-top-#{$color-hex-chars}.svg");
+    }
+    
+    &:after {
+      background-image: url("../images/pinch-bottom-#{$color-hex-chars}.svg");
+    }
+  }
+
+  // h2, h3 color
+  h2, h3, .subheadline {
+    color: $color;
+  }
+
+  // Override accordion styles
+  [role="tab"] a {
+    color: $color;
+  }
+  
+  // definition background
+  .definition {
+    background-color: $color;
+  }
+  
+  .definition-description-hover {
+    border-color: $color;
+    
+    .close {
+      background: $color;
+    }
+  }
+
+  .js-definitions & {
+    .definition {
+      background-color: white;
+      border: 0.2em solid $color;
+      color: $color;
+    }
+  }
+
+  .accordion-show-all-button {
+    border-color: $color;
+    color: $color;
+  }
+
+  .anchorjs-link {
+    border-color: $color;
+    color: $color;
+  }
+
+  // faux border on sidenote and footnote-detail
+  .sidenote, .footnote-detail {
+    &:before {
+      background-color: $color;
+    }
+  }
+  
+  // h3:strong background
+  .einstein, .great-economist, .great-economists, .economist, .economists, .expandable-box {
+    h3 strong:first-of-type {
+      background-color: $color;
+      color: white;
+    }
+
+    h2, h3, h4, h5, h6 {
+      color: $color;
+    }
+
+    .sidenote, .footnote-detail {
+      &:before {
+        background-color: white;
+      }
+    }
+  }
+  
+  // background shade
+  .mcq, .question {
+    background-color: lighten($color, 30%);
+    background-color: rgba($color, 0.15);
+
+    .check-answer-button {
+      background-color: $color !important;
+
+      &:focus, &:hover {
+        background-color: darken($color, 20%) !important;
+      }
+    }
+  }
+
+  // mcq selected option
+  .mcq-options {
+    .selected {
+      border-color: $color !important;
+    }
+  }
+
+  // border
+  .exercise, .info, .box {
+    border-color: $color;
+  }
+  
+  // font color in info boxes
+  .info {
+    color: $color;
+  }
+
+  // footnotes
+  sup[id^=fnref] {
+    background-color: $color;
+  }
+
+  .footnote-detail {
+    border-color: $color;
+
+    .reversefootnote {
+      background-color: $color;
+    }
+  }
+
+  // navigation
+  .masthead,
+  [href="#nav"],
+  #footer,
+  .nav-back-button {
+    background-color: $color;
+    color: white;
+    
+    a {
+      color: white;
+    }
+  }
+
+  [href="#nav"] {
+    &:focus, &:hover {
+      background-color: darken($color, 20%);
+    }
+  }
+
+  // when the nav is open (`html.js-nav-open`), the overlay across the page
+  .js-nav-open & [href="#nav"] {
+    background-color: transparent;
+  }
+
+  #footer {
+    border-top-color: $color;
+  }
+
+  [data-nav-close] {
+    &:after {
+      color: $color;
+    }
+  }
+
+  #nav {
+    .nav-list {
+      ol, ul {
+        li {
+          &:hover, &:focus, &:active, &.active {
+            background-color: $color;
+          }
+        }
+      }
+    }
+    
+    .search {
+      input {
+        border-color: mix(white, $color, 30%); // 30% tint
+      }
+  
+      input[type="submit"] {
+        background-color: $color;
+      }
+    }
+  }
+
+  // controls
+  .controls {
+    .language-select:hover .language-select-list {
+      border-color: $color;
+    }
+    
+    svg {
+      stroke: $color;
+    }
+    
+    .annotator .annotator-toggle-sidebar:checked ~ label.annotator-toggle-sidebar svg,
+    .annotator .annotator-show-annotations:checked ~ label.annotator-show-annotations svg {
+      fill: $color;
+    }
+    
+    .annotator [data-tooltip-description]:hover:before {
+      border-color: $color;
+    }
+    
+    .annotator [data-tooltip-description]:hover:after {
+      background-color: $color;
+      border-color: $color;
+    }
+
+    .share-button svg.share-icon path {
+      stroke: $color;
+    }
+
+    .share-button svg.share-icon.active path {
+      fill: $color;
+    }
+  }
+
+  // share
+  & ~ #share-links {
+    border: $rule-thickness solid $color;
+
+    .share-links-close {
+      border: $rule-thickness solid $color;
+
+      &:before {
+        color: $color;
+      }
+    }
+    
+    ul .share-link .share-link-content:hover svg path {
+      fill: $color;
+    }
+
+    .share-link-label button {
+      border: $rule-thickness solid lighten($color, 30%);
+      color: lighten($color, 30%);
+
+      &:focus, &:hover {
+        background-color: darken($color, 20%);
+      }
+    }
+  }
+
+  // bookmarks
+  & ~ .bookmarks-modal {
+    border: $rule-thickness solid $color;
+
+    button {
+      background-color: $color;
+    }
+
+    .bookmarks-list-header,
+    .last-locations-list-header {
+      border-bottom: $rule-thickness solid lighten($color, 30%);
+    }
+    
+    .bookmarks-list-header {
+      border-right: $rule-thickness solid lighten($color, 30%);
+    }
+  }
+
+
+  & ~ .last-location-prompt {
+    border-color: $color;
+    color: $color;
+    
+    a {
+      color: $color-links;
+    }
+  }
+
+  svg[class*="icon"].bookmark-icon .bookmark-icon-outline,
+  .bookmark-button svg.bookmark-icon .bookmark-icon-outline,
+  .dark-mode-control svg.dark-mode-icon .dark-mode-icon-outline,
+  [data-bookmarked] svg[class*="icon"].bookmark-icon .bookmark-icon-fill,
+  svg[class*="icon"].history-icon path {
+    fill: $color;
+  }
+
+  // figures
+  .figure .figure-source .button,
+  .figure-summary-meta .figure-source .button {
+    background-color: $color;
+  }
+
+  .figure-images .fullscreen-button {
+    color: $color;
+    border-color: $color;
+  }
+
+  .figure button.load-iframe-button {
+    background-color: $color;
+
+    &:focus, &:hover {
+      background-color: darken($color, 20%);
+    }
+  }
+
+  // slidelines
+  $colour-slides: mix(white, $color, $slides-tint);
+
+  .slides {
+    border-color: $colour-slides;
+    
+    .figure .figure-body {
+      .title {
+        color: $color;
+      }
+    }
+  }
+
+  .nav-slides {
+    color: $nav-bar-label-color;
+    background-color: $colour-slides;
+    
+    a {
+      color: $nav-bar-label-color;
+      background-color: $colour-slides;
+      
+      &:hover, &:active, &:focus {
+        background-color: darken($colour-slides, $slides-focus-pc);
+        outline-color: darken($colour-slides, $slides-focus-pc);
+      }
+    }
+  }
+
+  .slide-current {
+    a {
+      background-color: darken($colour-slides, $slides-current-pc);
+      outline-color: darken($colour-slides, $slides-current-pc);
+    }
+  }
+
+  .extra-emphasis {
+    color: $color;
+  }
+
+  // Videos
+  .video .video-options {
+    .video-options-button {
+      background-color: $color;
+
+      &:hover {
+        background-color: darken($color, 20%);
+      }
+    }
+
+    .video-options-content {
+      border-color: $color;
+
+      ul li a {
+        &:focus, &:hover {
+          background-color: $color;
+        }
+      }
+    }
+  }
+}
+
+// Load the overrides
+.theme-17 {
+  @include capstone-color-overrides($theme-17-color, $theme-17-color-hex-chars);
+}
+
+.theme-18 {
+  @include capstone-color-overrides($theme-18-color, $theme-18-color-hex-chars);
+}
+
+.theme-19 {
+  @include capstone-color-overrides($theme-19-color, $theme-19-color-hex-chars);
+}
+
+.theme-20 {
+  @include capstone-color-overrides($theme-20-color, $theme-20-color-hex-chars);
+}
+
+.theme-21 {
+  @include capstone-color-overrides($theme-21-color, $theme-21-color-hex-chars);
+    
+  // background shade, don't lighten as much as other units
+  .mcq, .question {
+    background-color: lighten($theme-21-color, 25%);
+  }
+}
+
+.theme-22 {
+  @include capstone-color-overrides($theme-22-color, $theme-22-color-hex-chars);
+}

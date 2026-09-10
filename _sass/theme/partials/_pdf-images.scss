@@ -1,0 +1,19 @@
+// Images
+
+img {
+
+    &.thumbnail {
+        max-width: $sidebar-content-width;
+        float: right;
+        padding: 0 0 $line-height-default ($paragraph-indent * 0.5);
+        margin: 0;
+    }
+
+    &.inline-icon {
+        height: 1em;
+    }
+}
+
+img[src$="svg"] {
+    background-color: white;
+}

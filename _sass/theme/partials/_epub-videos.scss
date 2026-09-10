@@ -1,0 +1,12 @@
+// VIDEOS
+
+.video-description a {
+  font-family: $font-text-secondary;
+  font-size: $font-size-default * 0.8;
+}
+
+.video .video-wrapper {
+  &:before {
+    content: none;
+  }
+}

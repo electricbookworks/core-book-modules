@@ -1,0 +1,28 @@
+// Video transcripts
+
+.transcript .content {
+  h1 {
+    @include h2();
+    text-align: left;
+
+    strong {
+      @include h1strong();
+    }
+  }
+}
+
+.name-and-timestamp {
+  color: $color-charcoal;
+  font-family: $font-text-secondary;
+  @include p3($factor: $font-serif-sans-ratio);
+  text-transform: uppercase;
+
+  strong {
+    font-weight: normal;
+  }
+
+  em {
+    float: right;
+    font-style: normal;
+  }
+}

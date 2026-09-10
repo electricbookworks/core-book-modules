@@ -1,0 +1,9 @@
+// COPYRIGHT PAGE
+
+.copyright-page {
+  h1 {
+    @include head-1();
+    color: $color-accent;
+    margin-bottom: 0;
+  }
+}

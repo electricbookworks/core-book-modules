@@ -1,0 +1,10 @@
+// FILTERS
+
+input[type="text"].filter-input {
+  border: 1px solid $color-accent;
+  margin: 3rem 0;
+}
+
+.filter-hidden {
+  display: none;
+}

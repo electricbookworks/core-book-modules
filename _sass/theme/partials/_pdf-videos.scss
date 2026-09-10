@@ -1,0 +1,90 @@
+.video {
+    @include sidenote();
+
+    border: 0;
+    page-break-inside: avoid;
+
+    // Since we're putting videos the sidebar,
+    // indent paragraphs separated by videos.
+    p + & + p {
+        text-indent: $paragraph-indent;
+    }
+
+    a.video-link {
+
+        // Don't let the link take up space
+        display: block;
+        line-height: 0;
+    }
+
+    img {
+        border-bottom-right-radius: $core-element-border-radius;
+    }
+
+    .video-description {
+        font-family: $font-text-secondary;
+        font-size: $font-size-default * 0.8;
+        color: $color-text-secondary;
+
+        // Include the link text after the description
+        a:after {
+            content: " " attr(href);
+            color: $color-accent;
+        }
+    }
+
+    // Featured videos appear in the main text area
+    // Override most of `@include […]sidenote()`
+    &.featured {
+        width: $main-text-width;
+        float: none;
+        margin-top: $line-height-default;
+        margin-bottom: $line-height-default;
+        margin-outside: 0;
+        margin-inside: 0;
+        padding: 0;
+        border: 0;
+
+        img {
+            width: auto;
+            max-width: $main-text-width;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+
+    // Videos in sidenotes
+    .sidenote & {
+        margin-inside: 0;
+        margin-outside: 0;
+        padding: 0;
+        width: $sidebar-content-width - $sidebar-gap-width - ($paragraph-indent / 4);
+
+        img {
+            margin-left: 0;
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    // Videos as sidenotes
+    // (i.e. deliberately in sidebar on web, too)
+    &.sidenote {
+
+        // Remove 'border' appearance
+        &:before {
+            background-color: transparent;
+        }
+    }
+
+    // Don't indent paragraphs that follow videos
+    // after a heading
+    h1 + & + p,
+    h2 + & + p,
+    h3 + & + p,
+    h4 + & + p,
+    h5 + & + p,
+    h6 + & + p {
+        text-indent: 0;
+    }
+}

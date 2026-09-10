@@ -1,0 +1,181 @@
+// Theme legends
+
+.theme-legend-heading {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.theme-legend {
+  font-family: $font-text-secondary;
+  font-size: $font-size-default * $font-serif-sans-ratio;
+  @include outside-right();
+}
+
+.theme-legend-list {
+  list-style-type: none;
+  margin: 0 0 $line-height-default 0;
+  
+  @media (min-width: $break-point-s) {
+    margin-left: $line-height-default / 2;
+  }
+  
+  @media (min-width: $break-point-m) {
+    column-count: 2;
+  }
+  
+  @media (min-width: $break-point-xl) {
+    column-count: 1;
+  }
+}
+
+.theme-legend-filter-button {
+  cursor: pointer;
+  margin-left: -($line-height-default / 2);
+  
+  &:after {
+    color: $theme-legend-filter-button-color;
+    content: $theme-legend-filter-button;
+    font-size: $font-size-default;
+    
+    &:hover {
+      color: $theme-legend-filter-button-color-hover;
+    }
+  }
+  
+  &.theme-legend-filter-button-active {
+    &:after {
+        content: $theme-legend-filter-button-active;
+    }
+  }
+}
+
+.theme-legend-theme {
+  svg {
+    height: 1.5em;
+    position: relative;
+    top: 0.4em;
+    width: 1.5em;
+  }
+}
+
+// Theme keys, shown inside section heading h2s
+.theme-key-theme {
+  svg {
+    height: 1em;
+    position: relative;
+    top: 0.15em;
+    width: 1em;
+  }
+}
+
+[role="tab"] {
+  .theme-key-theme {
+    display: inline-block;
+    padding-right: 0;
+  }
+}
+
+[data-accordion="closed"] {
+  .theme-key-label {
+    display: none;
+  }
+}
+
+[data-accordion="open"] {
+  line-height: 1;
+  
+  a:first-of-type {
+    display: block;
+    line-height: 1.3;
+  }
+  
+  .theme-key-theme {
+    color: $color-text-main;
+    font-family: $font-text-secondary; // overrides inherited style from h2
+    font-size: $font-size-default / 2; // relative to parent h2 size
+    font-weight: normal; // overrides inherited style from h2
+    letter-spacing: 0; // overrides inherited style from h2
+    margin-right: 1em;
+    text-transform: none; // overrides inherited style from h2
+    
+    @media (max-width: $break-point-l) {
+      line-height: 1.3;
+    }
+
+    @media (min-width: $break-point-l) {
+      font-size: $font-size-default / 4;
+    }
+    
+    svg {
+      margin-right: 0.5em;
+    }
+  }
+}
+
+// SVG dot colors
+.theme-legend-theme-17,
+.theme-key-17 {
+  svg {
+    circle {
+      fill: $theme-17-color;
+      stroke: none;
+    }
+  }
+}
+
+.theme-legend-theme-18,
+.theme-key-18 {
+  svg {
+    circle {
+      fill: $theme-18-color;
+      stroke: none;
+    }
+  }
+}
+
+.theme-legend-theme-19,
+.theme-key-19 {
+  svg {
+    circle {
+      fill: $theme-19-color;
+      stroke: none;
+    }
+  }
+}
+
+.theme-legend-theme-20,
+.theme-key-20 {
+  svg {
+    circle {
+      fill: $theme-20-color;
+      stroke: none;
+    }
+  }
+}
+
+.theme-legend-theme-21,
+.theme-key-21 {
+  svg {
+    circle {
+      fill: $theme-21-color;
+      stroke: none;
+    }
+  }
+}
+
+.theme-legend-theme-22,
+.theme-key-22 {
+  svg {
+    circle {
+      fill: $theme-22-color;
+      stroke: none;
+    }
+  }
+}
+
+// Theme keys for subheadlines
+.subheadline {
+  .theme-key-theme {
+    display: none;
+  }
+}

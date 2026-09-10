@@ -1,0 +1,16 @@
+// Focus
+// Custom styles to outline focussed elements for keyboard accessibility
+
+a,
+.bookmarks-list-header,
+button,
+.controls svg,
+input[type="checkbox"],
+.last-locations-list-header,
+strong[data-term],
+sup[id^="fnref"] {
+  &:focus {
+    outline: 5px auto Highlight;
+    outline: 5px auto -webkit-focus-ring-color;
+  }
+}    

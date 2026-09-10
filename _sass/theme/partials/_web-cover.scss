@@ -1,0 +1,11 @@
+// Cover
+
+p.cover {
+	height: 100vh;
+}
+
+img.cover {
+	border: $rule-thickness solid $color-light;
+	max-height: 100%;
+	max-width: 100%;
+}

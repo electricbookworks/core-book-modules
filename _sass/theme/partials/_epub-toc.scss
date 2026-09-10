@@ -1,0 +1,80 @@
+// TOC
+
+.contents-page {
+  h1 {
+    @include head-1();
+    color: $color-accent;
+    margin-bottom: 0;
+    text-align: left;
+  }
+
+  .content {
+    ul, ol {
+      margin-bottom: $line-height-default * 0.5;
+  
+      li {
+        color: $color-accent;
+        font-family: $font-display-main;
+        font-weight: 600;
+        hyphens: none;
+  
+        .toc-entry-text {
+          display: inline-block;
+          text-indent: -($paragraph-indent);
+  
+          // 2pt for space after number
+          margin-left: $paragraph-indent * 2 - 0.15em;
+  
+          // width of main (unit-level) headings
+          max-width: 80%;
+        }
+  
+        &.toc-frontmatter, &.toc-endmatter {
+          margin-bottom: $line-height-default * 0.25;
+          margin-left: $paragraph-indent;
+          margin-top: $line-height-default * 0.25;
+        }
+  
+        // Unit numbers
+        strong:first-of-type {
+          display: inline-block;
+          font-weight: inherit;
+          // allow 0.25 for width of space between number and text
+          width: $line-height-default * 0.75;
+        }
+  
+        a {
+          color: inherit;
+  
+          // Page numbers
+          &:after {
+            color: $color-text-main;
+            font-family: $font-text-main;
+            font-size: $font-size-default;
+            font-weight: normal;
+          }
+        }
+  
+        ul, ol {
+          margin-bottom: $paragraph-indent;
+          margin-left: $paragraph-indent * 2;
+
+          li {
+            color: $color-text-main;
+            font-family: $font-text-main;
+            font-weight: normal;
+            text-transform: none;
+            
+            .toc-entry-text {
+              display: inline-block;
+              margin-left: $paragraph-indent;
+              // width of subsection headings
+              max-width: 70%;
+              text-indent: -($paragraph-indent);
+            }
+          }
+        }
+      }
+    }
+  }
+}

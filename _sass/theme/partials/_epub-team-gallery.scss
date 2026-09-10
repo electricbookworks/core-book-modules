@@ -1,0 +1,31 @@
+// TEAM GALLERY
+
+.team-gallery {
+  margin-top: $line-height-default;
+  margin-bottom: $line-height-default * 0.5; // members add another 0.5
+}
+
+.team-gallery-member {
+  display: inline-block;
+  font-family: $font-text-secondary;
+  font-size: $font-size-default * $font-size-smaller;
+  line-height: $line-height-default;
+  margin-bottom: $line-height-default * 0.5;
+  margin-right: $paragraph-indent * 0.66;
+  text-align: center;
+  vertical-align: text-top;
+  width: 30%;
+
+  img {
+    width: 100%;
+  }
+
+  .team-gallery-member-name {
+    font-weight: bold;
+    display: block;
+  }
+
+  .team-gallery-member-role {
+    font-style: italic;
+  }
+}

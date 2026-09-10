@@ -1,0 +1,18 @@
+// Footnotes
+// Also see .sidenote and .footnote-detail
+
+// Hide footnote references since footnotes-core-pdf.js
+// moves footnotes to the sidebar at relevant point.
+sup[id*=fnref] {
+    display: none;
+}
+
+// Don't hide footnote refs if we're
+// putting footnotes at end of doc.
+.footnotes-at-end sup[id*=fnref] {
+    display: initial;
+}
+
+.sidenote a.footnote {
+    font-size: 6pt;
+}

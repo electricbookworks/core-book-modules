@@ -1,0 +1,61 @@
+// Footer
+
+#footer {
+  border-top: $rule-thickness solid $footer-border-color;
+  margin: 0;
+  padding: 1em 0.75em 0em 0.75em; // padding bottom provided by footer divs individually for better stacking on narrow screens
+  width: auto; // overrides template 100% to fix horiz scroll on some browsers (e.g. Chrome on Ubuntu)
+  
+  div, p, ol, ul {
+    line-height: $line-height-default;
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+  }
+  
+  .footer-content {
+    clear: both;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: inherit;
+    max-width: none;
+    padding: 0;
+    text-align: left;
+    width: 100%;
+    
+    .footer-logos {
+      margin: 0 1em 1em 0;
+      
+      a {
+        img {
+          max-width: 6em;
+        }
+      }
+    }
+    
+    .footer-text {
+      color: $color-ghost;
+      @include p5($factor: $font-serif-sans-ratio);
+      max-width: $max-width-default / 2;
+      margin: 0 1em 2em 0;
+  
+      a {
+        text-decoration: underline;
+      }
+  
+      @media only screen and (min-width: $break-point-l ) {
+        max-width: $max-width-default;
+      }
+    }
+    
+    .footer-licence {
+      @include p5($factor: $font-serif-sans-ratio);
+      margin: 0 0 1em 0;
+      max-width: 9em;
+      vertical-align: middle;
+    }
+  }
+}

@@ -1,0 +1,65 @@
+// Add Sass variables here that override the template's
+// variables. This is also a good place to set new
+// Sass variables if you need them for your theme.
+// The template variables you can override are in
+// _sass/template/*.scss for each output format.
+// ----------------------------------------------
+
+// -------------
+// Set variables
+// -------------
+
+// Edition suffix: identifies this edition in certain classes (e.g. in _epub-fitting.scss).
+$edition-suffix: null !default;
+
+// The path to the project root, for settings paths to things like project assets.
+// Override this for translation styles, which need an extra leading ../
+$path-to-root-directory: "../.." !default;
+
+// We name font variables for two categories:
+// - 'text' fonts are used for body text and some page features;
+// - 'display' fonts are used for headings and similar short-string features.
+// For each category, we set a main font and a secondary font, allowing up to four fonts.
+// Finally, we set a fifth, monospace font for elements like computer code.
+$font-text-main: "Crimson Pro", serif !default;
+$font-text-secondary: "Source Sans Pro", sans-serif !default;
+$font-display-main: "Source Sans Pro", sans-serif !default;
+$font-display-secondary: "Crimson Pro", serif !default;
+$font-code: "Inconsolata", monospace !default;
+$font-farsi: "Adobe Arabic", "adobe-arabic", $font-text-main;
+
+$font-size-default: 1.125rem !default;
+$line-height-default: 1.6875rem !default;
+$font-size-smaller: 2/3 !default; // How much smaller than font-size-default for features like sidenotes and footers?
+$font-size-bigger: 2 !default; // How many times bigger than font-size-default for features like headings and pullquotes?
+$font-serif-sans-ratio: 0.9 !default; // Sans fonts are often bigger than serif ones. By what ratio should the sans be reduced to match serif?
+
+// Do you want space between paragraphs, rather than a text-indent?
+$spaced-paras: true !default;
+// If not spacing paras, how large is the first-line indent on paragraphs?
+$paragraph-indent: 1.4em !default;
+
+// Buttons
+$button-border-radius: 0.1rem !default; // Roundness of button corners.
+$box-border-radius: 0.1rem !default; // Roundness of box corners
+$chapter-opener-border-width: 1.5rem;
+
+// Shadows
+$box-shadow: 1px 2px 7px grey !default;
+
+// Rule thickness
+$rule-thickness: 1px !default;
+
+// Colours
+
+// Project accent colour kept in separate partial
+// so that this file is the same across all CORE projects.
+@import "theme/color-accent";
+@import "theme/colors";
+
+// Set the default start-depth of pages.
+// This is the distance from the top of the page to the first element on the first page.
+$start-depth: $line-height-default * 2 !default;
+
+// Corners
+$core-element-border-radius: 2rem;

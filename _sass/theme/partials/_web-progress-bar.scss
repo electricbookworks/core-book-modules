@@ -1,0 +1,24 @@
+// PROGRESS BAR
+
+.progress-bar-container {
+  background-color: $color-dove;
+  height: 1.5rem;
+  width: 100%;
+
+  @keyframes progress {
+    0% {width: 0%;}
+    100% {width: 100%;}
+  }
+
+  .progress-bar {
+    height: 100%;
+
+    &::after {
+      content: '';
+      background-color: $color-accent;
+      animation: progress 1s ease-in-out;
+      height: 100%;
+      display: block;
+    }
+  }
+}

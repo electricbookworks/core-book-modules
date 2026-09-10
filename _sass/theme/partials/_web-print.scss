@@ -1,0 +1,19 @@
+// Print
+
+@media print {
+  // Hide screen-only elements
+  .accordion-show-all-button,
+  .controls,
+  #footer,
+  .masthead,
+  .nav-buttons,
+  .notification.warning-testing-site {
+    display: none !important;
+  }
+
+  // Change typography
+  body {
+    background-color: transparent;
+    font-size: initial;
+  }
+}

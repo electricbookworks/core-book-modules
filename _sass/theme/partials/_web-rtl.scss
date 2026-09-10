@@ -1,0 +1,205 @@
+// RTL
+// Set alignment for RTL languages
+
+html[dir="rtl"] {
+  // Basic typography
+  h2, h3, h4, h5, h6,
+  p, ul, ol, dl, li {
+    text-align: right;
+  }
+  
+  ol {
+    list-style-type: arabic-indic;
+    margin: 0 1em 1.5em 0;
+  }
+  
+  ul {
+    margin: 0 1em 1.5em 0;
+  }
+  
+  img {
+    &.thumbnail {
+      clear: left;
+      float: left;
+    }
+  }
+
+  // Masthead
+  .masthead {
+    ul {
+      margin-bottom: 0;
+      text-align: center; // overrides RTL override
+    }
+  }
+
+  // Navigation
+  #nav {
+    h2 {
+      margin-top: 2em; // Avoids overlap with 'close' button
+    }
+    
+    .search {
+      margin: 0 0 0 -17px;
+    }
+    
+    [data-nav-close],
+    [data-toggle-nav] {
+      right: unset;
+      left: 0.5em;
+    }
+    
+    .controls > div {
+      margin-right: 0;
+      margin-left: 1em;
+  
+      &.dark-mode-control svg.dark-mode-icon {
+        margin-left: 0;
+      }
+    }
+    
+    .language-select {
+      &:hover, &[visible] {
+        .language-select-list {
+          left: unset;
+          position: absolute;
+          right: 0.5em;
+        }
+      }
+    }
+  }
+  
+  .last-locations-list {
+    .last-locations-list-header {
+      right: 0;
+    }
+  }
+  
+  // Obscure this because RTL makes this label visible,
+  // but we need it in the DOM for the click to hide the menu
+  &.js-nav-open [href="#nav"] {
+    color: transparent;
+  }
+  
+  .accordion-show-all-button-wrapper {
+    text-align: left;
+  }
+  
+  .theme-legend-filter-button {
+    margin-left: 0;
+    margin-right: -($line-height-default / 2);
+  }
+
+  // Boxes
+  .box,
+  .info,
+  .exercise,
+  .mcq, .question,
+  .definition {
+    // Move rounded corner to opposite side
+    border-bottom-left-radius: 2em;
+    border-bottom-right-radius: 0;
+    padding-right: 1.5em;
+  }
+
+  // Figures
+  .figure {
+    .figure-body {
+      .title {
+        text-align: right;
+      }
+      
+      .description {
+        text-align: right;
+      }
+      
+      .caption, .slide-caption {
+        // Override explicit text alignment
+        text-align: right;
+      }
+      
+      // Remove padding from first and last .figure-flex-container
+      @for $i from 1 through 4 {
+        .figure-images.contains-#{$i} .figure-flex-container {
+          // Reset padding on figures
+          padding-left: $line-height-default/4;
+          padding-right: $line-height-default/4;
+
+          @media (min-width: $break-point-m) {
+            flex-basis: 100%;
+
+            &:first-child {
+              padding-right: 0;
+            }
+
+            &:nth-child(#{$i}) {
+              padding-left: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Slides
+  .slides {
+    .figure-summary-meta {
+      .caption {
+        // Override explicit text alignment
+        text-align: right;
+      }
+      
+      .figure-source {
+        p {
+          &.source {
+            // Override explicit text alignment
+            text-align: right;
+          }
+        }
+      }
+    }
+  }
+
+  // Theme legends
+  @media (min-width: $break-point-xl) {
+    .theme-legend {
+      @include outside-left();
+    }
+  }
+
+  // H2 accordion fixes
+  // Move toggles to left-hand side
+  [role="tab"] {
+    padding-right: 0;
+    padding-left: 1em;
+    
+    &::after {
+      left: 0;
+      right: auto;
+    }
+    
+    a:first-of-type {
+      margin-left: 0.4em;
+      margin-right: 0;
+    }
+  }
+
+  // Questions
+  // 'Correct' and 'Incorrect': reverse positioning for RTL
+  &.js-mcq .mcq-feedback::before {
+    padding: ($line-height-default / 2) ($line-height-default * 2) ($line-height-default / 2) 0;
+  }
+  
+  // Cross and tick: reverse positioning for RTL
+  &.js-mcq .mcq-feedback::after {
+    right: 0.75em;
+  }
+
+  // Glossary
+  .glossary {
+    dt {
+      float: right;
+      margin-left: 0.5em;
+      margin-right: 0;
+    }
+  }
+}

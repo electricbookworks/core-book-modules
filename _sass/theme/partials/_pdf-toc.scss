@@ -1,0 +1,181 @@
+// Contents page (TOC)
+
+.contents-page {
+
+    h1 {
+        // reverse colours
+        @include head-1-reverse();
+
+        // remove border above heading text
+        &:before {
+            border: 0;
+        }
+    }
+
+    .theme-legend {
+
+        // match .toc-list
+        width: $page-width - ($margin-inside * 2);
+
+        margin-top: 0;
+        margin-inside: $paragraph-indent * 1.5;
+        margin-outside: -($margin-outside - $margin-inside);
+        margin-bottom: $line-height-default * 2;
+        float: none;
+
+        .theme-legend-heading {
+            margin: 0 0 ($line-height-default * 0.5) 0;
+            font-family: $font-display-main;
+            font-weight: normal;
+        }
+
+        .theme-legend-list {
+            columns: 3;
+
+            li {
+                text-transform: none;
+                letter-spacing: $letter-spacing-text;
+                font-family: $font-text-main;
+                font-size: $font-size-default * $font-size-smaller;
+                color: $color-text-main;
+            }
+        }
+    }
+
+    // Only the main toc-list
+    .content > .toc-list {
+
+        // center on page
+        width: $page-width - ($margin-inside * 2);
+        margin-outside: -($margin-outside - $margin-inside);
+    }
+
+    ul, ol {
+        margin-bottom: $line-height-default * 0.5;
+
+        li {
+            color: $color-accent;
+            font-family: $font-display-main;
+            font-weight: 600;
+            hyphens: none;
+
+            &.toc-entry-title {
+
+                &.theme-17 {
+                    color: $theme-17-color;
+                }
+
+                &.theme-18 {
+                    color: $theme-18-color;
+                }
+
+                &.theme-19 {
+                    color: $theme-19-color;
+                }
+
+                &.theme-20 {
+                    color: $theme-20-color;
+                }
+
+                &.theme-21 {
+                    color: $theme-21-color;
+                }
+
+                &.theme-22 {
+                    color: $theme-22-color;
+                }
+            }
+
+            .toc-entry-text {
+                display: inline-block;
+                text-indent: -($paragraph-indent);
+
+                // 2pt for space after number
+                margin-left: $paragraph-indent * 2 - 2pt;
+
+                // width of main (unit-level) headings
+                max-width: $content-width * 0.8;
+            }
+
+            &.toc-frontmatter, &.toc-endmatter {
+                margin-top: $line-height-default * 0.5;
+                margin-bottom: $line-height-default * 0.5;
+                margin-left: $paragraph-indent;
+            }
+
+            // Unit numbers
+            strong:first-of-type {
+                font-weight: inherit;
+                display: inline-block;
+
+                // allow 0.25 for width of space between number and text
+                width: $line-height-default * 0.75;
+                transform: translatex(2px); // refinement
+            }
+
+            a {
+                color: inherit;
+
+                // Page numbers
+                &:after {
+                    font-family: $font-text-main;
+                    font-size: $font-size-default;
+                    font-weight: normal;
+                    color: $color-text-main;
+                }
+            }
+
+            ul, ol {
+                margin-left: $paragraph-indent * 2;
+
+                li {
+                    font-family: $font-text-main;
+                    font-weight: normal;
+                    text-transform: none;
+                    letter-spacing: $letter-spacing-text;
+                    color: $color-text-main;
+
+                    .toc-entry-text {
+                        display: inline-block;
+                        text-indent: -($paragraph-indent * 1.25);
+
+                        // 2pt for space after number
+                        text-indent: -($paragraph-indent * 2.5) - 2pt;
+
+                        margin-left: $paragraph-indent * 2.5;
+
+                        // width of subsection headings
+                        max-width: $content-width * 0.70;
+                    }
+
+                    // Section numbers
+                    strong:first-of-type {
+                        font-weight: inherit;
+                        display: inline-block;
+                        width: $paragraph-indent * 1;
+                        width: 0;
+                        margin-left: $paragraph-indent * 2.5;
+                        transform: translatex(2px);
+                    }
+                }
+            }
+
+            // Inline theme keys in TOC
+            .toc-theme-key {
+                white-space: nowrap;
+
+                .theme-key {
+                    display: inline-block;
+                    margin: 0;
+
+                    // Each dot. Overrides inherited .theme-key styles.
+                    span {
+                        font-size: $font-size-default * 3;
+                        margin-right: 2pt;
+                        margin-bottom: -($line-height-default / 3);
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,136 @@
+// Mixin for "outside margins" on very large screens
+// Used in _web-boxes.scss, _web-definitions.scss, _web-sidenote.scss, _web-theme-legends.scss
+@mixin outside-right() {
+	@media (min-width: $break-point-xl) {
+		clear: right;
+		float: right;
+		margin-bottom: $line-height-default;
+		margin-left: 0;
+		margin-right: -$outside-margin;
+		margin-top: 0;
+		max-width: $outside-width;
+
+		&.link-to-component {
+			padding-right: 100rem;
+			margin-right: -$outside-margin - 100rem;
+		}
+		
+		&.web-wide {
+			margin-left: 1.5rem;
+			margin-right: -($outside-width - 1.5rem);
+			max-width: $outside-width * 2;
+		}
+		
+		&.web-full-width {
+			float: none;
+			margin-left: 0;
+			margin-right: 0;
+			max-width: 100%;
+		}
+	}
+}
+
+// Mixin for "outside margins" on very large screens
+// Used in _web-boxes.scss, _web-rtl.scss
+@mixin outside-left() {
+	@media (min-width: $break-point-xl) {
+		float: left;
+		clear: left;
+		margin-top: 0;
+		margin-right: 0;
+		margin-bottom: $line-height-default;
+		margin-left: -$outside-margin;
+		max-width: $outside-width;
+		
+		&.web-wide {
+			max-width: $outside-width * 2;
+			margin-left: -($outside-margin - 1.5rem);
+			margin-right: 1.5rem;
+		}
+		
+		&.web-full-width {
+			float: none;
+			max-width: 100%;
+			margin-left: 0;
+			margin-right: 0;
+		}
+	}
+}
+
+// Styles for close buttons
+// Used in _web-definitions.scss, _web-footnotes.scss
+@mixin number-marker() {
+	background: $color-accent;
+	border-radius: 1em;
+	display: inline-block;
+	font-family: $font-text-secondary;
+	font-weight: bold;
+	min-width: 1em;
+	padding: 0 0.1em 0.1em 0.1em;
+	text-align: center;
+	vertical-align: inherit;
+}
+
+// Caption styles to use in figures and slidelines
+// Used in _web-figures.scss, _web-slides.scss
+@mixin figure-caption() {
+	@include body($factor: $font-serif-sans-ratio);
+	font-family: $font-text-secondary;
+	text-align: left;
+
+	.figure-reference {
+		font-weight: bold;
+	}
+}
+
+// Caption styles to use in figures and slidelines
+// Used in _web-figures.scss, _web-slides.scss
+@mixin figure-source() {
+	color: $color-charcoal;
+	font-family: $font-text-secondary;
+	position: relative;
+	text-align: left;
+	
+	p.source {
+		@include p5($factor: $font-serif-sans-ratio);
+		font-style: normal;
+	}
+	
+	a {
+		color: $color-links;
+	}
+	
+	.figure-more {
+		margin-bottom: $line-height-default / 2;
+		text-align: center;
+		
+		a, button {
+			margin-bottom: $line-height-default / 2;
+		}
+		
+		.figure-more-text {
+			border: $rule-thickness solid $color-light;
+			border-radius: $button-border-radius;
+			padding: $line-height-default / 2;
+			text-align: left;
+			
+			a {
+				color: $color-links;
+			}
+		}
+	}
+}
+
+
+@mixin dialog-styles() {
+	background-color: $color-background;
+	font-family: $font-text-secondary;
+	border: $rule-thickness solid $color-accent;
+	padding: ($line-height-default / 2);
+	box-shadow: $box-shadow;
+	border-radius: $box-border-radius;
+
+	p {
+		@include body($factor: $font-serif-sans-ratio);
+	}
+}
