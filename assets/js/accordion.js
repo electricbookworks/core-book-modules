@@ -240,6 +240,12 @@ function ebAccordionOpenSection (heading) {
 
   const section = heading.nextElementSibling
   section.setAttribute('aria-hidden', 'false')
+
+  // Lazyload the images inside the section we just auto-opened.
+  // Select [data-src] (not just [data-srcset]) so images without a
+  // srcset are converted too.
+  const lazyimages = section.querySelectorAll('[data-srcset], [data-src]')
+  lazyimages.length > 0 && ebLazyLoadImages(lazyimages)
 }
 
 function ebAccordionHideThisSection (targetID) {
@@ -271,20 +277,6 @@ function ebAccordionOpenFirstSection () {
   const firstHeading = document.querySelector(accordionHeads)
   if (firstHeading) {
     ebAccordionOpenSection(firstHeading)
-
-    // Lazyload the images inside the section we just auto-opened.
-    // ebAccordionOpenSection only toggles visibility, so without this
-    // the first section's data-src images are never converted to src
-    // (unlike ebAccordionShow, which lazyloads the sections it opens).
-    // Select [data-src] (not just [data-srcset]) so images without a
-    // srcset are converted too.
-    const firstSection = firstHeading.nextElementSibling
-    if (firstSection) {
-      const lazyimages = firstSection.querySelectorAll('[data-srcset], [data-src]')
-      if (lazyimages.length > 0) {
-        ebLazyLoadImages(lazyimages)
-      }
-    }
   }
 }
 
@@ -408,12 +400,6 @@ function ebAccordionShow (targetID, scrollToTarget = true) {
     const heading = sectionToShow.previousElementSibling
 
     ebAccordionOpenSection(heading)
-
-    // Lazyload the images inside
-    const lazyimages = sectionToShow.querySelectorAll('[data-srcset], [data-src]')
-    if (lazyimages.length > 0) {
-      ebLazyLoadImages(lazyimages)
-    }
 
     // If we have a slideline in this section, check if it's a portrait one
     const slidelinesInThisSection = sectionToShow.querySelectorAll('.slides')
