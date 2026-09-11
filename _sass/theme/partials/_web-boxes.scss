@@ -1,0 +1,326 @@
+// Boxes
+
+.box {
+  background-color: inherit;
+  border: 2 * $rule-thickness solid $color-accent;
+  border-bottom-right-radius: $core-element-border-radius;
+  
+  ul, ol {
+    margin-left: 1.5rem;
+  }
+  
+  p:last-child, ul:last-child, ol:last-child {
+    margin-bottom: 0;
+  }
+}
+
+ol.box,
+ul.box {
+  padding: ($line-height-default / 2) ($line-height-default);
+}
+
+// Blockquotes
+blockquote {   
+  padding: 0 1rem;
+}
+
+// Einstein and Great Economists boxes
+.einstein,
+.great-economist,
+.great-economists,
+.economists,
+.economist,
+.expandable-box {
+  background: $color-light;
+  margin: 1.5em 0;
+  padding-bottom: $line-height-default / 2;
+  padding-left: 0.5em;
+  padding-top: 0;
+  padding-right: 0.5em;
+
+  > h2, > h3, > h4, > h5, > h6 {
+    color: $color-accent;
+    font-style: italic;
+    font-weight: normal;
+    font-family: $font-text-main;
+    
+    // Put the first bold word, e.g. 'Einstein', in a bar at the top
+    strong:first-of-type {
+      background: $color-accent;
+      color: white;
+      display: block;
+      font-family: $font-text-secondary;
+      font-style: normal;
+      font-weight: bold;
+      text-transform: uppercase;
+      
+      // magic numbers, depend on box padding:
+      padding-right: 0.35em;
+      padding-left: 0.35em;
+      margin-right: -(0.35em);
+      margin-bottom: 0.5em;
+      margin-left: -(0.35em);
+      
+      // use overflow: auto to ensure that the + expander gets the correct styling
+      overflow: auto;
+    }
+    
+    // Italics in headings should be roman
+    em {
+      font-style: normal;
+    }
+  }
+  
+  > h4, > h5, > h6 {
+    color: $color-text-main;
+  }
+  
+  // Give code a white background in grey boxes
+  pre, code, .highlight, .highlighter-rouge {
+    background-color: white;
+  }
+  
+  .exercise, .question {
+    h3 {
+      strong:first-of-type {
+        color: $color-accent;
+        background: transparent;
+        display: inline;
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  p:last-child, ol:last-child, ul:last-child {
+    margin-bottom: 0;
+  }
+
+  .figure.thumbnail {
+    margin-right: 0;
+  }
+
+  .extension-preview {
+    margin-bottom: 0.75rem;
+
+    .preview-read-more {
+      @include link-button;
+
+      background-color: $color-dove;
+      display: block;
+      margin: 0 auto;
+      padding: 0.25rem;
+    }
+  }
+}
+
+// Info boxes
+.info,
+.exercise,
+.box.citation {
+  border: 2 * $rule-thickness solid $color-accent;
+  border-bottom-right-radius: $core-element-border-radius;
+  margin: 1.5em 0;
+  padding: ($line-height-default / 2);
+
+  @include p3($factor: $font-serif-sans-ratio);
+  font-family: $font-text-secondary;
+
+  &.citation {
+    margin-top: 0;
+  }
+
+  p {
+    @include p3($factor: $font-serif-sans-ratio);
+  }
+  
+  h2, h3, h4, h5, h6 {
+    @include h3($factor: $font-serif-sans-ratio);
+    font-family: $font-text-secondary;
+    font-style: normal;
+    color: $color-accent;
+    margin-top: 0;
+
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+
+    strong {
+      text-transform: uppercase;
+    }
+
+    em {
+      font-style: italic;
+    }
+  }
+
+  p:last-child, ol:last-child, ul:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.exercise {
+  & > h2, & > h3, & > h4, & > h5, & > h6 {
+    @include h3exercise($factor: $font-serif-sans-ratio);
+    margin-bottom: 0.75rem;
+  }
+}
+
+.info {
+  color: $color-accent;
+  
+  p {
+    color: $color-accent
+  }
+  
+  // on very large screens, place info boxes in the margin
+  // outside-right() is in _web-notes.scss
+  @include outside-right();
+}
+
+// Prerequisite boxes
+.box.prerequisites {
+  background-color: $color-accent-light;
+  margin: 0;
+  border: none;
+  border-left: $chapter-opener-border-width solid $color-accent;
+  font-family: $font-text-secondary;
+  line-height: 1.5;
+  padding: 1.5rem;
+  border-bottom-right-radius: $core-element-border-radius;
+  margin-left: -1 * $chapter-opener-border-width;
+
+  @media only screen and (max-width: $breakpoint-chapter) {
+    position: relative;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    border-bottom-right-radius: unset;
+  }
+
+  h2 {
+    @include h3($factor: 1 / $font-serif-sans-ratio);
+    color: $color-accent;
+    font-family: $font-text-secondary;
+    font-style: normal;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    &:not(:first-of-type) {
+      margin-top: 1rem;
+    }
+    
+  }
+
+  .anchorjs-link {
+    display: none;
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+
+  p, ol, ul {
+    @include p3($factor: $font-serif-sans-ratio);
+
+    & + p {
+      margin-top: 0.75rem;
+    }
+  }
+
+  .section & {
+    border: none;
+    margin-left: 0;
+    margin-bottom: 1.5rem;
+
+  }
+}
+
+// Summary boxes
+.box.summary {
+  background-color: $color-accent-light;
+  border: none;
+  border-left: $chapter-opener-border-width solid $color-accent;
+  padding: 2rem;
+
+  h3 {
+    font-family: $font-text-secondary;
+    font-style: normal;
+  }
+}
+
+// Toggle visibility of boxes
+.toggle {
+  color: inherit;
+  cursor: pointer;
+  float: right;
+
+  &:after {
+    content: " –";
+    font-weight: 300;
+  }
+  
+  &.closed:after {
+    content: " +";
+  }
+  
+  &.open:after {
+    content: " \2013";
+  }
+}
+
+// Boxes that should be full-width on screen
+// Partials already allow for `web-wide` sidenotes
+.web-full-width {
+  float: none;
+  max-width: 100%;
+}
+
+// Boxes without space between paragraphs and lists
+.web-condensed {
+  p {
+    margin-bottom: 0;
+  }
+}
+
+// Try and avoid overlapping boxes: info, definition, and sidenote
+@each $class in info, definition, sidenote {
+  .#{$class} + .#{$class},
+  .#{$class} + * + .#{$class},
+  .#{$class} + * + * + .#{$class},
+  .info + .#{$class},
+  .info + * + .#{$class},
+  .info + * + * + .#{$class},
+  .definition + .#{$class},
+  .definition + * + .#{$class},
+  .definition + * + * + .#{$class},
+  .sidenote + .#{$class},
+  .sidenote + * + .#{$class},
+  .sidenote + * + * + .#{$class} {
+    @include outside-left();
+    // Unless explicitly set to be on the right or left
+    &.web-sidenote-right {
+      @include outside-right();
+    }
+  }
+}
+
+@each $class in info, definition, sidenote {
+  .#{$class} + .#{$class} + .#{$class},
+  .#{$class} + * + .#{$class} + * + .#{$class},
+  .info + .#{$class} + .#{$class},
+  .info + * + .#{$class} + * + .#{$class},
+  .info + * + * + .#{$class} + * + * + .#{$class},
+  .definition + .#{$class} + .#{$class},
+  .definition + * + .#{$class} + * + .#{$class},
+  .definition + * + * + .#{$class} + * + * + .#{$class},
+  .sidenote + .#{$class} + .#{$class},
+  .sidenote + * + .#{$class} + * + .#{$class},
+  .sidenote + * + * + .#{$class} + * + * + .#{$class} {
+    @include outside-right();
+    // Unless explicitly set to be on the right or left
+    &.web-sidenote-left {
+      @include outside-left();
+    }
+  }
+}
