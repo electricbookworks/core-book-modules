@@ -48,7 +48,7 @@ function ebCopyToClipboard (element, button) {
       text = element.textContent
     } else {
       // Else, copy the link to the figure on the current domain
-      text = window.location.href + '#' + id
+      text = window.location.href.split('#')[0] + '#' + id
     }
   }
 
