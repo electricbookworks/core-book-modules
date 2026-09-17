@@ -1,20 +1,12 @@
-/* global MutationObserver */
-
 function ebStudentsRemoveSectionNumbers () {
   const sectionHeadings = document.querySelectorAll('h2')
   if (sectionHeadings.length > 0) {
     sectionHeadings.forEach(function (heading) {
-      // The first anchor tag contains the number
       const headingLink = heading.querySelector('a')
-      if (headingLink) {
-        // Replace only the leading section number
-        const newHeadingLinkHTML = headingLink.innerHTML.replace(/[0-9.]+/, '')
-        headingLink.innerHTML = newHeadingLinkHTML
-      } else {
-        // in print there is no a, we want the innerHTML of the h2 to change
-        const newHeadingInnerHTML = heading.innerHTML.replace(/[0-9.]+/, '')
-        heading.innerHTML = newHeadingInnerHTML
-      }
+      const target = headingLink || heading
+      const numbersAndSuffix = /[\d.]+[ -]?/g
+      target.innerHTML = target.innerHTML.replace(numbersAndSuffix, '')
+      target.setAttribute('id', target.getAttribute('id')?.replace(numbersAndSuffix, '') || '')
     })
   }
 }
@@ -59,32 +51,8 @@ function ebStudentsRemoveEmptyTocLists () {
   })
 }
 
-function ebStudentNumbersWaitForAccordion () {
-  // Need to wait for the accordion to load, before we manipulating the sections
-
-  const accordionWaiter = new MutationObserver(function (mutations) {
-    mutations.forEach(function (mutation) {
-      if (mutation.type === 'attributes') {
-        if (document.body.getAttribute('data-accordion-active') === 'true') {
-          ebStudentsRemoveSectionNumbers()
-        }
-      }
-    })
-  })
-
-  accordionWaiter.observe(document.body, { attributes: true })
-}
-
 export default function ebStudents () {
-  if (process.env.output === 'web' || process.env.output === 'app') {
-    // We need to wait for the accordion to load
-    ebStudentNumbersWaitForAccordion()
-    ebStudentsHideNavItems()
-    ebStudentsRemoveEmptyTocLists()
-  } else {
-    // For PDFs, we don't need to wait for the accordion
-    ebStudentsRemoveSectionNumbers()
-    ebStudentsHideNavItems()
-    ebStudentsRemoveEmptyTocLists()
-  }
+  ebStudentsRemoveSectionNumbers()
+  ebStudentsHideNavItems()
+  ebStudentsRemoveEmptyTocLists()
 }
