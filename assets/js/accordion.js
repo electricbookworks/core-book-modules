@@ -729,9 +729,13 @@ function ebLoadAccordion () {
 }
 
 function ebCheckAccordionReady () {
-  return (document.body.getAttribute('data-accordion-active') !== 'true' &&
-  (document.body.getAttribute('data-index-targets') !== null || settings['dynamic-indexing'] === false) &&
-  document.body.getAttribute('data-ids-assigned') !== null)
+  const mathjaxEnabled = process.env.config['mathjax-enabled'] === 'true'
+  return (
+    document.body.getAttribute('data-accordion-active') !== 'true' &&
+    (document.body.getAttribute('data-index-targets') !== null || settings['dynamic-indexing'] === false) &&
+    document.body.getAttribute('data-ids-assigned') !== null &&
+    (!mathjaxEnabled || document.body.getAttribute('data-mathjax-rendered') === 'true')
+  )
 }
 
 // Wait for data-index-targets to be loaded
