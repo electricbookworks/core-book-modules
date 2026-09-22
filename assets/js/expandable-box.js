@@ -1,4 +1,4 @@
-/* global MathJax */
+/* global MutationObserver */
 
 import { locales, pageLanguage } from './locales'
 import { ebTrackExpandableBoxOpen } from './analytics.js'
@@ -183,11 +183,20 @@ function ebExpandableBox () {
   // If MathJax is running, only run all this once the MathJax is typeset.
   // Otherwise, MathJaxDisplay divs will appear after the expandable-box contents
   // have been hidden.
-  if (document.querySelector('script#MathJax, script[type^="text/x-mathjax-config"]')) {
-    MathJax.Hub.Register.StartupHook('End', ebStartExpandableBox)
-  } else {
-    ebStartExpandableBox()
-  }
+  const expandableBoxObserver = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      if (mutation.type === 'attributes') {
+        const mathjaxEnabled = process.env.config['mathjax-enabled'] === 'true'
+        if ((!mathjaxEnabled || document.body.getAttribute('data-mathjax-rendered') === 'true')) {
+          ebStartExpandableBox()
+        }
+      }
+    })
+  })
+
+  expandableBoxObserver.observe(document.body, {
+    attributes: true // Listen for attribute changes
+  })
 }
 
 export default ebExpandableBox
