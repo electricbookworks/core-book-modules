@@ -1,3 +1,5 @@
+import ebOwidGraph from './owid/'
+
 function showInteractiveGraph (button, staticVersion = true) {
   // Hide the "Show interactive graph" button
   button.classList.add('visuallyhidden')
@@ -11,14 +13,11 @@ function showInteractiveGraph (button, staticVersion = true) {
     staticButton.focus()
   }
 
-  const iframeLink = button.getAttribute('data-link')
-
-  // Make the new iframe element
-  const iframeElement = document.createElement('iframe')
-  iframeElement.setAttribute('src', iframeLink)
-  iframeElement.setAttribute('loading', 'lazy')
-  // Add class to the iframe for styling
-  iframeElement.classList.add('owid-iframe')
+  // Make the new OWID element
+  const owidContainer = document.createElement('div')
+  const owidId = `owid-container-${button.getAttribute('data-owid-id')}`
+  owidContainer.setAttribute('id', owidId)
+  owidContainer.classList.add('owid-container')
 
   if (button.closest('.slides') !== null) {
     // Sometimes the iframe needs to replace an entire set of slides
@@ -35,19 +34,31 @@ function showInteractiveGraph (button, staticVersion = true) {
       figure.classList.add('visuallyhidden')
     })
 
-    // Put the iframeElement after the last (invisible) figure
+    // Put the owidContainer after the last (invisible) figure
     const lastSlide = slideFigures[slideFigures.length - 1]
     const figureMeta = lastSlide.parentElement.querySelector('.figure-summary-meta')
-    figureMeta.parentElement.insertBefore(iframeElement, figureMeta)
+    figureMeta.parentElement.insertBefore(owidContainer, figureMeta)
+    ebOwidGraph({
+      id: owidId
+      // config: JSON.parse(button.getAttribute('data-owid-config')),
+      // csvUrl: button.getAttribute('data-owid-csv-url'),
+      // columnDefs: JSON.parse(button.getAttribute('data-owid-column-defs'))
+    })
   } else {
     // Other times it only needs to replace a standalone figure
     // Get the figure container
     const figureDiv = button.closest('.figure').querySelector('.figure-images')
     // Make it invisible
     figureDiv.classList.add('visuallyhidden')
-    // Put the iframeElement after the (invisible) figure
+    // Put the owidContainer after the (invisible) figure
     const figureCaption = figureDiv.parentElement.querySelector('.caption')
-    figureCaption.parentElement.insertBefore(iframeElement, figureCaption)
+    figureCaption.parentElement.insertBefore(owidContainer, figureCaption)
+    ebOwidGraph({
+      id: owidId
+      // config: JSON.parse(button.getAttribute('data-owid-config')),
+      // csvUrl: button.getAttribute('data-owid-csv-url'),
+      // columnDefs: JSON.parse(button.getAttribute('data-owid-column-defs'))
+    })
   }
 }
 
@@ -67,10 +78,10 @@ function showStaticGraph (button) {
   // If we're dealing with a set of slides
   if (button.closest('.slides') !== null) {
     // Get the iframe element
-    const iframeElements = button.closest('.slides').querySelectorAll('iframe.owid-iframe')
-    iframeElements.forEach(function (iframeElement) {
+    const owidContainers = button.closest('.slides').querySelectorAll('.owid-container')
+    owidContainers.forEach(function (owidContainer) {
       // Remove it from the DOM
-      iframeElement.remove()
+      owidContainer.remove()
     })
 
     const slideDiv = button.closest('.slides')
@@ -95,10 +106,10 @@ function showStaticGraph (button) {
   } else {
     // If we're dealing with a standalone figure
     // Get the iframe element
-    const iframeElements = button.closest('.figure').querySelectorAll('iframe.owid-iframe')
-    iframeElements.forEach(function (iframeElement) {
+    const owidContainers = button.closest('.figure').querySelectorAll('iframe.owid-iframe')
+    owidContainers.forEach(function (owidContainer) {
       // Remove it from the DOM
-      iframeElement.remove()
+      owidContainer.remove()
     })
     // Bring back the figure
     const figure = button.closest('.figure').querySelector('.figure-images')
