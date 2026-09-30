@@ -95,6 +95,10 @@ module.exports = {
         test: /\.yml$/,
         use: 'yaml-loader'
       },
+      {
+        test: /\.(css|scss)$/,
+        use: ['style-loader', 'css-loader', 'sass-loader']
+      },
       ...(isPrinceOutput
         ? [{
             test: /\.js$/,
