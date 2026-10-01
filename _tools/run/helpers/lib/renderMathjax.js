@@ -48,9 +48,11 @@ async function renderMathjax (argv, options) {
 
       const renderFile = path => {
         console.log('Rendering maths in ' + path + ' using script ' + mathJaxScript)
+        // Use the webpacked MathJax bundle (--dist) rather than compiling the
+        // MathJax source on every run: same output, but much faster startup.
         const mathJaxProcess = spawn(
           'node',
-          [mathJaxScript, path, path]
+          [mathJaxScript, '--dist', path, path]
         )
         return logProcess(mathJaxProcess, 'Rendering MathJax')
       }

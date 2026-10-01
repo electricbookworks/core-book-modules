@@ -66,6 +66,10 @@ import ebWordPressUserProfile from '../wordpress-user-profile'
 
 const outputSettings = process.env.settings[process.env.output] || {}
 
+if (process.env.config?.audience === 'students') {
+  ebStudents()
+}
+
 // Create index targets first because this script reconstructs the DOM,
 // potentially breaking event listeners, state, and node lists for other scripts.
 if (process.env.settings['dynamic-indexing'] !== false) {
@@ -233,10 +237,6 @@ if (process.env.output === 'screen-pdf' || process.env.output === 'print-pdf') {
 // This script generates a "For instructors' use only" footer in screen-pdfs
 if (process.env.output === 'screen-pdf') {
   ebFooterNotice()
-}
-
-if (process.env.config?.audience === 'students') {
-  ebStudents()
 }
 
 // Scripts for epub output. Do not expect support in many readers.

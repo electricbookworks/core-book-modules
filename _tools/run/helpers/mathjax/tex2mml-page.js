@@ -103,8 +103,11 @@ global.MathJax = {
   }
 }
 
-//  Load the MathJax startup module
-require('@mathjax/src/' + (argv.dist ? 'bundle' : 'components/js') + '/startup/startup.js')
+//  Load the MathJax startup module. The webpacked bundle exposes startup.js at
+//  the bundle root; only the source tree nests it under startup/startup.js.
+require(argv.dist
+  ? '@mathjax/src/bundle/startup.js'
+  : '@mathjax/src/components/js/startup/startup.js')
 
 //  Wait for MathJax to start up, and then render the math.
 //  Then output the resulting HTML file.
