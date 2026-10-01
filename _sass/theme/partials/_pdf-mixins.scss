@@ -242,7 +242,9 @@
     }
 
     &.pdf-full-width {
-        -prince-float: wide top-bottom;
+        // wide reference + outside placement: floats to the outer edge,
+        // clear of the gutter (bare wide hits a prince-books region bug).
+        -prince-float: wide outside;
         width: $content-width;
         margin-top: $line-height-default;
         margin-bottom: $line-height-default;
@@ -263,7 +265,9 @@
 @mixin wide-boxes() {
     &.pdf-wide,
     &.pdf-full-width {
-        -prince-float: wide top-bottom;
+        // wide reference + outside placement: floats to the outer edge,
+        // clear of the gutter (bare wide hits a prince-books region bug).
+        -prince-float: wide outside;
         max-width: none;
         width: $content-width;
         columns: 2;
@@ -297,6 +301,14 @@
         .figure {
             display: block;
             column-span: all;
+
+            // A wide figure nested in a wide box must span the box's columns,
+            // not float out of it (which overlaps neighbouring content).
+            &.pdf-wide,
+            &.pdf-full-width {
+                -prince-float: none;
+                width: auto;
+            }
 
             .figure-images {
                 background-color: white;

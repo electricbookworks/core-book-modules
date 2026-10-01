@@ -3,7 +3,8 @@
 $chapter-opener-image-height: $line-height-default * 18;
 
 .chapter-opener-image {
-    float: wide top-bottom;
+    // wide reference *without* outside placement to align on page with bleed correctly
+    -prince-float: wide;
     height: ($margin-top + 3mm) + ($chapter-opener-image-height);
     margin-left: -($margin-inside + 3mm);
     margin-top: -($margin-top + 3mm);

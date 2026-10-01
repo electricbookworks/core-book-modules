@@ -342,7 +342,9 @@
             column-span: all;
         }
 
-        float: wide top-bottom;
+        // wide reference + outside placement: floats to the outer edge,
+        // clear of the gutter (bare wide hits a prince-books region bug).
+        -prince-float: wide outside;
         width: $content-width;
         columns: 2;
         column-gap: $sidebar-gap-width;
