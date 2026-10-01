@@ -1,0 +1,88 @@
+// Table of contents
+
+// Embedded TOC
+.content {
+	#markdown-toc, .markdown-toc {
+    border: 0;
+		margin: $line-height-default 0;
+		
+    li {
+      a {
+        font-weight: normal;
+      }
+        
+      li {
+        margin-left: $line-height-default;
+      }
+    }
+	}
+}
+
+
+// Contents page TOC
+.contents-page .content {
+  ol, ul {
+    ol, ul {
+      margin-left: $line-height-default;
+    }
+  }
+
+  .toc-list {
+    & > li > .toc-entry-text {
+      color: $color-accent;
+    }
+      
+    li {
+      font-family: $font-display-main;
+      font-weight: bold;
+      
+      a {
+        color: $color-accent;
+    
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      
+      ol li a {
+        &:hover {
+          color: $color-links;
+        }
+      }
+      
+      
+      &.toc-frontmatter, &.toc-endmatter {
+        margin-bottom: $line-height-default / 2;
+        margin-left: $line-height-default;
+        margin-top: $line-height-default / 2;
+      }
+      
+      // Unit numbers
+      strong:first-of-type {
+        display: inline-block;
+        font-weight: inherit;
+        width: $line-height-default * 0.75; // allow 0.25 for width of space between number and text
+      }
+      
+      ul, ol {
+        margin-bottom: $line-height-default;
+    
+        li {
+          font-family: $font-text-main;
+          font-weight: normal;
+  
+          a {
+            color: $color-text-main;
+          }
+  
+          // Section numbers
+          strong:first-of-type {
+            display: inline-block;
+            font-weight: inherit;
+            width: $line-height-default * 1.5;
+          }
+        }
+      }
+    }
+  }
+}

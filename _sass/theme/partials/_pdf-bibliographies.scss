@@ -1,0 +1,22 @@
+// Bibliographies
+
+// Bibliography
+
+.contains-bibliography {
+    columns: 1; // overrides template; columns provided by .endmatter
+
+    .content {
+        column-count: auto;
+    }
+
+    .bibliography {
+        @include endmatter-text();
+    }
+}
+
+// Don't apply normal list space-above to bibliographies
+ul, ol {
+    &.bibliography {
+        margin-top: 0;
+    }
+}

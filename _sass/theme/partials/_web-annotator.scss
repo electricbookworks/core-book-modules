@@ -1,0 +1,21 @@
+// Annotator
+
+.annotator {
+  &:nth-child(3) {
+    position: relative;
+    top: $line-height-default * 2; // magic number :(
+  }
+
+  label {
+    text-align: right; // aligns icon to right when .controls widens
+  }
+  
+  [data-tooltip-description] {
+    &:hover {
+      // The text
+      &:after {
+        text-align: center;
+      }
+    }
+  }
+}

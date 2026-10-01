@@ -1,0 +1,398 @@
+// Slides sections
+
+.slides {
+    float: wide bottom;
+    margin-top: $line-height-default;
+    margin-bottom: 0;
+    column-count: 3;
+    column-gap: $sidebar-gap-width;
+
+    // default anyway, but making it explicit here
+    column-fill: balance;
+
+    // ensure a column balance when containing only three slides
+    widows: 1;
+    orphans: 1;
+
+    img {
+        background-color: white;
+    }
+
+    .figure {
+
+        // don't float like normal figures,
+        // all of .slides floats instead
+        float: none;
+
+        display: inline-block;
+        width: $content-width * 0.33;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        vertical-align: top;
+
+        // for numbering slides
+        counter-increment: slide;
+
+        // When there are four slides, there is a chance they fall into
+        // the first two columns, leaving the third blank. We can only
+        // control for this manually, adding a `column-break-after` class
+        // to one of the figures in .slides.
+        &.column-break-after {
+            display: block;
+            column-break-after: always;
+        }
+
+        // When there are only two slides (a summary and two figures)
+        // we can shift those inside to avoid the empty third column.
+        &.pdf-shift-slide-text-right {
+            margin-outside: $sidebar-content-width + $sidebar-gap-width;
+
+            & ~ .figure {
+                margin-outside: $sidebar-content-width + $sidebar-gap-width;
+            }
+        }
+
+        // same thing, but after
+        &.column-break-before {
+            display: block;
+            column-break-before: always;
+        }
+
+        .figure-body {
+            width: 100%;
+            float: none;
+        }
+
+        .figure-images {
+            display: none;
+        }
+
+        .figure-html {
+            display: none;
+        }
+
+        .figure-md {
+            display: none;
+        }
+
+        .title {
+            display: block;
+            margin-bottom: 0;
+            text-align: left;
+            color: $color-accent;
+
+            &:before {
+                content: counter(slide, decimal) ". ";
+            }
+
+            & + p {
+                text-indent: 0;
+            }
+        }
+
+        .caption {
+            display: none;
+        }
+
+        .slide-caption {
+        	@include figure-text();
+
+            margin-bottom: $line-height-default;
+	        hyphens: $hyphenation;
+            display: block;
+            text-align: left;
+        }
+
+        .figure-source {
+            display: none;
+
+            .source {
+                display: none;
+            }
+        }
+
+        &.pdf-span-columns-2 {
+            column-span: 2;
+            float: column-bottom-corner;
+            width: 100%;
+
+            .figure-body {
+                width: 100%;
+            }
+        }
+
+        // Show full summary figure in pdf output
+        &.summary {
+            column-span: all;
+            display: block;
+            margin-bottom: $line-height-default;
+            width: $content-width;
+
+            // we do not number the summary figure,
+            // only subsequent figures in .slides
+            counter-reset: slide -1;
+
+            &.figure-no-source {
+                width: $main-text-width;
+                margin-outside: $sidebar-content-width + $sidebar-gap-width;
+            }
+
+            .figure-body {
+                width: $main-text-width;
+                float: inside;
+            }
+
+            .figure-images {
+                display: block;
+            }
+
+            .figure-html {
+                display: block;
+            }
+
+            .figure-md {
+                display: block;
+            }
+
+            .title {
+                display: none;
+            }
+
+            .caption {
+                display: block;
+            }
+
+            .description {
+                display: none;
+            }
+
+            .figure-source {
+                width: $sidebar-content-width;
+                float: outside;
+                display: inline-block;
+
+                .source {
+                    display: inline-block;
+                }
+            }
+
+            &:after {
+                content: "";
+                display: block;
+                clear: both;
+            }
+        }
+
+        &.wide {
+            width: $content-width;
+            margin-outside: 0;
+
+            .figure-body {
+                width: $content-width;
+            }
+
+            .figure-source {
+                width: $main-text-width;
+                margin-outside: $sidebar-content-width + $sidebar-gap-width;
+                float: none;
+            }
+        }
+
+        &.wide-source {
+
+            .figure-source {
+                width: $content-width;
+                margin-outside: -($sidebar-content-width + $sidebar-gap-width);
+                margin-inside: 0;
+                margin-top: $line-height-default;
+                float: none;
+
+                .source {
+                    columns: 2 (($content-width * 0.5) - $line-height-default);
+                    padding: 0;
+                }
+            }
+        }
+    }
+
+    // Allow manual positioning in sidebar
+    &.pdf-sidebar {
+        @include sidenote();
+
+        margin-top: 0;
+        margin-bottom: $line-height-default;
+        columns: 1;
+
+        .figure {
+            padding: 0;
+        }
+    }
+
+    // For slidelines that fill an entire page
+    &.pdf-whole-page {
+        float: wide top;
+        page-break-before: always;
+        page-break-after: always;
+        page-break-inside: avoid;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    &.pdf-sidebar-slides {
+        break-inside: avoid;
+        float: bottom;
+
+        .figure {
+            margin-bottom: 0;
+
+            .figure-images {
+                margin-bottom: 0;
+            }
+
+            &:not(.summary) {
+                @include sidenote();
+                margin-bottom: 0;
+                -prince-float-placement: bottom;
+
+                .title + p {
+                    text-indent: 0;
+                }
+            }
+
+            &.summary {
+
+                // This overrides margin for figure-no-source,
+                // and requires that figures in these
+                // slidelines do not have sources.
+                margin-outside: 0;
+            }
+        }
+    }
+
+    // Refinement class to tighten up spacing in a PDF slideline
+    &.pdf-compact {
+
+        .figure {
+
+            &.summary {
+                margin-bottom: $line-height-default * 0.5;
+
+                .figure-body {
+                    .figure-images {
+                        margin-bottom: $line-height-default * 0.5;
+                    }
+                }
+            }
+        }
+    }
+
+    &.float-top {
+        float: wide top;
+        margin-top: 0;
+        margin-bottom: $line-height-default;
+    }
+
+    &.float-top-next {
+        float: wide top next;
+        margin-top: 0;
+        margin-bottom: $line-height-default;
+    }
+
+    &.fixed {
+        margin-top: $line-height-default;
+        margin-bottom: $line-height-default;
+        .figure.summary {
+            margin-outside: auto;
+        }
+    }
+}
+
+// Show all the figures in a slides div.
+.slides.slides-show-figures {
+    @include slides-show-figures();
+}
+
+// Use append() so this stays a flat comma list. Writing
+// `$feature-boxes, exercise` would nest the list, making the @each
+// loop treat all of $feature-boxes as a single value and only prefix
+// the first box name with a `.` in the generated selectors.
+$boxes-that-contain-slides: append($feature-boxes, exercise);
+
+@each $box in $boxes-that-contain-slides {
+    .#{$box} {
+        .slides.slides-show-figures {
+            @include slides-show-figures();
+            width: auto; // overrides width in _pdf-boxes L362.
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+
+            .figure {
+                line-height: 0;
+
+                // width of slideline figures in a box. Was:
+                // width: $main-text-width - $paragraph-indent;
+                // Not sure why we need to take off border-width, too, but we do
+                width: $main-text-width - $paragraph-indent - $border-width;
+
+                .figure-body {
+                    width: $main-text-width - $paragraph-indent - $border-width;;
+
+                    // stop summary figure body floating inside sidebar area
+                    float: none;
+                }
+
+                .figure-images {
+
+                    // Ensure images with their white border fit and
+                    // don't make figure invisibly too wide for sidenotes
+                    img {
+                        box-sizing: border-box;
+
+                        // width: 100%;
+                        // Not sure why we need to take off border-width*2 here, too, but we do
+                        width: $main-text-width - $paragraph-indent - ($border-width * 2);
+                    }
+                }
+            }
+
+            .figure.summary,
+            .figure.summary.figure-no-source {
+                width: $main-text-width - $paragraph-indent - $border-width;
+                display: inline-block;
+
+                &:after {
+                    // remove the clearfix used for normal slidelines
+                    content: normal;
+                    clear: none;
+                }
+            }
+        }
+
+        &.wide {
+
+            .slides.slides-show-figures {
+
+                .figure {
+                    margin-bottom: $line-height-default;
+
+                    &:last-child {
+                        margin-bottom: 0;
+                    }
+                }
+
+                .figure, .figure.summary {
+                    width: ($content-width - $sidebar-gap-width - $paragraph-indent) * 0.5;
+
+                    .figure-body {
+                        width: ($content-width - $sidebar-gap-width - $paragraph-indent) * 0.5;
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,54 @@
+// Controls
+
+.controls {
+  margin-left: 0.25em;
+}
+
+// Language select
+.language-select {
+  &:hover, &[visible] {
+    .language-select-list {
+      left: 0.5rem;
+      z-index: 1;
+    }
+  }
+}
+
+// Bookmark icon
+.bookmarks {
+  &:focus, &:active {
+    outline: none;
+
+    svg {
+      outline: 5px auto Highlight;
+      outline: 5px auto -webkit-focus-ring-color;
+    }
+  }
+}
+
+// Share icon
+.share-button {
+  &:focus, &:active {
+    outline: none;
+
+    svg {
+      outline: 5px auto Highlight;
+      outline: 5px auto -webkit-focus-ring-color;
+    }
+  }
+}
+
+.share-button svg.share-icon {
+  height: 1.5em;
+  width: 1.3em;
+}
+
+#share-links .share-links-close::before {
+  top: -0.12rem;
+}
+
+.share-link-label button {
+  &:focus, &:hover {
+    background-color: $color-buttons-hover;
+  }
+}

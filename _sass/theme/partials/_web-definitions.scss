@@ -1,0 +1,136 @@
+// Definitions
+
+.definition {
+  @include p3($factor: $font-serif-sans-ratio);
+  background: $color-accent;
+  border-bottom-right-radius: $core-element-border-radius;
+  color: $color-white;
+  font-family: $font-text-secondary;
+  padding: ($line-height-default / 2);
+  
+  // on larger screens, text wraps around definitions
+  @media (min-width: $break-point-m) {
+    clear: right;
+    float: right;
+    min-width: 5em;
+    margin: 0 0 ($line-height-default / 2) 2em;
+    max-width: 40%;
+    position: relative;
+  }
+  
+  // on very large screens, place definitions in the margin
+  @include outside-right();
+}
+
+.js-definitions {
+  .definition {
+    background-color: $color-background;
+    border: 2 * $rule-thickness solid $color-accent;
+    color: $color-accent;
+  }
+}
+
+[data-term] {
+  color: $color-links;
+  cursor: pointer;
+}
+
+.definition-term {
+  display: inline-block;
+  font-weight: bold;
+  margin-right: 0.25em;
+}
+
+.definition-description {
+  display: inline;
+  margin-bottom: 0;
+  
+  // Create a line break after each definition in a multiple-definitions box
+  &:after {
+    content: "";
+    display: block;
+  }
+  
+  &.no-definition {
+    background: $color-highlight;
+  }
+}
+
+.definition-example {
+  // Put a line break before the example
+  &:before {
+    content: "";
+    display: block;
+    margin-top: 0.5em;
+  }
+}
+
+.definitions {
+  display: none;
+}
+
+.definition-description-hover {
+  @include dialog-styles();
+  
+  position: absolute;
+  // look and feel
+  border-bottom-right-radius: $core-element-border-radius / 2;
+  color: $color-text-main;
+  @include p3($factor: $font-serif-sans-ratio);
+  // when these are attached to an italic term,
+  // they must not inherit that font style
+  font-style: initial;
+  font-weight: normal;
+  left: $max-width-default * 0.25 / 3;
+  right: $max-width-default * 0.25 / 3;
+  max-width: $max-width-default * 0.8;
+  
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: $line-height-default;
+
+  // pull definition-description-hover out of the doc
+  // flow so they hover above text, pagination, and search nav
+  z-index: 10;
+  
+  p {
+    margin-bottom: 0;
+  }
+  
+  // Make wider when in a sidenote
+  .sidenote & {
+    left: 0;
+    right: 0;
+  }
+}
+
+.definition-hover-term {
+  font-weight: bold;
+}
+
+.definition-description-hover {
+  .close {
+    @include number-marker();
+    
+    border: 0;
+    color: $color-white;
+    @include p3();
+    line-height: 1;
+    padding: 0.15em 0.1em 0em 0.1em; // override number-marker padding
+    position: absolute;
+    right: -($line-height-default / 2);
+    top: -($line-height-default / 2);
+
+    &:before {
+      content: $nav-bar-close;
+      display: inline-block;
+      position: relative;
+      top: -0.1em;
+      width: 1em;
+    }
+  }
+}
+
+.hidden-definition-list {
+  display: none;
+}

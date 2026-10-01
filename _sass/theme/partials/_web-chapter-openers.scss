@@ -1,0 +1,136 @@
+// CHAPTER OPENERS
+
+.chapter-opener-image {
+  height: 16rem;
+  border-right: $chapter-opener-border-width solid $color-accent;
+
+  @media (min-width: $breakpoint-chapter) {
+    height: 34rem;
+  }
+  
+  img {
+    height: 100%; // this will not work in IE and Edge and must still be polyfilled
+    width: 100%;
+    object-fit: cover;
+  }
+
+  &.chapter-opener-image-none {
+    display: none;
+  }
+}
+
+.chapter-opener-image-caption {
+  @include p5();
+  background-color: $color-charcoal;
+  color: $color-ghost;
+  font-family: $font-text-secondary;
+  margin-bottom: 0;
+
+  padding: 0.5rem 1.5rem 1rem 1.5rem;
+  border-left: $chapter-opener-border-width solid $color-accent;
+
+  // Prevent spurious line of background colour in Chrome
+  box-shadow: 0 1px $color-charcoal;
+
+  &::after {
+    content: "";
+    border-bottom: $rule-thickness solid $color-granite;
+    display: block;
+    margin-top: 0.5rem;
+  }
+
+  @media only screen and (min-width: $breakpoint-chapter) {
+    border: none;
+    position: absolute;
+    z-index: 4;
+    right: 0;
+    max-width: 42rem; // Magic number
+    padding-top: 2rem;
+  }
+
+  @media only screen and (min-width: $breakpoint-chapter-opener) {
+    width: 13rem;
+  }
+}
+
+.chapter-opener-wrapper {
+  position: relative;
+  
+  &::before {
+    content: '';
+    width: 100vw;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: $color-charcoal;
+    height: 100%;
+  }
+
+  h1 {
+    @include h1();
+    background-color: $color-charcoal;
+    position: relative;
+
+    strong:first-of-type {
+      text-transform: uppercase;
+    }
+    
+    display: flex;
+    flex-direction: column;
+    
+    margin: 0 -1.5rem;
+    padding: 0 1.5rem 1rem 1.5rem;
+    border-left: $chapter-opener-border-width solid $color-accent; 
+    
+    @media only screen and (min-width: $breakpoint-chapter) {
+      padding-top: 2rem;
+    }
+  }
+}
+
+.subheadline {
+  @include subheadline;
+  position: relative;
+  
+  background-color: $color-charcoal;
+  color: $color-ghost;
+  border-left: $chapter-opener-border-width solid $color-accent;
+  
+  margin: 0 -1.5rem;
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+// Simplify the h1 when we're not in a chapter
+.content > h1 {
+  @include h1();
+  color: $color-accent;
+  text-align: center;
+
+  strong {
+    display: block;
+    text-transform: uppercase;
+  }
+}
+
+// Subchapter h1s are not shown, but we can't use visuallyhidden,
+// because the h1 > strong IS shown
+.section {
+  h1 {    
+    font-size: 0;
+    border: none;
+    background-color: $color-background;
+    padding-bottom: 0;
+    text-align: left;
+    margin-bottom: 0.5rem;
+    margin-top: 3rem;
+
+    strong {
+      padding-top: 0.75rem;
+      text-transform: uppercase;
+    }
+  }
+
+  h2 {
+    margin-top: 0;
+  }   
+}

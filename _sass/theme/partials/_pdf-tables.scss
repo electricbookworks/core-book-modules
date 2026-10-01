@@ -1,0 +1,171 @@
+// Tables
+
+table {
+
+    // Center text in merged cells
+    th[colspan], td[colspan]:first-of-type {
+
+        // this was a bad default
+        // text-align: center;
+    }
+
+    th[rowspan], td[rowspan] {
+        vertical-align: middle;
+    }
+
+    // Special classes for layout/refinement
+
+    // .even-columns can be applied to a table or to a figure include
+    &.even-columns,
+    .figure.even-columns & {
+
+        td:nth-of-type(1):nth-last-of-type(2) {
+            width: 50%;
+        }
+
+        td:nth-of-type(1):nth-last-of-type(3),
+        td:nth-of-type(2):nth-last-of-type(2),
+        td:nth-of-type(3):nth-last-of-type(1) {
+            width: 33%;
+        }
+
+        td:nth-of-type(1):nth-last-of-type(4),
+        td:nth-of-type(2):nth-last-of-type(3),
+        td:nth-of-type(3):nth-last-of-type(2),
+        td:nth-of-type(4):nth-last-of-type(4) {
+            width: 25%;
+        }
+
+        td:nth-of-type(1):nth-last-of-type(5),
+        td:nth-of-type(2):nth-last-of-type(4),
+        td:nth-of-type(3):nth-last-of-type(3),
+        td:nth-of-type(4):nth-last-of-type(2),
+        td:nth-of-type(5):nth-last-of-type(1) {
+            width: 20%;
+        }
+    }
+
+    // extend even-columns for variable number of columns
+    @for $i from 1 through 15 {
+        .figure.even-columns-#{$i} & td {
+            width: 100% / $i;
+        }
+    }
+
+    // Let users specify cell text alignment
+    &.align-right, .align-right {
+        text-align: right;
+    }
+
+    &.align-left, .align-left {
+        text-align: left;
+    }
+
+    &.align-center, .align-center {
+        text-align: center;
+    }
+
+    &.vertical-align-middle, .vertical-align-middle {
+        vertical-align: middle;
+    }
+
+    // Let users specify alignment of all cells with data
+    &.data-align-right, .data-align-right {
+        text-align: right;
+
+        th {
+            text-align: center;
+        }
+
+        td:first-child {
+            text-align: left;
+        }
+    }
+
+    // Let users shrink font, e.g. in big tables, either by adding this class
+    // to a parent (e.g. .figure) or to the table itself.
+    .shrink-95pc &,
+    &.shrink-95pc {
+        font-size: 95%;
+    }
+
+    .pdf-shrink-95pc &,
+    &.pdf-shrink-95pc {
+        font-size: 95%;
+    }
+
+    .pdf-shrink-90pc &,
+    &.pdf-shrink-90pc {
+        font-size: 90%;
+    }
+
+    .pdf-shrink-85pc &,
+    &.pdf-shrink-85pc {
+        font-size: 85%;
+    }
+
+    .pdf-shrink-80pc &,
+    &.pdf-shrink-80pc {
+        font-size: 80%;
+    }
+
+    .pdf-shrink-75pc &,
+    &.pdf-shrink-75pc {
+        font-size: 75%;
+    }
+
+    .pdf-shrink-70pc &,
+    &.pdf-shrink-70pc {
+        font-size: 70%;
+    }
+
+    // Let users add vertical rules between columns
+    &.table-vertical-rules {
+
+        td, th {
+            border-right: 0.5pt solid $color-light;
+
+            &:last-of-type {
+                border-right: 0;
+            }
+        }
+    }
+
+    // Let users divide two-column tables 50/50
+    &.table-50-50 {
+
+        // where rows have only two cells, space them 50/50
+        td:nth-of-type(1):nth-last-of-type(2),
+        td:nth-of-type(2):nth-last-of-type(1) {
+            width: 50%;
+        }
+    }
+
+    // Tables as flowcharts
+    &.flowchart {
+        border-collapse: separate;
+        border-spacing: $line-height-default * 0.25;
+        font-family: $font-text-secondary;
+
+        td {
+            border: 1px solid transparent;
+            padding: $line-height-default * 0.25;
+            text-align: center;
+        }
+
+        .flowchart-square {
+            border-color: $color-mid;
+        }
+
+        .flowchart-round {
+            border-color: $color-mid;
+            border-radius: $button-border-radius;
+        }
+    }
+}
+
+// Let users force table elements to look like thead rows
+.thead {
+    text-align: center;
+    font-weight: bold;
+}

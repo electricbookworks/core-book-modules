@@ -1,0 +1,82 @@
+// If you want to import other CSS files,
+// like Google Fonts, this is the place to do that.
+// -----------------------------------------------
+
+// ----------------------------------------------------
+// Import font files (@font-face) for fonts you specify
+// ----------------------------------------------------
+
+// Import fonts from book-specific CSS.
+
+// Usually in the Electric Book template we import fonts here.
+// Instead, we're using a webfonts script in _includes/head-elements.
+
+// Force SVGs to use correct font on 'Asap-Medium'
+[style*="font-family:'Asap-Medium'"],
+[style*="font-family:'Asap Medium'"],
+[style*="font-family:Asap Medium"] {
+    font-family: 'Asap'!important; // !important overrides inline style
+    font-weight: 600!important;
+}
+
+// Force SVGs to use correct font on 'Asap' with weight 500
+[style*="font-weight:500;font-family:Asap"] {
+    font-family: 'Asap'!important; // !important overrides inline style
+    font-weight: 600!important;
+}
+
+// Force SVGs to use correct font on 'Asap-Regular'
+[style*="font-family:'Asap-Regular'"],
+[style*="font-family:'Asap Regular'"],
+[style*="font-family:Asap Regular"] {
+    font-family: 'Asap'!important; // !important overrides inline style
+}
+
+// Force SVGs to use correct font on 'Asap-MediumItalic'
+[style*="font-family:'Asap-MediumItalic'"],
+[style*="font-family:'Asap Medium Italic'"],
+[style*="font-family:Asap Medium Italic"] {
+    font-family: 'Asap'!important; // !important overrides inline style
+    font-weight: 600;
+    font-style: italic;
+}
+
+// Force SVGs to use correct font on 'Asap-Italic'
+[style*="font-family:'Asap-Italic'"],
+[style*="font-family:'Asap Italic'"],
+[style*="font-family:Asap Italic"] {
+    font-family: 'Asap'!important; // !important overrides inline style
+    font-style: italic;
+}
+
+// Force SVGs to use correct font on 'Asap-Bold'
+[style*="font-family:'Asap-Bold'"],
+[style*="font-family:'Asap Bold'"],
+[style*="font-family:Asap Bold"] {
+    font-family: 'Asap'!important; // !important overrides inline style
+    font-weight: bold;
+}
+
+// Force SVGs to use correct font on 'SourceSansPro-Regular'
+[style*="font-family:'SourceSansPro-Regular'"],
+[style*="font-family:'SourceSansPro Regular'"],
+[style*="font-family:SourceSansPro Regular"] {
+    font-family: 'Source Sans Pro'!important; // !important overrides inline style
+    font-weight: 400;
+}
+
+// Force SVGs to use correct font on 'SourceSansPro-SemiBold'
+[style*="font-family:'SourceSansPro-Semibold'"],
+[style*="font-family:'SourceSansPro Semibold'"],
+[style*="font-family:SourceSansPro Semibold"] {
+    font-family: 'Source Sans Pro'!important; // !important overrides inline style
+    font-weight: 600;
+}
+
+// Force SVGs to use correct font on 'SourceSansPro-Bold'
+[style*="font-family:'SourceSansPro-Bold'"],
+[style*="font-family:'SourceSansPro Bold'"],
+[style*="font-family:SourceSansPro Bold"] {
+    font-family: 'Source Sans Pro'!important; // !important overrides inline style
+    font-weight: 700;
+}

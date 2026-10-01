@@ -1,0 +1,144 @@
+// BOTTOM
+
+.landing-page {
+  .landing-page-body {
+    .landing-page-content {
+      .landing-page-bottom {
+        padding-bottom: 6rem;
+
+        .landing-page-behind-the-book {
+          .video {
+            margin-top: 3.75rem;
+            width: 100%;
+          } 
+        
+          .landing-page-behind-text-container {
+            display: flex;
+            flex-direction: column;
+
+            h2 {
+              color: $color-white;
+              margin-top: 1.5rem;
+            }
+            
+            .p2 {
+              color: $color-accent;
+              margin-bottom: 0.5rem;
+            }
+            
+            .p4 {
+              color: $color-white;
+              margin-bottom: 1.5rem;
+            }
+            
+            a.button {
+              margin-bottom: 3rem;
+              width: fit-content;
+            }
+          }
+        }
+        
+        .landing-page-contributors-container {
+          display: flex;
+          flex-wrap: wrap;
+          flex-direction: column;
+          align-items: center;
+          max-width: 65rem;
+          margin: auto;
+
+          .landing-page-contributors-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+            max-width: 32rem;
+
+            img {
+              width: 80px;
+              border-radius: 50%;
+              margin-bottom: 1rem;
+            }
+            
+            p {
+              color: $color-white;
+              text-align: center;
+              margin-bottom: 1rem;
+            }
+            
+            h3 {
+              color: $color-accent;
+              margin-top: 0;
+            }
+          }
+        }
+
+        a.button.centre {
+          display: block;
+          width: fit-content;
+          margin: auto;
+        }
+      }
+
+      // WIDE SCREEN
+      @media only screen and (min-width: $breakpoint-video) {
+        .landing-page-bottom {
+          padding: 3.5rem;
+          
+          .landing-page-behind-the-book {
+            display: grid;
+            grid-template-columns: 40% auto;
+            grid-gap: 4rem;
+            align-items: center;
+            margin-bottom: 5.5rem;
+  
+            .video {
+              margin: 0;
+            }
+            
+            .landing-page-behind-text-container {
+              h2 {
+                margin-top: 0;
+                margin-bottom: 0.5rem;
+              }
+
+              .p4 {
+                margin-bottom: 1.5rem;
+              }
+  
+              a.button {
+                margin-bottom: 0;
+              }
+            }
+          }
+        }
+      }
+      @media only screen and (min-width: $breakpoint-contributors) {
+        .landing-page-bottom {
+          .landing-page-contributors-container {
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            gap: 3rem;
+            margin-bottom: 2rem;
+            align-items: flex-start;
+
+            .landing-page-contributors-item {
+              flex-basis: 15rem;
+              align-items: flex-start;
+
+              img {
+                margin: auto;
+                margin-bottom: 1rem;
+              }
+
+              p {
+                text-align: left;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+      

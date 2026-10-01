@@ -1,0 +1,136 @@
+// CHINESE TRANSLATION
+
+// Font face rules
+
+// Noto Serif Simplified Chinese
+@font-face {
+  font-family: "Noto Serif SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSerifSC-Regular.ttf);
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Noto Serif SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSerifSC-Regular.ttf);
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Noto Serif SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSerifSC-Bold.ttf);
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Noto Serif SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSerifSC-Bold.ttf);
+  font-weight: 700;
+  font-style: italic;
+}
+
+// Noto Sans Simplified Chinese
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansSC-Black.ttf);
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansSC-Black.ttf);
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansSC-Bold.ttf);
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansSC-Bold.ttf);
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansSC-SemiBold.ttf);
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansSC-SemiBold.ttf);
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansSC-Regular.ttf);
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansSC-Regular.ttf);
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansSC-Light.ttf);
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansSC-Light.ttf);
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansSC-ExtraLight.ttf);
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansSC-ExtraLight.ttf);
+  font-weight: 200;
+  font-style: italic;
+}
+
+
+// Heading styles 
+html[lang="zh"] {
+
+  .default-page,
+  .frontmatter-page,
+  .endmatter-page {
+
+    h3 {
+      // Increase line-height to correct appearance of
+      // strong elements in box headings, since
+      // the Korean font is taller than the default
+      line-height: 1.5;
+    }
+}
+
+  .default-page,
+  .frontmatter-page,
+  .endmatter-page {
+
+    h4 {
+      font-style: normal;
+      font-weight: bold;
+    }
+  }
+}

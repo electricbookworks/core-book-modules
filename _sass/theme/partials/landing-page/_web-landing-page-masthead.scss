@@ -1,0 +1,68 @@
+// MASTHEAD
+
+.landing-page {
+  .masthead {
+    background-color: $color-charcoal;
+    border-bottom: $rule-thickness solid $color-granite;
+    padding: 0.5rem 1rem;
+    height: fit-content;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row-reverse;
+
+    .masthead-graphic-wrapper {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      
+      button {
+        background-color: $color-charcoal;
+        padding: 0;
+      }
+
+      img.masthead-logo {
+        height: 1.5rem;
+        width: auto;
+      }
+    }
+
+    &::after {
+      content: none;
+    } 
+  }
+  
+  // MASTHEAD ON WIDE SCREEN
+  @media only screen and (min-width: $breakpoint-masthead) {
+    .masthead {
+      padding: 1rem 4rem;
+
+      .masthead-graphic-wrapper {
+        img.masthead-logo {
+          height: 2.5rem;
+        }
+      }
+    }   
+  }
+
+  // REMOVE HAMBURGER BUTTON ON NAV-WIDE SCREEN
+  @media only screen and (min-width: $breakpoint-nav) {
+    .masthead {
+      .masthead-graphic-wrapper {
+        svg {
+          display: none;
+        }
+      }
+    }
+  }
+
+  // FIX MASTHEAD WHEN NAV IS OPEN ON NARROW SCREENS
+  @media only screen and (max-width: $breakpoint-nav) {
+    .masthead {
+      position: fixed;
+      z-index: 3;
+    }
+  }
+}
+  

@@ -1,0 +1,86 @@
+// Login prompts
+// Various popups and buttons to prompt teacher login
+
+// Generic login prompt class that applies to all popups
+.login-prompt {
+  background-color: $color-background;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.16);
+
+  // Close button
+  label {
+    color: $color-accent !important;
+    cursor: pointer;
+    font-size: 1em;
+    position: absolute;
+    right: 1em;
+    top: 1em;
+  }
+}
+
+// Sidebar popup on homepage and in chapters
+.sidebar-login-prompt {
+  border: $rule-thickness solid $color-accent;
+  border-radius: 5px;
+  box-sizing: border-box;
+  padding-right: 3em;
+  text-align: left;
+  width: 17em;
+  
+  // override .notification styles
+  bottom: auto;
+  left: auto;
+  right: 2em;
+  top: 4em;
+  
+  a {
+    color: $color-accent;
+  }
+}
+
+// Mobi styles for sidebar popup
+@media only screen and (max-width: 23em) {
+  .sidebar-login-prompt {
+    margin-left: 1em;
+    margin-right: 1em;
+    right: auto;
+    width: fit-content;
+  }
+}
+
+// In instructor-preview view, limited section content is obscured with a fade
+.obscured-section {
+  mask-image: linear-gradient(180deg, #fff, transparent 95%);
+  -webkit-mask-image: linear-gradient(180deg, #fff, transparent 95%);
+  pointer-events: none;
+  
+  &[aria-expanded="true"] {
+    margin-bottom: -5em;    
+  }
+}
+
+section:last-of-type {
+  .obscured-section[aria-expanded="true"] {
+    margin-bottom: 0;
+  }
+}
+
+// and there is a button prompting the reader to login to see the full content
+a.instructor-login {
+  background-color: white;
+  border: $rule-thickness solid $color-accent;
+  border-radius: 6px;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.16);
+  color: $color-text-main;
+  display: inline-block;
+  font-family: $font-text-secondary;
+  font-size: 1rem;
+  left: 50%;
+  padding: 0 0.5em;
+  position: relative;
+  text-decoration: none;
+  transform: translateX(-50%) translateY(1em);
+  
+  &.visuallyhidden {
+    position: fixed;
+  }
+}

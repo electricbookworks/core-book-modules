@@ -1,0 +1,32 @@
+// TITLE PAGE
+
+.title-page {
+  .title-page-title {
+    @include head-1();
+    color: $color-accent;
+    margin-bottom: 0;
+    text-align: left;
+  }
+
+  .title-page-subtitle {
+    color: $color-accent;
+    font-size: 14pt;
+    font-weight: normal;
+    margin-bottom: $line-height-default * 2;
+    margin-top: 0;
+    padding-top: 0;
+    text-align: left;
+  }
+
+  .title-page-author {
+    display: none;
+  }
+
+  // Override some template styles
+  .title-page-logo {
+    margin-left: 0;
+    position: static;
+    transform: none;
+    width: 40%;
+  }
+}

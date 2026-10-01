@@ -1,0 +1,15 @@
+// Notifications
+
+.notification {
+  background-color: $color-notifications;
+  bottom: 0;
+  font-family: $font-text-secondary;
+  font-size: 0.8em;
+  left: 0;
+  line-height: $line-height-default * 0.8;
+  padding: 1em;
+  position: fixed;
+  right: 0;
+  text-align: center;
+  z-index: 100;
+}

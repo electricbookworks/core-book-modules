@@ -1,0 +1,40 @@
+.team-gallery {
+    margin-top: $line-height-default;
+    margin-bottom: $line-height-default * 0.5; // members add another 0.5
+
+    &.pdf-span-columns {
+
+        // extra width allows for margin-outside on the outermost member
+        width: $content-width + $paragraph-indent;
+
+        // When floated, we need to account for the sidebar
+        &[class*="float-"] {
+            float: wide top-bottom;
+        }
+    }
+}
+
+.team-gallery-member {
+    display: inline-block;
+    font-family: $font-text-secondary;
+    font-size: $font-size-default * $font-size-smaller;
+    line-height: $line-height-default;
+    margin-bottom: $line-height-default * 0.5;
+    margin-right: $paragraph-indent * 0.66;
+    text-align: center;
+    vertical-align: text-top;
+    width: ($content-width / 6 - $paragraph-indent);
+
+    img {
+        width: 100%;
+    }
+
+    .team-gallery-member-name {
+        font-weight: bold;
+        display: block;
+    }
+
+    .team-gallery-member-role {
+        font-style: italic;
+    }
+}

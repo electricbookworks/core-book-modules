@@ -1,0 +1,179 @@
+// COMPONENTS
+
+.link-to-component {
+  h3 {
+    @include h3($factor: $font-serif-sans-ratio);
+    font-family: $font-text-secondary;
+    font-style: normal;
+    margin-bottom: $line-height-default / 2;
+  }
+
+  .anchorjs-link {
+    display: none;
+  }
+}
+
+.component {
+  // Hide some things in component view
+  .chapter-opener-image,
+  .chapter-opener-image-caption,
+  h1,
+  .pagination,
+  .masthead,
+  .progress-bar-container,
+  .link-to-component {
+    display: none !important;
+  }
+
+  // Fix all the paddings and margins
+  h2 {
+    margin-top: 0;
+  }
+  
+  .content {
+    padding: 1rem;
+    padding-bottom: 2rem;
+  }
+
+  // Pull all of the sidebar elements into the main flow
+  // Overriding styles in _web-sidenotes.scss
+  .sidenote, .info {
+    float: none !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  // Pull all of the sidebar elements into the main flow
+  // Overriding styles in _web-slides.scss
+  .nav-slides,
+  .nav-slides.nav-slides-many,
+  .nav-slides.nav-slides-many-many {
+    float: none;
+    margin: 0;
+    max-width: none;
+    padding: $line-height-default / 4 0;
+    width: 100%;
+    
+    ol {
+      display: flex;
+    
+      li {
+        max-width: 15%;
+        padding: 0 $line-height-default / 4;
+      }
+    }
+  }
+
+  // Style the wrapper
+  &.wrapper {
+    background-color: $color-charcoal;
+    background-image: radial-gradient($color-pewter 1%, transparent 13%);
+    background-size: 13px 13px;
+    background-position: 13px 13px;
+    background-repeat: repeat;
+    margin-top: -5rem;
+    padding-top: 5rem;
+  }
+
+  // Style the content
+  [role='main'] {
+    background-color: $color-background;
+    border-radius: 0 1.875rem 1.875rem 1.875rem;
+    margin: 3.5rem 1rem;
+
+    @media only screen and (min-width: $breakpoint-typography) {
+      margin: 5rem 4rem;
+    }
+  }
+
+  // Style the title
+  .component-title-wrapper {
+    background-color: $color-accent;
+    padding: 1.2rem;
+    border-top-right-radius: 1.875rem;
+
+    .component-title {
+      display: flex;
+      justify-content: space-between;
+
+      p {
+        @include h2();
+        font-family: $font-text-secondary;
+        color: $color-ghost;
+        margin: 0;
+      }
+
+      a { // Close button
+        line-height: 0.5;
+        font-size: 2.5rem;
+
+        @media only screen and (min-width: $breakpoint-typography) {
+          font-size: 3rem;
+        }
+      }
+    }
+
+    .component-subtitle {
+      @include p3();
+      color: $color-ghost;
+      font-family: $font-text-secondary;
+      margin-bottom: 0;
+      margin-top: $line-height-default / 3;
+    }
+  }
+
+  // Style the pagination arrows
+  .component-pagination-arrows {
+    background-color: $color-accent-light;
+    border: $rule-thickness solid $color-accent;
+    border-bottom-right-radius: 1rem;
+    padding: 0.5rem;
+    width: fit-content;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    
+    p {
+      @include p3();
+      color: $color-accent;
+      font-family: $font-text-secondary;
+      margin: 0;
+    }
+
+    a {
+      @include p3();
+      color: $color-accent;
+      text-decoration: none;
+    }
+  }
+
+  // Style the pagination dots
+  .component-pagination-dots {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+
+    .dot {
+      height: 1.5rem;
+      width: 1.5rem;
+      border-radius: 50%;
+      background-color: $color-smoke;
+
+      @media only screen and (min-width: $breakpoint-typography) {
+        width: 2rem;
+        height: 2rem;
+      }
+
+      &.dot-filled {
+        background-color: $color-accent;
+      }
+    }
+  }
+}
+
+// Styling to prevent line breaks after component links
+.component-link-wrapper {
+  display: inline;
+}

@@ -1,0 +1,6 @@
+// Bibliographies
+
+ul.bibliography li {
+  text-indent: -($line-height-default * 2);
+  margin-left: $line-height-default * 2;
+}

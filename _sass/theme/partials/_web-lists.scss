@@ -1,0 +1,15 @@
+// Lists
+
+ol, ul {
+  margin: 0 0 $line-height-default 1em;
+}
+
+ul ul {
+  list-style-type: circle;
+}
+
+// Remove the space after a list,
+// e.g. for nested lists where space after looks wrong
+.list-nospace-web {
+  margin-bottom: 0;
+}

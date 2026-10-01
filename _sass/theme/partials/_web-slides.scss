@@ -1,0 +1,341 @@
+// Slides
+
+// Environment
+.slides:before,
+.slides:after {
+  content: " ";
+  display: table;
+}
+
+.slides:after {
+  clear: both;
+}
+
+// Slides div
+.slides {
+  clear: both;
+  margin-bottom: 2em;
+  
+  svg {
+    background-color: white;
+  }
+  
+  // Don't show the summary figure in a slides div
+  .summary {
+    display: none;
+  }
+
+  .figure {
+    border: none;
+    clear: none;
+    float: left;
+    margin: 0 0 ($line-height-default * 0.5) 0; // default figures have margin-top
+    width: calc(100% - 1.6em); // even narrow figures fill the slide width
+
+    .figure-body {
+      .figure-images {
+        width: 100%; // centres figure image on small screens when display: inline-block
+      }
+
+      .slide-caption {
+        display: block;
+        margin-bottom: 0;
+      }
+
+      .title {
+        color: $color-accent;
+        display: block;
+        font-weight: bold;
+        margin-bottom: 0;
+      }
+
+      // temp: slides sets are supposed to have just one caption,
+      // so hide the individual ones
+      .caption {
+        display: none;
+      }
+    }
+  }
+  
+  .figure-source {
+    display: none;
+  }
+  
+  .figure-summary-meta {
+    background-color: white;
+    clear: both;
+    margin-top: $line-height-default * 0.5;
+    padding: 1em ($line-height-default * 0.5);
+    
+    .caption {
+      @include figure-caption(); // these were hidden for slide figures, shown for the summary
+      display: block; // these were hidden for slide figures, shown for the summary
+    }
+
+    .figure-source {
+      @include figure-source();
+      display: block;
+      
+      p.source {
+        margin: 0;
+      }
+    }
+  }
+  
+  // When in boxes
+  .einstein &,
+  .great-economist &,
+  .great-economists &,
+  .economist &,
+  .economists &,
+  .expandable-box & {
+    .figure-summary-meta {
+      background-color: inherit;
+    }
+  }
+}
+
+// Slide nav
+// Overall styles
+.nav-slides {
+  box-sizing: content-box;
+  padding: $line-height-default / 4 0;
+  
+  // on very large screens, place it in the margin
+  @media (min-width: $break-point-xl) {
+    float: right;
+    padding: 0;
+    margin-right: -$nav-slides-width;
+    margin-top: -1px;
+    max-width: $nav-slides-width;
+  }
+  
+  ol {
+    display: flex;
+    justify-content: center;
+    list-style-type: none;
+    margin: 0;
+
+    @media (min-width: $break-point-xl) {
+      display: block;
+    }
+  }
+  
+  li {
+    display: inline-block;
+    flex-basis: 15%;
+    // fallback for browsers that don't support flex
+    max-width: 15%;
+    padding: 0 $line-height-default / 4;
+    
+    img {
+      border: 0;
+      padding: 0.1em; // important when browser doesn't support flex
+    }
+
+    // SVG thumbnails require a fixed width for flex to work
+    svg {
+      width: 100%;
+    }
+
+    @media (min-width: $break-point-xl) {
+      max-width: 100%; // max-width: none doesn't work on IE
+      padding: $line-height-default / $nav-slides-denominator;
+      box-sizing: border-box;
+
+      svg, img[src$="svg"] {
+        min-width: 4.8em; // a real width is required to show SVGs; magic number :(
+      }
+    }
+  }
+  
+  a {
+    border: 0;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+
+    @media (min-width: $break-point-xl) {
+      &:hover, &:active, &:focus {
+        outline-width: $line-height-default / $nav-slides-denominator;
+      }
+    }
+
+    .slide-thumbnail-text {
+      text-align: center;
+      margin: 0.2em;
+      
+      @include p4();
+      text-overflow: ellipsis;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-box-orient: block-axis;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+
+      @media only screen and (min-width: $break-point-m) {
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+      }
+    }
+  }
+}
+
+// Nav with many slides
+.nav-slides {
+  &.nav-slides-many {
+    @media (min-width: $break-point-xl) {
+      margin-right: -$nav-slides-many-width;
+      max-width: $nav-slides-many-width;
+      
+      li {
+        padding: $line-height-default / $nav-slides-many-denominator;
+      }
+      
+      a {
+        &:hover, &:active, &:focus {
+          outline-width: $line-height-default / $nav-slides-many-denominator;
+        }
+      }
+      
+      .slide-current a {
+        outline-width: $line-height-default / $nav-slides-many-denominator;
+      }
+    }
+  }
+  
+  &.nav-slides-portrait {
+    @media (min-width: $break-point-xl) {
+        margin-right: -$nav-slides-portrait-width;
+        max-width: $nav-slides-portrait-width;
+        
+        li {
+          padding: $line-height-default / $nav-slides-portrait-denominator;
+        }
+        
+        a {
+          &:hover, &:active, &:focus {
+            outline-width: $line-height-default / $nav-slides-portrait-denominator;
+          }
+      }
+        
+        .slide-current a {
+          outline-width: $line-height-default / $nav-slides-portrait-denominator;
+        }
+    }
+  }
+}
+
+// If there are many, many slides (e.g over 6)
+// then on large screens reset all that so that
+// we don't put the thumbnails in the margin
+@media (min-width: $break-point-xl) {
+  .nav-slides.nav-slides-many-many {
+    float: none;
+    margin: 0;
+    max-width: none;
+    padding: $line-height-default / 4 0;
+    
+    ol {
+      display: flex;
+    }
+    
+    li {
+      max-width: 15%;
+      padding: 0 $line-height-default / 4;
+      
+      svg, img[src$="svg"] {
+        min-width: 3em; // a real width is required to show SVGs; magic number :(
+      }
+    }
+    
+    a {
+      outline-width: medium;
+  
+      .slide-thumbnail-text {
+        width: auto;
+      }
+  
+      &:hover, &:active, &:focus {
+        outline-width: medium;
+      }
+    }
+    
+    .slide-current, .slide-current a {
+      outline-width: medium;
+    }
+    
+    &.nav-slides-portrait {
+      margin: 0;
+      max-width: none;
+      
+      li {
+        padding: 0 $line-height-default / 4;
+      }
+  
+      a {
+        &:hover, &:active, &:focus {
+            outline-width: medium;
+        }
+      }
+  
+      .slide-current, .slide-current a {
+        outline-width: medium;
+      }
+    }
+  }
+}
+
+.slide-current {
+  a {
+    @media (min-width: $break-point-xl) {
+      outline-width: $line-height-default / $nav-slides-denominator;
+    }
+  }
+}
+
+// Slide colours
+.slides {
+  background-color: $color-light;
+  border-top: $rule-thickness solid $color-light;
+  
+  .figure-source {
+    color: lighten($color-text-main, 60%);
+
+    a {
+      color: lighten($color-text-main, 60%);
+    }
+  }
+}
+
+.slide-current {
+  a {
+    background-color: darken($colour-slides, $slides-current-pc);
+    outline: $line-height-default / 4 solid darken($colour-slides, $slides-current-pc);
+  }
+}
+
+.nav-slides {
+  background-color: $colour-slides;
+  color: $nav-bar-label-color;
+
+  a {
+    background-color: $colour-slides;
+    color: $nav-bar-label-color;
+    display: flex;
+
+    &.slide-nav-text-link {
+      background-color: $color-background;
+    }
+
+    .slide-thumbnail-text {
+      background-color: $color-background;
+      color: $color-charcoal;
+    }
+    
+    &:hover, &:active, &:focus {
+      background-color: darken($colour-slides, $slides-current-pc);
+      outline: $line-height-default / 4 solid darken($colour-slides, $slides-focus-pc);
+    }
+  }
+}

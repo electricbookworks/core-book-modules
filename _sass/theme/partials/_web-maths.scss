@@ -1,0 +1,41 @@
+// Maths
+
+math {
+  margin: $line-height-default auto;
+}
+
+// Properly hide MathJax_Display when visuallyhidden
+.MathJax_Display, .mjpage__block, .MathJax_SVG_Display {
+  &.visuallyhidden {
+    margin: 0;
+    overflow: hidden; // avoids scrollbar showing when hidden
+    width: 0;
+  }
+}
+
+.MathJax_Display, .mjpage__block {
+  padding: 0.4em 0; // avoids vertical scrollbars appearing
+}
+
+// HTML/CSS superscripts over subscripts
+// Only works for single-digit superscripts
+.align-sup-on-sub {
+  position: relative;
+  
+  sup {
+    position: relative;
+    left: -0.5em;
+    font-size: 0.6em;
+  }
+  
+  sub {
+    font-size: 0.6em;
+  }
+}
+
+// Correct line spacing in maths
+.content .MathJax nobr,
+.content .MathJax,
+.content .MathJax span {
+  line-height: 0;
+}

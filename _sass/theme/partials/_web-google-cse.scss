@@ -1,0 +1,88 @@
+// Google CSE
+
+// 'Searching...' or similar, while waiting for search results
+.search-placeholder {
+  margin-left: 0.5em;
+  margin-top: 2em;
+}
+
+// Hide the search submit button in the nav
+#nav .gsc-search-button {
+  display: none;
+}
+
+// GCSE script numbers its divs in order
+// e.g. searchbox in nav, searchbox on search page, and search results
+#___gcse_0,
+#___gcse_1,
+#___gcse_2 {
+  table {
+    margin: 0;
+
+    tr {
+      border: 0; // overrides inherited style for tables
+      line-height: 1; // keeps input text in the box
+      
+      .gsc-search-button {
+        margin-top: 1.3em; // aligns button with input; magic number :(
+      }
+    }
+  }
+
+  .gsc-resultsbox-visible {
+    display: none; // we hide this only till our google-cse script has run
+  }
+
+  .gsc-input-box {
+    font-family: $font-text-secondary!important;
+    margin-left: 1em; // aligns box with list in nav, and text in results
+  }
+
+  .gsc-table-result, .gsc-thumbnail-inside, .gsc-url-top {
+    padding: 0;
+  }
+
+  .gsc-url-top {
+    display: none;
+  }
+
+  .gsc-results, .gs-result {
+    .gs-title {
+      font-family: $font-text-main!important;
+      font-size: $font-size-default;
+      height: inherit;
+      line-height: $line-height-default * $font-size-smaller;
+      margin-bottom: 0.25em;
+      text-decoration: none;
+      text-decoration-color: transparent;
+
+      & * {
+        text-decoration: none;
+        text-decoration-color: transparent;
+      }
+
+      a, b {
+        color: $color-links;
+      }
+
+      b {
+        font-size: inherit;
+      }
+    }
+
+    .gs-snippet {
+      font-family: $font-text-main!important;
+      font-size: $font-size-default;
+      line-height: $line-height-default;
+    }
+
+    .gsc-cursor-box {
+      display: none;
+    }
+  }
+
+  .gsc-above-wrapper-area,
+  .gcsc-branding {
+    display: none;
+  }
+}

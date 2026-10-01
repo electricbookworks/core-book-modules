@@ -1,0 +1,24 @@
+// Note that the order of these partials is important,
+// especially for Setup and Refinement.
+
+// Setup
+@import "theme/partials/epub-mixins";
+@import "theme/partials/epub-sidenotes";
+
+// Main styles
+@import "theme/partials/epub-base-typography";
+@import "theme/partials/epub-boxes";
+@import "theme/partials/epub-buttons";
+@import "theme/partials/epub-chapter-openers";
+@import "theme/partials/epub-copyright-page";
+@import "theme/partials/epub-definitions";
+@import "theme/partials/epub-figures";
+@import "theme/partials/epub-frontmatter";
+@import "theme/partials/epub-index";
+@import "theme/partials/epub-mcqs";
+@import "theme/partials/epub-slides";
+@import "theme/partials/epub-tables";
+@import "theme/partials/epub-team-gallery";
+@import "theme/partials/epub-title-pages";
+@import "theme/partials/epub-toc";
+@import "theme/partials/epub-videos";

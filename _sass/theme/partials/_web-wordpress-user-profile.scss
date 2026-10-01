@@ -1,0 +1,55 @@
+// Wordpress avatar
+
+.masthead {
+  .menu-user-profile {
+    background: $color-charcoal;
+    display: flex;
+    align-items: center;
+
+    height: $wordpress-buttons-height;
+
+    .buttons {
+      display: flex;
+      margin-right: 0.8rem;
+      gap: 0.3rem;
+
+      a {
+        margin: 0; 
+        
+        &.register {
+          @include button-dark;
+        }
+
+        &.login {
+          @include button-light;
+        }
+      }
+    }
+
+    .avatar {
+      margin-right: 0.8rem;
+
+      a {
+        @include button-filled;
+        display: flex;
+        padding: 0;
+        
+        svg {
+          height: 2.5rem;
+
+          path {
+            fill: $color-accent !important;
+            stroke: $color-accent !important;
+          }
+        }
+
+        &:active, &:focus, &:hover {
+          svg path {
+            fill: $color-accent-dark !important;
+            stroke: $color-accent-dark !important;
+          }
+        }
+      }
+    }
+  }
+}

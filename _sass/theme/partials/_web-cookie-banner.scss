@@ -1,0 +1,98 @@
+// These styles copied from the Bravand styles set for core-econ.org
+
+$breakpoint-cookie-banner: 767px;
+
+
+// BACKGROUND
+.cookie-banner-background {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    overflow: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 2.5rem 1.5rem;
+}
+
+// BANNER
+.cookie-banner {
+    background-color: white;
+    z-index: 100;
+    box-sizing: border-box;
+
+    padding: 2.5rem 1.5rem;
+    margin: auto;
+    max-width: 960px;
+
+    // WIDE SCREENS
+    @media only screen and (min-width: $breakpoint-cookie-banner) {
+        line-height: 1.5;
+        padding: 3.75rem 5rem;
+    }
+
+
+    img {
+        height: 1.5rem;
+        margin-bottom: 1.5rem;
+
+        // WIDE SCREENS
+        @media only screen and (min-width: $breakpoint-cookie-banner) {
+            height: 2rem;
+        }
+    }
+
+    p {
+        @include p4();
+        line-height: 1.4 !important;
+        margin: 0;
+        margin-bottom: 1.25rem;
+
+        // WIDE SCREENS
+        @media only screen and (min-width: $breakpoint-cookie-banner) {
+            margin-bottom: 1.875rem;
+        }
+
+        a {
+          color: $color-links !important;
+        }
+    }
+
+    .button-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+
+        // WIDE SCREENS
+        @media only screen and (min-width: $breakpoint-cookie-banner) {
+            flex-direction: row;
+            gap: 1.5rem;
+            justify-content: space-around;
+        }
+
+        button {
+            font-size: 1.125rem;
+            line-height: 1rem;
+            font-weight: 600;
+            padding: 1.25rem;
+            border-radius: 2rem;
+            width: 100%;
+
+            // WIDE SCREENS
+            @media only screen and (min-width: $breakpoint-cookie-banner) {
+                flex-shrink: 1;
+                width: unset;
+                flex-basis: 21.25rem;
+            }
+            
+        }
+        .js-reject {
+            background-color: white;
+            color: $color-accent;
+            border: 2px solid $color-accent;
+        }
+    }
+}

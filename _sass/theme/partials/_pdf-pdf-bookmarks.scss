@@ -1,0 +1,8 @@
+.section .content {
+
+    // h1s are repeated at the starts of unit subsections,
+    // but we don't want them to be included in PDF bookmarks
+    & > h1 {
+        bookmark-level: none;
+    }
+}

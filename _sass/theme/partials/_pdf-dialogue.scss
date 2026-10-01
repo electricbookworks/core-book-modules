@@ -1,0 +1,21 @@
+// Dialogue
+// Builds on the EB template dl.dialogue styles
+
+dl.dialogue {
+    dt {
+        font-variant: prince-opentype(c2sc, smcp);
+        letter-spacing: 0.025em;
+
+        &:last-of-type {
+            page-break-before: avoid;
+        }
+    }
+
+    & + .figure + p,
+    & + .slides + p,
+    & + .info + p,
+    & + .sidenote + p,
+    & + .footnote-detail + p {
+        text-indent: 0;
+    }
+}

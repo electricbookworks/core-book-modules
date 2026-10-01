@@ -1,0 +1,19 @@
+// Wrappers
+
+html {
+  scroll-padding-bottom: 8rem;
+}
+
+.content {
+  box-sizing: content-box;
+  padding: 0 1.5rem;
+}
+
+.wrapper {
+  background-color: $color-background;
+  overflow-x: unset;
+}
+
+section {
+  position: relative;
+}

@@ -1,0 +1,25 @@
+// THEME
+//
+// Per-section / per-TOC-item colour theming for the landing page.
+//
+// Themeable elements reference the --landing-accent custom property
+// instead of $color-accent directly. A theme class placed on a section
+// or a TOC item reassigns the token for its subtree, so a single
+// declaration recolours every descendant that uses it — and because
+// custom properties inherit at runtime, this works in both light and
+// dark mode without duplicating rules per element or per mode.
+//
+// To add a theme: add a class here and give it a --landing-accent value.
+
+.landing-page {
+
+  // Default accent for themeable landing-page elements.
+  // Interpolation is required: Sass treats custom-property values as
+  // plain CSS, so a bare $variable would not be substituted.
+  --landing-accent: #{$color-accent};
+
+  // Stone Centre theme (applied to a section or TOC item)
+  .stone-centre {
+    --landing-accent: #{$color-stone-centre};
+  }
+}

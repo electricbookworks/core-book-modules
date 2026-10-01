@@ -1,0 +1,19 @@
+.qr-code {
+
+    img {
+
+        // Given our design's fonts and line heights
+        // we adjust to align caption with baseline.
+        height: $line-height-default * 3.8;
+    }
+
+    .qr-code-content,
+    .qr-code-caption {
+        font-family: $font-text-secondary;
+        font-size: 7pt;
+
+        a {
+            color: $color-accent;
+        }
+    }
+}

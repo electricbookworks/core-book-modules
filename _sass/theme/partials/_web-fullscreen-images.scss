@@ -1,0 +1,46 @@
+// Fullscreen images
+
+.figure .figure-body .figure-images {
+  position: relative;
+  
+  &.fullscreen {
+    flex-direction: row;
+    
+    .figure-flex-container {
+      background-color: white;
+      border: calc(min(2vw, 2vh)) solid white;
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      flex: none;
+      width: 100%;
+    }
+
+    .fullscreen-button {
+      position: absolute;
+      bottom: 0.5rem;
+      right: 0.5rem;
+    }
+
+    button.copy-to-clipboard {
+      display: none;
+    }
+      
+    img, svg {
+      box-shadow: 3.2046px 3.2046px 12.8184px rgba(0, 0, 0, 0.16);
+      height: 100%;
+      max-width: 100%;
+    }
+  }    
+  
+  // when there is only one image in the fullscreen, center it
+  &.fullscreen.contains-1 {
+    img, svg {
+      max-height: none;
+      left: 50%;
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%,-50%);
+    }
+  }    
+}

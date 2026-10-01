@@ -1,0 +1,35 @@
+// SIDEBAR
+
+.sidenote,
+.footnote-detail {
+  border-bottom: $rule-thickness solid $color-smoke;
+  border-top: $rule-thickness solid $color-smoke;
+  color: $color-text-secondary;
+  float: none;
+  font-family: $font-text-secondary;
+  font-size: $font-size-default * 0.8;
+  line-height: $line-height-default * 0.8;
+  max-width: 100%;
+  margin: 0;
+  padding: $line-height-default * 0.5;
+
+  ul, ol {
+    margin-top: 0;
+  }
+
+  p:last-of-type {
+    margin-bottom: 0;
+  }
+
+  & + p, & + ol, & + ul {
+    margin-top: $line-height-default;
+  }
+
+  .expandable-box & {
+    background-color: inherit;
+  }
+
+  h3 + & {
+    margin-top: $line-height-default;
+  }
+}

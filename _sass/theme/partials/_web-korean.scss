@@ -1,0 +1,137 @@
+// KOREAN TRANSLATION
+
+// Font face rules
+
+// Gowun Batang
+@font-face {
+  font-family: "Gowun Batang";
+  src: url(#{$path-to-root-directory}/assets/fonts/GowunBatang-Regular.ttf);
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Gowun Batang";
+  src: url(#{$path-to-root-directory}/assets/fonts/CrimsonPro-Italic.ttf);
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Gowun Batang";
+  src: url(#{$path-to-root-directory}/assets/fonts/GowunBatang-Bold.ttf);
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Gowun Batang";
+  src: url(#{$path-to-root-directory}/assets/fonts/CrimsonPro-BoldItalic.ttf);
+  font-weight: 700;
+  font-style: italic;
+}
+
+// Noto Sans KR
+@font-face {
+  font-family: "Noto Sans KR";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansKR-Black.ttf);
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: "Noto Sans KR";
+  src: url(#{$path-to-root-directory}/assets/fonts/SourceSansPro-BlackIt.ttf);
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Noto Sans KR";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansKR-Bold.ttf);
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Noto Sans KR";
+  src: url(#{$path-to-root-directory}/assets/fonts/SourceSansPro-BoldIt.ttf);
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Noto Sans KR";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansKR-SemiBold.ttf);
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Noto Sans KR";
+  src: url(#{$path-to-root-directory}/assets/fonts/SourceSansPro-SemiboldIt.ttf);
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Noto Sans KR";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansKR-Regular.ttf);
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Noto Sans KR";
+  src: url(#{$path-to-root-directory}/assets/fonts/SourceSansPro-Italic.ttf);
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Noto Sans KR";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansKR-Light.ttf);
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Noto Sans KR";
+  src: url(#{$path-to-root-directory}/assets/fonts/SourceSansPro-LightIt.ttf);
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Noto Sans KR";
+  src: url(#{$path-to-root-directory}/assets/fonts/NotoSansKR-ExtraLight.ttf);
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: "Noto Sans KR";
+  src: url(#{$path-to-root-directory}/assets/fonts/SourceSansPro-ExtraLightIt.ttf);
+  font-weight: 200;
+  font-style: italic;
+}
+
+
+// Heading styles 
+html[lang="ko"] {
+
+  .default-page,
+  .frontmatter-page,
+  .endmatter-page {
+
+    h3 {
+      font-style: normal;
+      // Increase line-height to correct appearance of
+      // strong elements in box headings, since
+      // the Korean font is taller than the default
+      line-height: 1.5;
+    }
+}
+
+  .default-page,
+  .frontmatter-page,
+  .endmatter-page {
+
+    h4 {
+      font-style: normal;
+      font-weight: bold;
+    }
+  }
+}

@@ -1,0 +1,31 @@
+// Type features
+
+// Horizontal rules
+// Used in text as dividers (*** in markdown)
+hr {
+  font-family: $font-display-main;
+  margin: $line-height-default 0;
+  
+  &:after {
+    content: "\2014";
+  }
+}
+
+// Allow extra emphasis in body text
+.extra-emphasis {
+  color: $color-accent;
+}
+
+.allsmallcaps {
+  // If the browser and font support font-feature-settings,
+  // the web-smallcaps partia will do the trick to
+  // make this caps-to-small-caps and small-caps.
+  // For Amiri, however, we have to use font-variant with
+  // text-transform: lowercase. Note that these will
+  // not work reliably in epub. There, we must use
+  // text-transform: uppercase and a 0.8em font-size.
+  font-variant: small-caps;
+  font-feature-settings: "c2sc", "smcp";
+  letter-spacing: 0.025em;
+  text-transform: lowercase;
+}

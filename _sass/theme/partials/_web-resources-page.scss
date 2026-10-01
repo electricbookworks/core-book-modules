@@ -1,0 +1,11 @@
+// Resources page
+
+.wrapper.resources {
+  .content a:hover:not(.anchorjs-link) {
+    text-decoration: underline;
+  }
+  
+  ul {
+    list-style-type: none;
+  }
+}

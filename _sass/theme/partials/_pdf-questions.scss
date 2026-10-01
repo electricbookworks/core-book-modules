@@ -1,0 +1,346 @@
+// Multiple-choice questions
+
+.mcq,
+.question {
+
+    // Deliberately not doing this.
+    // float: bottom unless-fit;
+
+    // let sidebar elements float beside mcq
+    width: $main-text-width - 0.1pt;
+
+    font-family: $font-text-secondary;
+    font-size: $font-size-default * 0.85;
+    line-height: $line-height-default;
+    background-color: tint($color-accent, 85%);
+    border-bottom-right-radius: $core-element-border-radius;
+    page-break-inside: avoid;
+    padding: ($line-height-default * 0.5) ($paragraph-indent * 0.5);
+    margin: $line-height-default 0;
+
+    h2, h3, h4, h5, h6 {
+        color: $color-accent;
+        font-family: $font-text-secondary;
+        font-size: $font-size-default * 0.85;
+        font-style: normal;
+        line-height: $line-height-default;
+        margin: 0;
+
+        // This line seems to crash Prince output
+        // with a 'null' error code
+        // for reasons we don't yet understand.
+        // Also, it may be unnecessary, legacy code.
+        // column-span: all;
+
+        strong:first-of-type {
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+
+            // Since this is capitalised,
+            // don't use small caps here
+            @include allsmallcaps-disabled();
+        }
+    }
+
+    p {
+        text-indent: 0;
+    }
+
+    // Add some space around images when they're placed with markdown,
+    // rather than in figure includes.
+
+    p img:only-child {
+        box-sizing: border-box;
+        max-width: ($main-text-width - 0.1pt) - $paragraph-indent;
+
+        // add white space, same as other figures in boxes
+        border: ($line-height-default * 0.5) solid white;
+    }
+
+    ul {
+
+        // Check boxes for unordered lists in MCQs
+        &.mcq-questions,
+        &.mcq-options {
+            li {
+                list-style: none;
+
+                // Override template, which does clear: right
+                // for when marks are displayed, but we don't need that
+                clear: none;
+
+                &:before {
+                    content: "\2009";
+                    border: 0.75pt solid $color-text-main;
+                    width: $font-size-default * 0.5;
+                    height: $font-size-default * 0.5;
+                    margin-left: -$paragraph-indent;
+                    margin-right: 0.6em; // align with para indent
+                    margin-top: 2.8pt; // align with baseline of text
+
+                    // This positioning ensures that the checkboxes
+                    // align with the text, even when the line includes
+                    // math that extends the line height.
+                    float: none;
+                    display: inline-block;
+                    vertical-align: text-top;
+                }
+
+                // Rarely, we use inline tables inside a list item
+                table {
+                    display: inline;
+                    width: $main-text-width - ($paragraph-indent * 2);
+
+                    // nasty hack for Prince
+                    margin: -($line-height-default) 0 0 0;
+
+                    // where rows have only two cells, space them 50/50
+                    td:nth-of-type(1):nth-last-of-type(2),
+                    td:nth-of-type(2):nth-last-of-type(1) {
+                        width: 50%;
+                    }
+                }
+            }
+        }
+    }
+
+    table {
+        font-size: $font-size-default * 0.9;
+        width: $main-text-width - $paragraph-indent;
+    }
+
+    .figure {
+
+        width: ($main-text-width) - ($paragraph-indent * 2);
+        float: none;
+
+        // not the usual two lines above normal figures
+        margin-top: $line-height-default;
+
+        img {
+
+            // adds artwork space around images with none
+            border: ($line-height-default * 0.5) solid white;
+            border-left-width: $paragraph-indent;
+            border-right-width: $paragraph-indent;
+
+            // overrides default, which adds $line-height-default
+            margin-bottom: 0;
+        }
+
+        .figure-body {
+            width: 100%; // avoid inheriting explicit width from main .figure
+        }
+
+        .figure-images {
+
+            img {
+
+                // width subtracted for mcq padding and white border around image
+                max-width: $main-text-width - ($paragraph-indent * 2);
+            }
+
+            &.contains-2, &.contains-4, &.contains-8, &.contains-10 {
+                text-align: justify;
+                text-align-last: justify;
+
+                img {
+                    max-width: ($main-text-width * 0.5) - ($paragraph-indent) - 4mm;
+                    padding: 0;
+                    border: 1mm solid white;
+                }
+            }
+        }
+
+        .figure-source {
+
+            // TODO: confirm if this spacing works.
+            // account for narrower figure-body
+            margin-outside: -($sidebar-content-width + $sidebar-gap-width) - ($paragraph-indent * 1.5);
+            width: $sidebar-content-width;
+            float: outside;
+
+            // reverse display: none
+            display: inline-block;
+
+            .source {
+                width: $sidebar-content-width - $paragraph-indent;
+                padding: 0 ($sidebar-gap-width * 0.5);
+
+                // remove margin added to normal paragraphs
+                // in MCQs, which itself is !important :(
+                margin: 0!important;
+
+                // reverse display: none
+                display: inline-block;
+            }
+        }
+
+        &.figure-no-source {
+            width: $main-text-width - ($paragraph-indent);
+
+            // If a figure has no source, caption or reference, then any description
+            // which is hidden is the last child. In that case, we need no space
+            // below figure-images.
+            &.figure-no-caption {
+
+                .figure-images:nth-last-child(2) {
+                    margin-bottom: 0;
+                }
+            }
+        }
+
+        // Not sure why we need this given float: none, but it is necessary
+        // to stop text that follows the figure from wrapping/overlapping it.
+        &:after {
+            content: " ";
+            display: block;
+            clear: both;
+        }
+
+        & + p {
+            text-indent: 0;
+        }
+    }
+
+    // We don't show the answers in the print edition.
+    .mcq-answers,
+    .mcq-feedback {
+        display: none;
+    }
+
+    // Add space before paragraphs that follow .mcq, and no indent
+    & + p,
+    & + .info + p,
+    & + .sidenote + p,
+    & + .footnote-detail + p    {
+        margin-top: $line-height-default;
+        text-indent: 0;
+    }
+
+    // Because of the hidden mcq-answers/mcq-feedback, we can't add bottom padding
+    // with :last-child. So in these elements, we control spacing with
+    // margin-top rather than the usual margin-bottom. We do have to
+    // nuke this with !important :( This may change in future.
+    p, ul, ol, blockquote {
+        margin-bottom: 0 !important;
+        margin-top: $line-height-default !important;
+    }
+
+    // Except the element after the first heading, which has no margin-top
+    h1:first-of-type + *,
+    h2:first-of-type + *,
+    h3:first-of-type + *,
+    h4:first-of-type + *,
+    h5:first-of-type + *,
+    h6:first-of-type + * {
+        margin-top: 0 !important;
+    }
+
+    // Wide MCQs
+    @include wide-boxes();
+
+    &.page-break-before {
+        margin-top: 0;
+    }
+}
+
+// Projects pages (designed originally for Doing Economics)
+
+.text-question {
+    counter-reset: question;
+
+    // remove list style because we're creating our own counters
+    list-style-type: none;
+
+    // necessary when text-question is used for a blockquote to group paras
+    padding: 0;
+
+    // counter
+    &:before {
+        color: $color-accent;
+        counter-increment: section;
+        content: counter(section);
+        float: left;
+        font-weight: bold;
+        font-family: $font-text-secondary;
+    }
+
+    // When h3 with no margin-bottom precedes a text-question,
+    // add margin to force the counter number downwards
+    // to align with the text.
+    h3 + & {
+        margin-top: $line-height-default;
+    }
+
+    li {
+
+        &:empty {
+            // move up, because Prince uses a line for an empty li
+            margin-top: -$line-height-default;
+        }
+
+        ol, ul {
+            margin-top: 0;
+            margin-bottom: $line-height-default;
+        }
+    }
+}
+
+p.text-question {
+
+    // When applied to a paragraph, don't indent
+    text-indent: 0;
+}
+
+.text-sub-question {
+    margin-left: $paragraph-indent;
+    margin-bottom: $line-height-default;
+    padding: 0;
+
+    // remove list style because we're creating our own counters
+    list-style-type: none;
+    display: list-item;
+
+    // counter
+    &:before {
+        counter-increment: question;
+        content: "(" counter(question, lower-alpha) ") ";
+        float: left;
+        font-style: italic;
+    }
+
+    ul, ol {
+        margin-left: $paragraph-indent * 2;
+    }
+}
+
+p.text-sub-question {
+
+    // When applied to a paragraph, don't indent
+    text-indent: 0;
+}
+
+// Solutions pages get extra treatment
+.wrapper.solutions {
+
+    // This is a fragile hack to use the .text-question class
+    // for the first para in solutions. It indents everything,
+    // except h2s and h3s, after a solution's first para (if it's
+    // tagged with text-question) until the next text-question.
+    .text-question {
+
+        & ~ :not(.text-question):not(h2):not(h3) {
+            margin-left: $paragraph-indent;
+        }
+    }
+
+    .text-sub-question {
+        & ~ ul:not(.text-question):not(.text-sub-question),
+        & ~ ol:not(.text-question):not(.text-sub-question) {
+
+            // important to override more specific :not above
+            margin-left: $paragraph-indent * 3 !important;
+        }
+    }
+}

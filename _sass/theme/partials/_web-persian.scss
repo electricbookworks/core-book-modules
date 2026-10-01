@@ -1,0 +1,20 @@
+// Persian
+// Use custom font for Persian
+
+html[lang="fa"] {
+  // Override $font-text-main in _web-base-typography
+  body, h5, h6 {
+    font-family: $font-farsi;
+  }
+  
+  // Override $font-text-main in custom CSS above
+  h3, h4,
+  .contents-page .content .toc-list li {
+    font-family: $font-farsi;
+  }
+  
+  // Equations in Farsi should render LTR
+  .MathJax_PHTML_Display, .MathJax_PHTML {
+    direction: ltr;
+  }
+}

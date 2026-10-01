@@ -1,0 +1,17 @@
+// SHARE LINKS
+
+#share-links {
+  &.share-hidden {
+    display: none;
+  }
+
+  .share-links-close::before {
+    top: 0;
+    width: 1.9rem;
+  }
+
+  button.copy-to-clipboard {
+    @include button-empty();
+    background-color: $color-white;
+  }
+}

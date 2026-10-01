@@ -1,0 +1,70 @@
+// CHAPTER OPENERS
+
+$chapter-opener-image-height: $line-height-default * 12;
+
+.chapter-opener-image {
+  width: 100%;
+
+  &.chapter-opener-image-none {
+    display: none;
+  }
+
+  & + .chapter-opener-image-caption {
+    font-family: $font-text-secondary;
+    font-size: $font-size-default * $font-size-smaller;
+    margin-top: 0;
+  }
+}
+
+.chapter-opener-wrapper {
+  margin-bottom: $line-height-default * 2;
+
+  h1 {
+    // Base typography does @include head-1();
+    margin-bottom: $line-height-default * 0.5;
+    margin-top: 0;
+
+    strong {
+      margin-bottom: $line-height-default * 0.25;
+    }
+  }
+}
+
+.subheadline {
+  color: $color-text-main;
+  font-size: $font-size-default * 1.5;
+  hyphens: none;
+  line-height: 1;
+  margin-bottom: $line-height-default;
+
+  & + p {
+    text-indent: 0;
+  }
+
+  // Only after a subheadline, paras and lists have space above them
+  // to set off the subheadline for greater visual impact.
+  // Sidebar elements should also shift down accordingly.
+  & + p, & + ul, & + ol,
+  & + .definition,
+  & + .sidenote,
+  & + .info {
+    margin-top: $line-height-default;
+  }
+}
+
+// Section openers
+
+.default-page {
+  // Necessary because margin-top on
+  // the section-opening h2 is collapsed.
+  margin-bottom: $line-height-default * 2;
+}
+
+.default-page.section {
+  h1 {
+    // Do not show h1s at starts of sections,
+    // we only want those to show at starts of units.
+    // Also see _pdf-pdf-bookmarks.scss
+    display: none;
+  }
+}

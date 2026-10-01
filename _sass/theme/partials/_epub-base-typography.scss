@@ -1,0 +1,87 @@
+// BASE TYPOGRAPHY
+
+h1, h2, h3, h4, h5, h6 {
+  hyphens: manual;
+}
+
+h1 {
+  @include head-1();
+}
+
+h2 {
+  @include head-2();
+
+  // Allow numbering within h2 sections
+  // e.g. for questions
+  counter-reset: section;
+}
+
+h3 {
+  @include head-3();
+}
+
+h4 {
+  @include head-4();
+}
+
+h5 {
+  @include head-5();
+}
+
+h6 {
+  @include head-6();
+}
+
+p {
+  &.p-img-only-child-parent {
+    & + p {
+      text-indent: 0;
+    }
+  }
+
+  // These classes are added by mark-siblings.js
+  // to let us target elements before lists.
+  &.previous-sibling-of-ol,
+  &.previous-sibling-of-ul {
+    margin-bottom: $line-height-default;
+  }
+}
+
+ol, ul {
+  &.no-bullets, li.no-bullets {
+    list-style-type: none;
+  }
+}
+
+// Nested ordered lists, OUP-style
+.default-page {
+  ol > li > ol > li::marker {
+    content: "(" counter(list-item, lower-alpha) ")";
+    font-style: italic;
+  }
+}
+
+// Allow extra emphasis in body text
+.extra-emphasis {
+  color: $color-accent;
+}
+
+blockquote {
+  p:last-of-type {
+    // Override inherited template style, which sets
+    // margin-left to 0 for last-child.
+    &.source {
+      margin-left: $paragraph-indent;
+    }
+  }
+
+  & + p {
+    text-indent: 0;
+  }
+}
+
+.valediction {
+  font-style: italic;
+  margin-top: $line-height-default;
+  text-indent: 0;
+}
