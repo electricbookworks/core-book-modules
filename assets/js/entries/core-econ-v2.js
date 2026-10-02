@@ -54,6 +54,7 @@ import ebSlides from '../slides'
 import ebStudents from '../students'
 import ebSvgManagement from '../svg-management'
 import ebTables from '../tables'
+import ebThemeKeys from '../theme-keys'
 import ebTranscripts from '../transcripts'
 import ebVideos from '../videos'
 import ebWordPressUserProfile from '../wordpress-user-profile'
@@ -171,6 +172,9 @@ const accordionPageOptsIn = document.querySelector('.wrapper')
   ?.getAttribute('data-accordion-page') === 'true'
 if (outputSettings.accordion?.enabled === true || accordionPageOptsIn) {
   ebAccordion()
+  // Relocate any theme-key discs into their section headings, after the
+  // accordion has built the heading buttons. No-op without .theme-key blocks.
+  ebThemeKeys()
 }
 
 if (outputSettings.bookmarks?.enabled === true) {

@@ -2,6 +2,7 @@
 
 [data-accordion-page="true"] {
   .accordion-show-all-button-wrapper {
+    margin-top: $line-height-default * 2; // clear of the opener band above
     text-align: right;
   }
   
@@ -32,10 +33,11 @@
     @include h2($factor: $font-serif-sans-ratio);
   
     background-color: $color-background;
+    box-sizing: border-box; // keep the 100% width inside the heading, padding included
     color: $color-accent;
   
     margin: 1.6875rem 0;
-    padding-right: $line-height-default;
+    padding-right: 0; // toggle icon aligns with the 'expand all' button's right edge
     width: 100%;
   
     display: flex;
@@ -55,6 +57,12 @@
   // overlap with next section.
   section[aria-labelledby] {
     clear: both;
+  }
+
+  // The opening section flows beside the right-margin theme-legend (matches v1);
+  // later sections still clear to contain their own floats.
+  .content > section[aria-labelledby]:first-of-type {
+    clear: none;
   }
   
   section[aria-hidden="true"] {
