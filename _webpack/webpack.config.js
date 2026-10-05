@@ -51,6 +51,21 @@ function indexEntries () {
   return entries
 }
 
+// Bundle the in-iframe OWID grapher bootstrap as its own entry so it can be
+// served (and run) inside the sandboxed chart iframe, separate from main.
+function owidIframeEntry () {
+  if (!isWebAppOutput) {
+    return {}
+  }
+  try {
+    return {
+      'owid-iframe': require.resolve('@electricbookworks/core-book-modules/assets/js/owid/iframe-grapher.js')
+    }
+  } catch (error) {
+    return {}
+  }
+}
+
 module.exports = {
   mode,
   entry: {
@@ -58,7 +73,8 @@ module.exports = {
     ...(isWebAppOutput && fs.existsSync(path.resolve(process.cwd(), 'assets/js/search.js')) && {
       search: path.resolve(process.cwd(), 'assets/js/search.js')
     }),
-    ...indexEntries()
+    ...indexEntries(),
+    ...owidIframeEntry()
   },
   target: isPrinceOutput ? ['web', 'es5'] : 'web',
   output: {

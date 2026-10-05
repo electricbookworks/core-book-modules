@@ -1,35 +1,27 @@
-import { GrapherLoader } from './grapher.standalone.min.js'
-import './grapher.scss'
-
-const ebOwidPrepareData = async ({ id }) => {
-  const baseUrl = `/assets/data/owid/${id}`
-  const csvUrl = `${baseUrl}/data.csv`
-  const configRaw = await (await fetch(`${baseUrl}/config.json`)).json()
-  const columnIds = configRaw.dimensions.map(d => d.variableId)
-  const columnPromises = columnIds.map(id => fetch(`${baseUrl}/${id}.metadata.json`).then(res => res.json()))
-  const columnDefsRaw = await Promise.all(columnPromises)
-  const columnDefs = columnDefsRaw.map(def => {
-    def.type === 'float' && (def.type = 'Numeric')
-    def.slug = def.shortName
-    return def
-  })
-  const config = {
-    ...configRaw
-  }
-  columnDefs.forEach(columnDef => {
-    const dimension = config.dimensions.find(d => d.variableId === columnDef.id)
-    if (dimension) dimension.slug = columnDef.shortName
-  })
-  return { config, csvUrl, columnDefs }
-}
-
-const ebOwidGraphMount = async ({ id, containerId }) => {
-  const { config, csvUrl, columnDefs } = await ebOwidPrepareData({ id })
-  GrapherLoader.fromCsv({
-    config,
-    csvUrl,
-    columnDefs
-  }).mount(document.getElementById(containerId))
+// Builds a sandboxed iframe for an OWID chart. The iframe's document loads the
+// grapher bundle and its CSS itself (via assets/js/dist/owid-iframe.dist.js),
+// so page styles can't leak into the chart and the grapher's FontAwesome styles
+// stay inside the iframe. The source is generated on the fly via srcdoc.
+const ebOwidGraphMount = ({ id, containerId }) => {
+  const baseurl = process.env.config.baseurl || ''
+  const container = document.getElementById(containerId)
+  const iframe = document.createElement('iframe')
+  iframe.title = 'Interactive chart'
+  iframe.style.cssText = 'width:100%;aspect-ratio:850/600;margin:2rem auto;border:0;display:block;background:#fff'
+  iframe.srcdoc = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>html,body{height:100%;margin:0}#owid-mount{height:100%}</style>
+</head>
+<body>
+<div id="owid-mount"></div>
+<script>window.__owidId__=${JSON.stringify(id)}</script>
+<script src="${baseurl}/assets/js/dist/owid-iframe.dist.js"></script>
+</body>
+</html>`
+  container.appendChild(iframe)
 }
 
 export { ebOwidGraphMount }
