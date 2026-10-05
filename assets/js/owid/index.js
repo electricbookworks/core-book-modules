@@ -1,5 +1,4 @@
 import { GrapherLoader } from './grapher.standalone.min.js'
-import './grapher.scss'
 
 const ebOwidPrepareData = async ({ id }) => {
   const baseUrl = `/assets/data/owid/${id}`
@@ -23,13 +22,13 @@ const ebOwidPrepareData = async ({ id }) => {
   return { config, csvUrl, columnDefs }
 }
 
-const ebOwidGraphMount = async ({ id, containerId }) => {
+const ebOwidGraphMount = async ({ id, container }) => {
   const { config, csvUrl, columnDefs } = await ebOwidPrepareData({ id })
   GrapherLoader.fromCsv({
     config,
     csvUrl,
     columnDefs
-  }).mount(document.getElementById(containerId))
+  }).mount(container)
 }
 
 export { ebOwidGraphMount }

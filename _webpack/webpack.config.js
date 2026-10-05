@@ -96,7 +96,13 @@ module.exports = {
         use: 'yaml-loader'
       },
       {
+        test: /\.css$/,
+        resourceQuery: /raw/,
+        type: 'asset/source'
+      },
+      {
         test: /\.(css|scss)$/,
+        resourceQuery: { not: [/raw/] },
         use: ['style-loader', 'css-loader', 'sass-loader']
       },
       ...(isPrinceOutput

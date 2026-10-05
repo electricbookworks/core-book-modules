@@ -1,4 +1,5 @@
 import { ebOwidGraphMount } from '.'
+import grapherCss from './grapher.css?raw'
 
 function showInteractiveGraph (button, staticVersion = true) {
   // Hide the "Show interactive graph" button
@@ -20,6 +21,14 @@ function showInteractiveGraph (button, staticVersion = true) {
   owidContainer.setAttribute('id', owidContainerId)
   owidContainer.classList.add('owid-container')
 
+  // Sandbox the graph's CSS inside a shadow root
+  const owidShadow = owidContainer.attachShadow({ mode: 'open' })
+  const owidStyle = document.createElement('style')
+  owidStyle.textContent = grapherCss
+  owidShadow.appendChild(owidStyle)
+  const owidMount = document.createElement('div')
+  owidShadow.appendChild(owidMount)
+
   if (button.closest('.slides') !== null) {
     // Sometimes the iframe needs to replace an entire set of slides
     const slideDiv = button.closest('.slides')
@@ -39,7 +48,7 @@ function showInteractiveGraph (button, staticVersion = true) {
     const lastSlide = slideFigures[slideFigures.length - 1]
     const figureMeta = lastSlide.parentElement.querySelector('.figure-summary-meta')
     figureMeta.parentElement.insertBefore(owidContainer, figureMeta)
-    ebOwidGraphMount({ id: owidId, containerId: owidContainerId })
+    ebOwidGraphMount({ id: owidId, container: owidMount })
   } else {
     // Other times it only needs to replace a standalone figure
     // Get the figure container
@@ -49,7 +58,7 @@ function showInteractiveGraph (button, staticVersion = true) {
     // Put the owidContainer after the (invisible) figure
     const figureCaption = figureDiv.parentElement.querySelector('.caption')
     figureCaption.parentElement.insertBefore(owidContainer, figureCaption)
-    ebOwidGraphMount({ id: owidId, containerId: owidContainerId })
+    ebOwidGraphMount({ id: owidId, container: owidMount })
   }
 }
 
