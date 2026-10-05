@@ -73,6 +73,11 @@ function ebExpandableBoxAddPreviewButton (box) {
 
 // Add toggle button to `.expandable-box strong`
 function ebExpandableBoxAddBoxToggle (box) {
+  // Don't add a second toggle if this box was already initialised
+  if (box.querySelector('a.toggle')) {
+    return
+  }
+
   // Get the h3 strong expandable box header, e.g. 'FIND OUT MORE'
   const boxHeader = box.querySelector(boxHeaderSelector)
 
@@ -180,22 +185,26 @@ function ebStartExpandableBox () {
 }
 
 function ebExpandableBox () {
-  // If MathJax is running, only run all this once the MathJax is typeset.
-  // Otherwise, MathJaxDisplay divs will appear after the expandable-box contents
-  // have been hidden.
-  const expandableBoxObserver = new MutationObserver(function (mutations) {
-    mutations.forEach(function (mutation) {
-      if (mutation.type === 'attributes') {
-        const mathjaxEnabled = process.env.config['mathjax-enabled'] === 'true'
-        if ((!mathjaxEnabled || document.body.getAttribute('data-mathjax-rendered') === 'true')) {
-          ebStartExpandableBox()
-        }
-      }
-    })
+  // MathJax v4 has no StartupHook, so we wait for the `data-mathjax-rendered`
+  // flag that is set on <body> once typesetting finishes, then initialise the
+  // boxes exactly once. Initialising more than once appends duplicate toggles.
+  const mathjaxEnabled = process.env.config['mathjax-enabled'] === 'true'
+
+  if (!mathjaxEnabled || document.body.getAttribute('data-mathjax-rendered') === 'true') {
+    ebStartExpandableBox()
+    return
+  }
+
+  const expandableBoxObserver = new MutationObserver(function (mutations, observer) {
+    if (document.body.getAttribute('data-mathjax-rendered') === 'true') {
+      observer.disconnect() // run once; other modules also mutate <body> attributes
+      ebStartExpandableBox()
+    }
   })
 
   expandableBoxObserver.observe(document.body, {
-    attributes: true // Listen for attribute changes
+    attributes: true,
+    attributeFilter: ['data-mathjax-rendered']
   })
 }
 
