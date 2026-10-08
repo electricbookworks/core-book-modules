@@ -12,7 +12,7 @@
         <button class="masthead-menu" aria-label="Menu">{% include icons/landing-page/hamburger.svg %}</button>
 
         {% comment %} Logo {% endcomment %}
-        <a href="https://www.core-econ.org"><img class="masthead-logo" src="{{ external-media }}assets/images/{{ site.output }}/logo-with-strapline.png" role="presentation" /></a>
+        <a href="https://www.core-econ.org"><img class="masthead-logo" src="{% if external-media and external-media != "" %}{{ external-media }}{% else %}{{ path-to-root-directory }}{% endif %}assets/images/{{ site.output }}/logo-with-strapline.png" role="presentation" /></a>
     </div>
 {% endif %}
 

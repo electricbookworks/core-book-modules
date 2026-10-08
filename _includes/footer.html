@@ -9,7 +9,7 @@
                 {{ locale.footer.text | markdownify }}
             </div>
             <div class="footer-licence">
-                <a title="Licensed under Creative Commons BY NC ND" href="https://creativecommons.org/licenses/by-nc-nd/4.0/"><img src="{{ external-media }}assets/images/{{ site.output }}/cc-byncnd.png" alt="Licensed under Creative Commons BY NC ND"></a>
+                <a title="Licensed under Creative Commons BY NC ND" href="https://creativecommons.org/licenses/by-nc-nd/4.0/"><img src="{% if external-media and external-media != "" %}{{ external-media }}{% else %}{{ path-to-root-directory }}{% endif %}assets/images/{{ site.output }}/cc-byncnd.png" alt="Licensed under Creative Commons BY NC ND"></a>
                 <br />
                 {{ locale.footer.version }} {{ project-version }} &bull; {{ locale.footer.credit }}
             </div>

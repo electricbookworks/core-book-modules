@@ -1,7 +1,7 @@
 <div class="cookie-banner-background visuallyhidden">
   <div class="cookie-banner visuallyhidden">
     <!-- LOGO -->
-    <img src="{{ external-media }}assets/images/web/core-logo_no-strapline.png" role="presentation" />
+    <img src="{% if external-media and external-media != "" %}{{ external-media }}{% else %}{{ path-to-root-directory }}{% endif %}assets/images/web/core-logo_no-strapline.png" role="presentation" />
     <p>
       {{ site.data.locales[language].cookie-banner.text | markdownify | replace: "<p>", "" | replace: "</p>", "" }}
     </p>

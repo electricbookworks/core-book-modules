@@ -1,6 +1,6 @@
 <div id="nav" class="non-printing" role="navigation" aria-label="contents navigation">
 
-    <a class="nav-logo" href="https://www.core-econ.org"><img src="{{ external-media }}assets/images/{{ site.output }}/core-logo_no-strapline.png" role="presentation" /></a>
+    <a class="nav-logo" href="https://www.core-econ.org"><img src="{% if external-media and external-media != "" %}{{ external-media }}{% else %}{{ path-to-root-directory }}{% endif %}assets/images/{{ site.output }}/core-logo_no-strapline.png" role="presentation" /></a>
 
     {% comment %}If we're neither in a book or a docs page,
     show the nav-title or the project name.
