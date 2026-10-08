@@ -5,7 +5,6 @@ $epub-slides: true !default;
         clear: both;
         margin-bottom: $line-height-default;
         margin-top: $line-height-default;
-        display: inline-block; // keeps slideline together, not split over pages[^1]
 
         .figure {
             margin: 0 0 ($line-height-default * 0.5) 0; // default figures have margin-top
