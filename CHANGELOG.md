@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.2.4](https://github.com/electricbookworks/core-book-modules/compare/v5.2.3...v5.2.4) (2026-10-08)
+
 ### [5.2.3](https://github.com/electricbookworks/core-book-modules/compare/v5.2.2...v5.2.3) (2026-10-06)
 
 ### [5.2.2](https://github.com/electricbookworks/core-book-modules/compare/v5.2.1...v5.2.2) (2026-10-06)
