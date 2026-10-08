@@ -1,0 +1,67 @@
+{% comment %}This is adapted from _includes/glossary.
+It outputs the glossary as a table.{% endcomment %}
+
+{% capture glossary-table %}
+
+{% comment %}Use data/glossary.yml as the glossary{% endcomment %}
+{% assign glossary = site.data.glossary %}
+
+{% comment %}Get the metadata to tell if we're a translation.{% endcomment %}
+{% include metadata %}
+{% comment %}If we're outputting a translation,
+get the translation glossary{% endcomment %}
+{% if is-translation %}
+    {% assign glossary = site.data.[language].glossary %}
+{% endif %}
+
+{% comment %}Unless the include specifies a glossary to use{% endcomment %}
+{% if include.glossary %}
+   {% assign glossary = include.glossary %}
+{% endif %}
+
+{% comment %}Create a map of terms to their slugified equivalents{% endcomment %}
+{% capture slug-map %}
+  {% for entry in glossary %}
+{{ entry.term | slugify }},{{ entry.term }}|
+  {% endfor %}
+{% endcapture %}
+
+{% comment %}Now split that into an array and sort (by the lowercased term){% endcomment %}
+{% assign slug-map = slug-map | split:'|' | sort %}
+
+{% comment %}Now loop through the sorted slug-map{% endcomment %}
+{% for term in slug-map %}
+
+{% comment %}Turn each mapping into a little array{% endcomment %}
+{% assign map = term | split: "," %}
+
+    {% comment %}Look up each entry in the original glossary...{% endcomment %}
+    {% for entry in glossary %}
+
+        {% comment %}... and check if it maps to the slug term we're on.{% endcomment %}
+        {% if map[1] == entry.term %}
+
+{% comment %}If it does, then output the glossary HTML tr and dd.
+Don't indent this, or kramdown thinks its a code block{% endcomment %}
+<tr>
+  <td class="glossary-term" id="glossary-{{ entry.term | slugify }}">{{ entry.term | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</td>
+  <td class="glossary-definition">{{ entry.definition | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</td>
+  <td class="glossary-example">{{ entry.example | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</td>
+  <td class="glossary-cross-reference">{{ entry.cross-reference | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</td>
+</tr>
+
+        {% endif %}
+
+    {% endfor %}
+
+{% endfor %}
+
+{% endcapture %}{% comment %}i.e. glossary{% endcomment %}
+
+{% comment %}Now that we've got the glossary, output the surrounding HTML.
+Remember no indentation. Indents in md render as a code block.
+We have to do funky remove: '<p>' | remove: '</p>' | strip_newlines
+because https://github.com/jekyll/jekyll/issues/2248. {% endcomment %}
+<table class="glossary-table{% if include.class %} include.class{% endif %}">
+{{ glossary-table | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}
+</table>

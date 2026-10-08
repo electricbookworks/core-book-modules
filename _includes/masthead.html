@@ -1,0 +1,87 @@
+<div class="masthead" role="banner">
+
+    {% if site.output == "web" and site.data.settings.web.wordpress-user-profile == true %}
+        {% include wordpress-user-profile.html %}
+    {% endif %}
+
+{% comment %} Home page, search page, and similar non-book pages {% endcomment %}
+{% if is-book-directory != true %}
+{% if page.style contains 'landing-page' %}
+    <div class="masthead-graphic-wrapper">
+        {% comment %} Hamburger on mobile {% endcomment %}
+        <button class="masthead-menu" aria-label="Menu">{% include icons/landing-page/hamburger.svg %}</button>
+
+        {% comment %} Logo {% endcomment %}
+        <a href="https://www.core-econ.org"><img class="masthead-logo" src="{{ external-media }}assets/images/{{ site.output }}/logo-with-strapline.png" role="presentation" /></a>
+    </div>
+{% endif %}
+
+
+{% comment %} Book pages {% endcomment %}
+{% else %}
+
+    {% if site.output == "app" %}
+        {% capture masthead-contents-page %}{{ app-contents-page }}{% endcapture %}
+        {% assign breadcrumb-nav-tree = app-nav-tree %}
+    {% else %}
+        {% capture masthead-contents-page %}{{ web-contents-page }}{% endcapture %}
+        {% assign breadcrumb-nav-tree = web-nav-tree %}
+    {% endif %}
+
+    {% if site.data.settings.[output-format].masthead.content == "breadcrumbs" %}
+
+        <ul>
+            {% if number-of-works == 1 %}
+                <li class="masthead-book-title"><a href="{{ path-to-root-directory }}index.html">{{ title }}</a>{% include beta-button %}</li>
+                {% include breadcrumbs.html breadcrumb-tree=breadcrumb-nav-tree %}
+            {% else %}
+                <li class="masthead-project-name"><a href="{{ path-to-root-directory }}index.html">{{ project-name }}</a></li>
+                <li class="masthead-book-title"><a href="{{ masthead-contents-page }}{% unless masthead-contents-page contains '.html' %}.html{% endunless %}">{{ title }}</a>{% include beta-button %}</li>
+                {% include breadcrumbs.html breadcrumb-tree=breadcrumb-nav-tree %}
+            {% endif %}
+        </ul>
+
+    {% elsif site.data.settings.[output-format].masthead.content == "project-name" %}
+
+        <ul>
+            <li class="masthead-project-name"><a href="{{ path-to-root-directory }}index.html">{{ project-name }}</a>{% include beta-button %}</li>
+        </ul>
+
+    {% elsif site.data.settings.[output-format].masthead.content == "page-title" %}
+
+        <ul>
+            {% if number-of-works == 1 %}
+                <li class="masthead-book-title"><a href="{{ path-to-root-directory }}index.html">{{ title }}</a>{% include beta-button %}</li>
+            {% else %}
+                <li class="masthead-project-name"><a href="{{ path-to-root-directory }}index.html">{{ project-name }}</a></li>
+                <li class="masthead-book-title"><a href="{{ masthead-contents-page }}{% unless masthead-contents-page contains '.html' %}.html{% endunless %}">{{ title }}</a></li>
+                <li class="masthead-page-title">{{ page.title }}</li>
+            {% endif %}
+        </ul>
+
+    {% elsif site.data.settings.[output-format].masthead.content == "series-name" %}
+
+        <ul>
+            <li class="masthead-project-name"><a href="{{ path-to-root-directory }}index.html">{{ series }}</a></li>
+            <li class="masthead-book-title"><a href="{{ masthead-contents-page }}{% unless masthead-contents-page contains '.html' %}.html{% endunless %}">{{ title }}</a></li>
+        </ul>
+
+    {% comment %}Defaults to `book-title`.{% endcomment %}
+    {% else %}
+
+        <ul>
+            {% if number-of-works == 1 %}
+                <li class="masthead-book-title"><a href="{{ path-to-root-directory }}index.html">{{ title }}</a>{% include beta-button %}</li>
+            {% else %}
+                <li class="masthead-project-name"><a href="{{ path-to-root-directory }}index.html">{{ project-name }}</a></li>
+                <li class="masthead-book-title"><a href="{{ masthead-contents-page }}{% unless masthead-contents-page contains '.html' %}.html{% endunless %}">{{ title }}</a>{% include beta-button %}</li>
+            {% endif %}
+        </ul>
+
+    {% endif %}
+
+{% endif %}
+
+{% include nav-button.html %}
+
+</div><!--.masthead-->

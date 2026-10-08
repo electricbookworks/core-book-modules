@@ -1,0 +1,71 @@
+{% comment %}Inserts a chapter-opener-image
+defined in page YAML frontmatter. It assumes
+that the `metadata` include has already appeared.{% endcomment %}
+
+{% comment %}Do this if the page is a chapter and it has an image{% endcomment %}
+{% assign page-gets-opener-image = false %}
+{% if page.image
+    and page.image != ""
+    and page.style contains "default-page" %}
+    {% assign page-gets-opener-image = true %}
+{% endif %}
+
+{% comment %} The TOC page also gets an image on the web and in apps {% endcomment %}
+{% if site.output == "web" or site.output == "app" %}
+    {% if page.image
+        and page.image != ""
+        and page.style contains "contents-page" %}
+        {% assign page-gets-opener-image = true %}
+    {% endif %}
+{% endif %}
+
+{% if page-gets-opener-image %}
+
+    {% comment %}Get the image filename{% endcomment %}
+    {% capture image %}{{ page.image }}{% endcapture %}
+        {% assign image-filetype = image | split: "." %}
+        {% assign image-without-filetype = image-filetype[0] %}
+
+    {% comment %}Get the image credit{% endcomment %}
+    {% capture image-credit %}{{ page.image-credit }}{% endcapture %}
+
+    {% comment %}Get the image alt text{% endcomment %}
+    {% capture image-alt %}{% if page.image-alt && page.image-alt != "" %}{{ page.image-alt }}{% else %}{{ page.image-caption | strip_html }}{% endif %}{% endcapture %}
+
+    {% comment %}Create custom object-position style{% endcomment %}
+    {% if page.image-focus and page.image-focus != "" %}
+        {% capture chapter-opener-image-focus %}object-position: {{ page.image-focus }};{% endcapture %}
+    {% endif %}
+
+    <div class="chapter-opener-image">
+        
+        {% if site.output == "web" or site.output == "app" %}
+
+        <noscript>
+            <img src="{{ images }}/{{ image }}" srcset="{{ images }}/{{ image-without-filetype }}-320.{{ image-filetype[1] }} 320w, {{ images }}/{{ image-without-filetype }}-640.{{ image-filetype[1] }} 640w, {{ images }}/{{ image-without-filetype }}-1024.{{ image-filetype[1] }} 1024w, {{ images }}/{{ image-without-filetype }}-2048.{{ image-filetype[1] }} 1280w" sizes="(min-width: 600px) 1300px, 100vw" alt="{{ image-alt }}" style="{{ chapter-opener-image-focus }}"/>
+        </noscript>
+
+        <img data-src="{{ images }}/{{ image }}" data-src="{{ images }}/{{ image }}" data-srcset="{{ images }}/{{ image-without-filetype }}-320.{{ image-filetype[1] }} 320w, {{ images }}/{{ image-without-filetype }}-640.{{ image-filetype[1] }} 640w, {{ images }}/{{ image-without-filetype }}-1024.{{ image-filetype[1] }} 1024w, {{ images }}/{{ image-without-filetype }}-2048.{{ image-filetype[1] }} 1280w" sizes="(min-width: 600px) 1300px, 100vw" alt="{{ image-alt }}" style="{{ chapter-opener-image-focus }}"/>
+
+        {% else %}
+
+        <img src="{{ images }}/{{ image }}" alt="{{ image-alt }}" />
+
+        {% endif %}
+
+    </div>
+
+    {% if page.image-caption and page.image-caption != "" %}
+        <div class="chapter-opener-image-caption">
+            {{ page.image-caption | markdownify | replace: "<p>", "" | replace: "</p>", "" | strip_newlines }}
+        </div>
+    {% endif %}
+
+{% elsif page.style contains "default-page" %}
+    {% unless page.style contains "no-opener-image" %}
+
+        <div class="chapter-opener-image chapter-opener-image-none">
+        </div>
+    {% endunless %}
+
+{% endif %}

@@ -1,0 +1,113 @@
+{% comment %}A gallery of images, names and institutions for a given team.{% endcomment %}
+
+{% comment %}We need metadata for the path to images and page language{% endcomment %}
+{% include metadata %}
+
+{% comment %}Get an array of the team we want to show.{% endcomment %}
+{% assign team = site.data.people | sort: "sort-by" %}
+{% if include.team %}
+    {% assign team = site.data.people | where_exp: "t", "t.teams contains include.team" | sort: "sort-by" %}
+{% endif %}
+
+{% comment %} If images are specified, filter the team
+to include only those people {% endcomment %}
+{% if include.images %}
+    {% assign filtered-team = "" | split: "" %}
+    {% assign team-images-array = include.images | replace: " ", "" | split: "," %}
+
+    {% for person in team %}
+        {% for image in team-images-array %}
+            {% if person.image == image %}
+                {% assign filtered-team = filtered-team | push: person %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+
+    {% assign team = filtered-team %}
+
+{% endif %}
+
+{% comment %}Put the gallery in a div, and each person in a child div.
+For each person, include their image, full name, and institutions.{% endcomment %}
+<div class="team-gallery {{ include.class }}">
+
+{% for person in team %}
+
+    {% comment %} To accommodate potential translations of any item
+    in the person's entry, we check how it's structured,
+    because it might have translation hashes. {% endcomment %}
+    {% if person.firstname[language] %}
+        {% assign person-firstname = person.firstname[language] %}
+    {% elsif person.firstname.en %}
+        {% assign person-firstname = person.firstname.en %}
+    {% else %}
+        {% assign person-firstname = person.firstname %}
+    {% endif %}
+
+    {% if person.lastname[language] %}
+        {% assign person-lastname = person.lastname[language] %}
+    {% elsif person.lastname.en %}
+        {% assign person-lastname = person.lastname.en %}
+    {% else %}
+        {% assign person-lastname = person.lastname %}
+    {% endif %}
+
+    {% if person.institutions[language] %}
+        {% assign person-institutions = person.institutions[language] %}
+    {% elsif person.institutions.en %}
+        {% assign person-institutions = person.institutions.en %}
+    {% else %}
+        {% assign person-institutions = person.institutions %}
+    {% endif %}
+
+    {% if person.roles[language] %}
+        {% assign person-roles = person.roles[language] %}
+    {% elsif person.roles.en %}
+        {% assign person-roles = person.roles.en %}
+    {% else %}
+        {% assign person-roles = person.roles %}
+    {% endif %}
+
+    {% if person.image[language] %}
+        {% assign person-image = person.image[language] %}
+    {% elsif person.image.en %}
+        {% assign person-image = person.image.en %}
+    {% else %}
+        {% assign person-image = person.image %}
+    {% endif %}
+
+    {% if person.image-credit[language] %}
+        {% assign person-image-credit = person.image-credit[language] %}
+    {% elsif person.image-credit.en %}
+        {% assign person-image-credit = person.image-credit.en %}
+    {% else %}
+        {% assign person-image-credit = person.image-credit %}
+    {% endif %}
+
+    <div class="team-gallery-member">
+    <img alt="{{ person-firstname }} {{ person-lastname }}" src="{{ images }}/{{ person-image }}">
+    <span class="team-gallery-member-name">{{ person-firstname }} {{ person-lastname }}</span>
+    <span class="team-gallery-member-institution">
+        {% for institution in person-institutions %}
+            {{ institution }}{% unless forloop.last %};{% endunless %}
+        {% endfor %}
+    </span>
+    {% if include.roles %}
+        <span class="team-gallery-member-role">
+            {% for role in person-roles %}
+                {{ role }}
+            {% endfor %}
+        </span>
+    {% endif %}
+    {% if include.image-credit %}
+        <span class="team-gallery-member-image-credit">
+            {% for image-credit in person-image-credit %}
+                {{ image-credit }}
+            {% endfor %}
+        </span>
+    {% endif %}
+    </div>
+
+{% endfor %}
+
+</div><!--team-gallery-->

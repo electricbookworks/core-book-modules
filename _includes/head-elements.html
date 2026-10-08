@@ -1,0 +1,81 @@
+{% comment %}
+After this comment block, include any links and scripts,
+such as Google Analytics tracking scripts,
+that you want in the <head> of your HTML.
+Use Liquid logic tags to include only in certain outputs, e.g.
+`if site.output == "web"` for Google Analytics scripts.
+{% endcomment %}
+
+<!-- This site was built with the Electric Book template created by Electric Book Works (https://electricbookworks.com). -->
+{% if site.output == "web" %}
+<script src="https://www.youtube.com/iframe_api"></script>
+
+{% comment %}Using https://github.com/typekit/webfontloader{% endcomment %}
+<script>
+WebFontConfig = {
+     google: {
+         families: ['Crimson Pro:400,400i,700,700i', 'Source Sans Pro:400,400i,600,700,700i,700:latin-ext', 'Asap:400,400i,600,600i']
+     }
+};
+
+(function(d) {
+    var wf = d.createElement('script'), s = d.scripts[0];
+    wf.src = 'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.js';
+    wf.async = true;
+    s.parentNode.insertBefore(wf, s);
+})(document)
+</script>
+
+{% comment %} Add Google Analytics script when live config is used {% endcomment %}
+{% comment %} Exclude for all other builds, to avoid tracking from previews etc {% endcomment %}
+{% if site.build == 'live' %}
+<!-- Google Analytics 4 tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-64NM9TBYSL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-64NM9TBYSL');
+</script>
+{% endif %}
+
+  {% comment %}Load Typekit for Adobe Arabic if Farsi.
+  Currently using EBW's info@ Typekit account.{% endcomment %}
+  {% if site.build-language == nil or site.build-language == "fa" %}
+    {% if language == "fa" %}
+      <!--<link rel="stylesheet" href="https://use.typekit.net/gxg4tcv.css">-->
+    {% endif %}
+  {% endif %}
+
+{% comment %} Load BugHerd for author feedback {% endcomment %}
+{% if site.build != 'live' and site.data.settings.web.bugherd.enabled == true %}
+
+{% if page.bugherd-code != nil and page.bugherd-code != '' %}
+  {% assign bugherd-code = page.bugherd-code %}
+{% else %}
+  {% assign bugherd-code = site.data.settings.web.bugherd.api-key %}
+{% endif %}
+
+<script type="text/javascript" src="https://www.bugherd.com/sidebarv2.js?apikey={{ bugherd-code }}" async="true"></script>
+
+{% endif %}
+
+{% endif %}
+
+{% comment %}Load references as JS object for citations script
+which is included in main.js. This is currently only used by
+the Italian translation of TE1. {% endcomment %}
+{% if is-translation %}
+    {% if site.data.works.[book-directory].[language].references %}
+        <script>
+            var ebCitationReferences = {{ site.data.works.[book-directory].[language].references | jsonify }};
+        </script>
+    {% endif %}
+{% else %}
+    {% if site.data.works.[book-directory].references %}
+        <script>
+            var ebCitationReferences = {{ site.data.works.[book-directory].references | jsonify }};
+        </script>
+    {% endif %}
+{% endif %}

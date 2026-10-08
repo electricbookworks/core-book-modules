@@ -11,7 +11,7 @@ const path = require('path')
 // Folders to sync to parent package.
 // The shared _sass folder ships only the common `template` styles; each parent
 // keeps its book-specific `theme` styles in `_sass-custom/theme`.
-const FOLDERS_TO_SYNC = ['_tools', '_webpack', '_docs', '_app', '_sass']
+const FOLDERS_TO_SYNC = ['_tools', '_webpack', '_docs', '_app', '_sass', '_includes']
 
 let moduleRoot
 let parentRoot

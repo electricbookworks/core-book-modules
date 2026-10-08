@@ -1,0 +1,9 @@
+	{% unless is-homepage or is-search or is-translation-homepage or page.style contains "section" %}
+		{% include chapter-opener-image %}
+	{% endunless %}
+	
+	{% comment %}
+	Do not give the content element an ID.
+	It gets one during the PDF output process.
+	{% endcomment %}
+	<div class="content">

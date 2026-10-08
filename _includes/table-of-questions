@@ -1,0 +1,25 @@
+{% include metadata  %}
+{% assign questions = site.pages | where_exp: "page", "page.path contains 'book/text/question-'" %}
+
+<div class="table-of-questions-data" data-question-images-source="{{ site.data.settings.remote-media.live }}"></div>
+
+<table class="table-of-questions">
+    <thead>
+        <tr>
+            <th>Question</th>
+            <th>Correct answer</th>
+            <th>Feedback</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for question in questions %}
+            <tr>
+                <td class="question-content">{{ question.content | markdownify }}</td>
+                <td class="question-correct-options" data-correct="{{ question.correct | join | slugify }}">{{ question.correct }}</td>
+                <td class="answer-content">{{ question.content | markdownify }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script src="{{ path-to-root-directory }}assets/js/export-questions.js"></script>

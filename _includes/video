@@ -1,0 +1,130 @@
+{% capture video-html %}
+
+{% comment %}
+Currently supports youtube, bilibili, and vimeo
+
+- default
+    - show placeholder image
+- js
+    - listen for in-viewport
+    - switch for iframe
+{% endcomment %}
+
+{% include metadata %}
+
+{% comment %} Get video host; default is youtube {% endcomment %}
+{% assign video-host = "youtube" %}
+{% if include.host and include.host != "" %}
+    {% assign video-host = include.host %}
+{% endif %}
+
+{% comment %}Create a link to the video{% endcomment %}
+{% assign video-link = "" %}
+{% if video-host == "vimeo" %}
+    {% assign video-link = include.id | prepend: "https://vimeo.com/" %}
+{% elsif video-host == "bilibili" %}
+    {% assign video-link = include.id | prepend: "https://www.bilibili.com/video/" %}
+{% else %}
+    {% assign video-link = include.id | prepend: "https://youtube.com/watch?v=" %}
+{% endif %}
+
+{% comment %} Let link parameter override defaults {% endcomment %}
+{% if include.link %}
+    {% assign video-link = include.link %}
+{% endif %}
+
+{% comment %} Include the timestamp if there is one {% endcomment %}
+{% if include.start %}
+    {% if video-host == "vimeo" %}
+        {% comment %} Convert the seconds to Vimeo's XmXs format {% endcomment %}
+        {% capture video-timestamp-minutes %}{{ include.start | divided_by: "60" }}{% endcapture %}
+        {% capture video-timestamp-seconds %}{{ include.start | modulo: "60" }}{% endcapture %}
+
+        {% capture video-timestamp %}#t={{ video-timestamp-minutes }}m{{ video-timestamp-seconds }}s{% endcapture %}
+    {% elsif video-host == "bilibili" %}
+        {% capture video-timestamp %}&t={{ include.start }}{% endcapture %}
+    {% else %}
+        {% capture video-timestamp %}&start={{ include.start }}{% endcapture %}
+    {% endif %}
+{% endif %}
+
+{% comment %}If the host is YouTube, get an image for the video,
+then let the user override it by setting an image parameter.
+Epubs and apps aren't online, so don't fetch an image automatically.
+On Vimeo, it's not simple to get a Vimeo thumbnail.
+So an image must be specified to get a placeholder image.{% endcomment %}
+{% assign video-image = nil %}
+
+{% if video-host == "youtube" and site.output == "web" %}
+    {% capture video-image %}https://i1.ytimg.com/vi/{{ include.id }}/hqdefault.jpg{% endcapture %}
+{% endif %}
+
+{% if include.image %}
+    {% capture video-image %}{{ images }}/{{ include.image }}{% endcapture %}
+{% endif %}
+
+{% comment %}Get the language of the video, if subtitles are required.{% endcomment %}
+{% assign video-language = language %}
+{% if include.language %}
+    {% assign video-language = include.language %}
+{% endif %}
+
+{% comment %} Get the video options as an array {% endcomment %}
+{% if include.options %}
+    {% assign video-options-list = include.options | split: '*' %}
+{% endif %}
+
+<div class="video {{ video-host }}{% if include.class %} {{ include.class }}{% endif %}" {% if site.output == "web" or site.output == "app" %}data-video-id="{{ include.id }}"{% else %}id="{{ include.id }}"{% endif %} data-video-language="{{ video-language }}" {% if include.subtitles == "true" %}data-video-subtitles="true"{% endif %} {% if include.title %}data-title="{{ include.title }}"{% else %}data-title="{{ include.description }}"{% endif %} {% if include.resource-type %}data-resource-type="{{ include.resource-type }}"{% endif %} {% if include.education-level %}data-education-level="{{ include.education-level }}"{% endif %}>
+    <div class="video-wrapper">
+
+        {% if site.output == "web" or site.output == "app" %}
+            <div class="iframe-holder" id="{{ include.id }}"></div>
+        {% endif %}
+
+        <a class="video-link" href="{{ include.link }}" 
+        {% if include.class and include.class contains 'economist-in-action' %}
+            aria-labelledby="{{ include.id }}-description"
+        {% endif %}>
+        {% if include.image %}
+            <img src="{{ images }}/{{ include.image }}" role="presentation">
+        {% endif %}
+        </a>
+    </div>
+
+    {% if include.class and include.class contains 'economist-in-action' %}
+    <p id="{{ include.id }}-description" class="video-description">
+        {{ include.description | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}
+    </p>
+    {% endif %}
+
+        {% if site.output == "web" or site.output == "app" %}
+            {% if include.options and include.options != "" %}
+                <div class="video-options">
+                    <button class="video-options-button" type="button">
+                        {{ locale.video.options-button }}
+                        <span class="arrow-down">{% include icons/landing-page/arrow-down.svg %}</span>
+                        <span class="arrow-up visuallyhidden">{% include icons/landing-page/arrow-up.svg %}</span>
+                    </button>
+                    <div class="video-options-content">
+                        <ul>
+                            {% for item in video-options-list %}
+                                <li>{{ item | markdownify | replace: '<p>', '' | replace: '</p>', '' }}</li>
+                            {% endfor %}
+                            {% comment %} Videos get a YouTube option if the host is `youtube`. {% endcomment %}
+                            {% if include.host == "youtube" %}
+                                <li><a href="https://www.youtube.com/watch?v={{ include.id }}" target="_blank">{{ locale.video.youtube }}</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+        
+    {% unless include.class contains 'economist-in-action' %}
+    <p class="video-description">
+        <a href="{{ include.link }}">{{ include.description | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</a>
+    </p>
+    {% endunless %}
+</div>
+
+{% endcapture %}{{ video-html | strip_newlines | strip }}

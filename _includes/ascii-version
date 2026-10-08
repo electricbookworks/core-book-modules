@@ -1,0 +1,39 @@
+{% comment %}
+We want one place and one function where we can take things like ids, links,
+etc and replace characers with diacritics (à, è, ù etc) with ascii versions
+of those characters (a, e, u).
+
+This include needs to take a string as an argument (say the id) and return
+a cleaned up version of that string, by doing a big replace.
+{% endcomment %}
+
+{% capture string %}
+{{ include.string | 
+    replace: "â", "a" |
+    replace: "à", "a" |
+    replace: "á", "a" |
+    replace: "ä", "a" |
+    replace: "Â", "a" |
+    replace: "ç", "c" |
+    replace: "č", "c" |
+    replace: "é", "e" |
+    replace: "ê", "e" |
+    replace: "è", "e" |
+    replace: "ë", "e" |
+    replace: "É", "e" |
+    replace: "î", "i" |
+    replace: "ï", "i" |
+    replace: "í", "i" |
+    replace: "ľ", "l" |
+    replace: "ó", "o" |
+    replace: "ô", "o" |
+    replace: "ö", "o" |
+    replace: "û", "u" |
+    replace: "ù", "u" |
+    replace: "ü", "u" |
+    replace: "Ü", "U" |
+}}
+{% endcapture %}
+
+{% comment %}Return the clean string{% endcomment %}
+{{ string }}

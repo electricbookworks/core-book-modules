@@ -1,0 +1,55 @@
+{% comment %} This is a select, with links to all of the other versions of the homepage
+Assumes metadata include has already been called in index.md {% endcomment %}
+
+{% comment %} Create reusable base path variable {% endcomment %}
+{% capture base-path %}{% if site.baseurl and site.baseurl != "" %}/{{ site.baseurl }}/{% else %}/{% endif %}{% endcapture %}
+{% assign base-path = base-path | replace: "//", "/" %}
+
+<div class="landing-page-language-switcher">
+
+  <label for="translations" class="visuallyhidden">Choose a language</label>
+
+  {% include icons/language-select-icon.svg %}
+
+  <select name="translations" id="translations">
+    {% comment %} The language of the current page is shown first
+    The parent language needs to have a different treatment than the translations {% endcomment %}
+
+    {% if language == parent-language %}
+      <option value="{{ language }}" data-path="{{ base-path }}">{{ locale['local-name'] }}</option>
+    {% else %}
+      <option value="{{ language }}" data-path="{{ base-path }}{{ language }}/index.html">{{ locale['local-name'] }}</option>
+    {% endif %}
+
+    {% comment %} Then all available translations {% endcomment %}
+    {% for translation in languages %}
+
+      {% comment %} Check if this translation
+      has been excluded in config. It could have been
+      included in various forms, so we check for several. {% endcomment %}
+      {% assign exclude-this-translation = false %}
+
+      {% capture site-excludes-string-variants %}{{ translation }},/{{ translation }}/,{{ translation }}/,{{ translation }}/*,/{{ translation }}/*{% endcapture %}
+      {% assign site-excludes-string-variants = site-excludes-string-variants | split: "," %}
+      {% for variant in site-excludes-string-variants %}
+        {% if site.exclude contains variant %}
+            {% assign exclude-this-translation = true %}
+        {% endif %}
+      {% endfor %}
+
+      {% comment %} Skip this translation if it's excluded. {% endcomment %}
+      {% if exclude-this-translation %}
+          {% continue %}
+      {% endif %}
+
+      {% unless translation == language  %}
+        {% if translation == parent-language %}
+          <option value="{{ translation }}" data-path="{{ base-path }}">{{ locales[translation]['local-name'] }}</option>
+        {% else %}
+          <option value="{{ translation }}" data-path="{{ base-path }}{{ translation }}/index.html">{{ locales[translation]['local-name'] }}</option>
+        {% endif %}
+      {% endunless %}
+    {% endfor %}
+  </select>
+
+</div>
