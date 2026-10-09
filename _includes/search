@@ -28,7 +28,7 @@ don't include it again to avoid unnecessary looping.{% endcomment %}
 <form class="search" action="{{ search-form-action-url }}" method="get" target="_blank">
   <label for="search-box" class="visuallyhidden">{{ locale.search.search-title }}</label>
   <input id="search-language" type="hidden" name="lang" value="{{ language }}">
-<input type="text" size="1" id="search-box{{ include.id-suffix }}" class="search-box" name="{{ search-form-action-url-parameter }}" placeholder="{% if page.style contains 'landing-page' %}{{ locale.search.search-title }}{% else %}{{ locale.search.placeholder }}{% endif %}">
+  <input type="text" size="1" id="search-box{{ include.id-suffix }}" class="search-box" name="{{ search-form-action-url-parameter }}" placeholder="{% if page.style contains 'landing-page' %}{{ locale.search.search-title }}{% else %}{{ locale.search.placeholder }}{% endif %}">
   <input type="submit" class="search-submit" value="{{ locale.search.search-title }}">
 
   {% comment %} Add any extra custom parameters to the search string. {% endcomment %}
