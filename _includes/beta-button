@@ -1,0 +1,42 @@
+{% capture beta-button-html %}
+
+{% comment %}
+Adds a 'Beta' button that points to a contact form,
+if beta is enabled in settings.yml.
+{% endcomment %}
+
+{% include metadata %}
+{% if is-root-directory %}
+	{% if site.build-language and site.build-language != "" %}
+		{% assign locale = site.data.locales[site.build-language] %}
+	{% else %}
+		{% assign locale = site.data.locales[site.data.meta.series.language] %}
+	{% endif %}
+{% endif %}
+
+{% comment %}Check if this page's languages is enabled in settings.yml,
+Remember 'language' is set in _includes/metadata.{% endcomment %}
+{% for beta-enabled-language in site.data.settings.beta-enabled %}
+	{% if beta-enabled-language == language %}
+		{% assign beta-enabled-for-page = true %}
+	{% endif %}
+{% endfor %}
+
+{% if site.data.settings.beta-enabled == true or beta-enabled-for-page == true %}
+
+	{% assign beta-link = "{{ locale.beta.link }}" %}
+	{% if include.link %}
+		{% assign beta-link = {{ include.link }} %}
+	{% endif %}
+
+{% comment %} Not indented to avoid being a markdown code block. {% endcomment %}
+<span class="beta-button">
+	<span class="button">{{ locale.beta.label }}</span>
+	<span class="beta-information">
+		{{ locale.beta.message | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}
+	</span>
+</span>
+
+{% endif %}
+
+{% endcapture %}{{ beta-button-html | strip_newlines | strip }}

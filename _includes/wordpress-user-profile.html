@@ -1,0 +1,10 @@
+<div class="menu-user-profile">
+  <div class="buttons">
+      <a class="register" target="_self" href="{{ site.auth-site-url }}/register?lang={{ language }}&redirect_to={{ page.url | prepend: site.baseurl | prepend: site.domain }}">{{ site.data.locales[language].account.register }}</a>
+      <a class="login" target="_self" href="/login{{ site.baseurl | replace: 'instructors-preview', 'instructors' }}{{ page.url }}">{{ site.data.locales[language].account.login }}</a>
+  </div>
+
+  <div class="avatar visuallyhidden">
+      <a href="{{ site.auth-site-url }}/account/">{% include icons/avatar-icon.svg %}</a>
+  </div>
+</div>

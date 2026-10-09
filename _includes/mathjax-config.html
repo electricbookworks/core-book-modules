@@ -1,0 +1,151 @@
+{% comment %}
+Mathjax configuration
+---------------------
+
+- PDF outputs use mathjax-node-page to turn LaTeX into MathML, which Prince
+  can display as-is, so we don't need MathJax JS for PDF output.
+- Epub reader support for MathML is spotty. So we continue to
+  provide a local MathJax.js that generates SVG maths in the reader.
+- App output will render in a webview, where the underlying browser
+  may not support MathML. So we need local MathJax.js to display it.
+- For web output, most browsers do not support MathML, so we need MathJax
+  to render maths.
+{% endcomment %}
+
+
+{% comment %}
+MathJax config for local MathJax with SVG output.
+Not used for PDF outputs, which are handled by gulp-mathjax-page.
+{% endcomment %}
+{% unless site.output == "print-pdf" or site.output == "screen-pdf" %}
+
+    {% if site.output == "epub" or site.output == "app" or site.data.settings.web.mathjax.source == "local" %}
+
+        <!--See https://www.peterkrautzberger.org/0129/ -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                jax: ["input/TeX", "output/SVG"],
+                extensions: ["tex2jax.js", "MathEvents.js"],
+                TeX: {
+                    extensions: ["noErrors.js", "noUndefined.js", "autoload-all.js"]
+                },
+                MathMenu: {
+                    showRenderer: false
+                },
+                menuSettings: {
+                    zoom: "Click"
+                },
+                messageStyle: "none",
+                SVG: {
+                    blacker: 0,
+                    font: "Gyre-Pagella",
+                    linebreaks: {
+                        automatic: true,
+                        width: "container"
+                    },
+                    scale: 85
+                }
+            });
+            MathJax.Hub.Queue(function () {
+                document.body.setAttribute('data-mathjax-rendered', 'true')
+            })
+        </script>
+
+        {% comment %} Link to local MathJax script.
+        Note the space in the script element, necessary to prevent
+        Cheerio from collapsing this to a self-closing tag. {% endcomment %}
+        <script type="text/javascript" src="{{ path-to-root-directory }}assets/js/mathjax/MathJax.js"> </script>
+
+    
+
+    {% comment %} MathJax 4 from the CDN (not local), with CHTML output and
+    the Gyre Pagella font. CHTML renders selectable HTML text and sizes glyphs
+    from baked-in font metrics rather than measuring the DOM, so it avoids the
+    old HTML-CSS zero-width race. MathJax 4 configuration uses a global MathJax
+    object set before the loader script. {% endcomment %}
+    {% else %}
+
+        {% comment %} For Persian, we've found that the full MathJax
+        breaks lettering, while the preview reads fine. So this config
+        explicitly only loads the PreviewHTML jax from the CDN. {% endcomment %}
+        {% if language == "fa" %}
+
+            <script id="MathJaxConfig" type="text/x-mathjax-config" >
+                MathJax.Hub.Config({
+                    messageStyle: "none",
+                    jax: ["input/TeX","output/PreviewHTML"],
+                    PreviewHTML: {}
+                });
+            </script>
+
+            <script id="MathJax"
+                src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js">
+            </script>
+
+        {% comment %} For Korean, CHTML output gives the best appearance on web -
+        SVG has scaling issues, HTML-CSS has centering issues, HTMLPreview has
+        maths rendering issues. {% endcomment %}
+        {% elsif language == "ko" %}
+        <script id="MathJaxConfig" type="text/x-mathjax-config" >
+            MathJax.Hub.Config({
+                messageStyle: "none",
+                jax: ["input/TeX","output/CommonHTML"],
+                extensions: ["tex2jax.js", "MathEvents.js"],
+                CommonHTML: {
+                    mtextFontInherit: true,
+                    linebreaks: {
+                        automatic: true,
+                        width: "container"
+                    },
+                    matchFontHeight: false
+                }
+            });
+            MathJax.Hub.Queue(function () {
+                document.body.setAttribute('data-mathjax-rendered', 'true')
+            })
+        </script>
+
+        <script id="MathJax"
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js">
+        </script> 
+
+        {% else %}
+
+            <script id="MathJaxConfig">
+                window.MathJax = {
+                    loader: {
+                        load: ["[tex]/noerrors", "[tex]/noundefined"]
+                    },
+                    tex: {
+                        {% comment %} Single $ is not a math delimiter, so currency like $5 is safe. {% endcomment %}
+                        inlineMath: [["\\(", "\\)"]],
+                        displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+                        packages: { "[+]": ["noerrors", "noundefined"] }
+                    },
+                    chtml: {
+                        scale: 0.9,
+                        mtextInheritFont: true,
+                        matchFontHeight: false
+                    },
+                    output: {
+                        font: "mathjax-pagella"
+                    },
+                    startup: {
+                        pageReady: function () {
+                            return MathJax.startup.defaultPageReady().then(function () {
+                                document.body.setAttribute('data-mathjax-rendered', 'true')
+                            })
+                        }
+                    }
+                }
+            </script>
+
+            <script id="MathJax" defer
+                src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml-nofont.js">
+            </script>
+
+        {% endif %}
+
+    {% endif %}
+
+{% endunless %}
