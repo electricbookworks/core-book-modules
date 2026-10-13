@@ -5,11 +5,9 @@ math {
 }
 
 // Properly hide MathJax_Display when visuallyhidden
-.MathJax_Display, .mjpage__block, .MathJax_SVG_Display {
+.MathJax, .MathJax_Display, .mjpage__block, .MathJax_SVG_Display {
   &.visuallyhidden {
-    margin: 0;
-    overflow: hidden; // avoids scrollbar showing when hidden
-    width: 0;
+    @include visuallyhidden;
   }
 }
 
