@@ -1,7 +1,7 @@
 {
-  "name": "core-the-economy-2-electron-app",
+  "name": "electric-book-electron-app",
   "version": "1.0.0",
-  "description": "Electron app framework for CORE Econ's The Economy 2.0",
+  "description": "Electron app framework for Electric Books",
   "main": "index.js",
   "scripts": {
     "start": "electron-forge start",
