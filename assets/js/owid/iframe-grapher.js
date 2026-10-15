@@ -12,8 +12,27 @@ const id = window.ebOwidId
 const book = window.ebOwidBook
 const baseUrl = `${externalMedia || ''}/${book}/data/owid/${id}`
 
+const columnRenames = {
+  entity: 'entityName',
+  code: 'entityCode',
+  id: 'entityId'
+}
+
+const normaliseCsvHeader = csv => {
+  const newlineIndex = csv.indexOf('\n')
+  if (newlineIndex === -1) return csv
+  const header = csv.slice(0, newlineIndex)
+  const rest = csv.slice(newlineIndex)
+  const newHeader = header
+    .split(',')
+    .map(column => columnRenames[column] || column)
+    .join(',')
+  return newHeader + rest
+}
+
 const prepareData = async () => {
-  const csvUrl = `${baseUrl}/data.csv`
+  const csvRaw = await (await fetch(`${baseUrl}/data.csv`)).text()
+  const csv = normaliseCsvHeader(csvRaw)
   const configRaw = await (await fetch(`${baseUrl}/config.json`)).json()
   const columnIds = configRaw.dimensions.map(d => d.variableId)
   const columnPromises = columnIds.map(columnId => fetch(`${baseUrl}/${columnId}.metadata.json`).then(res => res.json()))
@@ -30,13 +49,13 @@ const prepareData = async () => {
     const dimension = config.dimensions.find(d => d.variableId === columnDef.id)
     if (dimension) dimension.slug = columnDef.shortName
   })
-  return { config, csvUrl, columnDefs }
+  return { config, csv, columnDefs }
 }
 
-prepareData().then(({ config, csvUrl, columnDefs }) => {
+prepareData().then(({ config, csv, columnDefs }) => {
   GrapherLoader.fromCsv({
     config,
-    csvUrl,
+    csv,
     columnDefs
   }).mount(document.getElementById('owid-mount'))
 })
