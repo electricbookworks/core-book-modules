@@ -1,0 +1,15 @@
+<div class="chapter-opener-wrapper">
+  <h1
+    {% if include.short-title and include.short-title != "" %}
+      title="{{ include.short-title }}"
+    {% endif %}>
+    <strong>{{ include.pre-title }}</strong>
+    {{ include.title }}
+  </h1>
+
+  {% if include.subheadline != nil %}
+    <p class="subheadline">
+      {{ include.subheadline }}
+    </p>
+  {% endif %}
+</div>

@@ -1,0 +1,557 @@
+<!-- BANNER -->
+<div class="landing-page-banner">
+
+  <!-- IMAGE -->
+  <div class="landing-page-banner-image-wrapper">
+    <img src="{{ external-media }}assets/images/{{ site.output }}/books.png" alt="Mockup of two printed books" />
+  </div>
+
+  <!-- BANNER HEADLINE -->
+  <div class="landing-page-banner-top">
+
+    <div class="landing-page-banner-top-text">
+      <h1>The Economy 2.0</h1>
+
+      <p class="p1">Economics for a changing world</p>
+
+      <p class="p2">An open-access textbook for any first course in economics, whether principles, micro, or macro.</p>
+
+      <a href="{{ path-to-root-directory }}microeconomics/0-3-contents.html" class="button button-filled">Read The Economy 2.0: Microeconomics</a>
+      {% unless site.output == "app" %}<a href="{{ path-to-root-directory }}macroeconomics/0-3-contents.html" class="button button-filled">Read The Economy 2.0: Macroeconomics</a>{% endunless %}
+      {% unless site.output == "app" %}<a href="{{ path-to-root-directory }}v1/index.html" class="button button-dark">Read The Economy 1.0</a>{% endunless %}
+    </div>  
+
+  </div>
+  <!-- landing-page-banner-top -->
+
+  <!-- BANNER SUBHEADLINE -->
+  <div class="landing-page-banner-bottom">
+    
+    <p class="p2"><em>The Economy</em> 2.0 is a complete introduction to economics and the economy. It’s student-centred and motivated by real-world problems and real-world data. <em>The Economy</em> 1.0, CORE Econ’s original textbook, is still available.</p>
+  
+  </div>
+  <!-- landing-page-banner-bottom -->
+
+</div>
+<!-- landing-page-banner -->
+
+<!-- BODY -->
+<div class="landing-page-body">
+
+  <!-- SIDEBAR -->
+  <nav id="landing-page-nav" class="invisible" role="navigation" aria-label="landing page navigation">
+    <ul>
+      <li>{% include search %}</li>
+      <li><a class="p4" href="#ebook-features">Ebook features</a></li>
+      <li><a class="p4" href="#contents">Contents</a></li>
+      <li><a class="p4" href="#formats">Formats</a></li>
+      <li><a class="p4" href="#extra-resources">Extra instructor & learner resources</a></li>
+      <li><a class="p4" href="#behind-the-book">Behind the book</a></li>
+    </ul>
+  </nav>
+
+  <!-- CONTENT -->
+  <div class="landing-page-content">
+
+    <!-- FEATURES -->
+    <div class="landing-page-flex-section landing-page-flex-section-closed landing-page-flex-section-carousel">
+
+      <!-- H2 -->
+      <h2 id="ebook-features">
+        <button class="landing-page-accordion-head">
+          <span>Ebook features</span>
+          <span class="arrow-up visuallyhidden">{% include icons/landing-page/arrow-up.svg %}</span>
+          <span class="arrow-down">{% include icons/landing-page/arrow-down.svg %}</span>
+        </button>
+      </h2>
+      
+      <!-- BUTTON -->
+      <a href="https://www.core-econ.org/comparing-offline-ebook-access-formats/" class="button button-empty">See features across all formats</a>
+
+      <!-- FLEX CONTAINER -->
+      <div class="landing-page-flex-section-container carousel-container">
+
+        <!-- ITEM -->
+        <div class="landing-page-flex-section-item carousel-item">
+          {% include icons/landing-page/interactive-questions.svg %}
+          <h3>Interactive questions</h3>
+          <p class="p4">Check your understanding with instant feedback and extra guidance.</p>
+        </div>
+        <!-- landing-page-flex-section-item -->
+
+        <!-- ITEM -->
+        <div class="landing-page-flex-section-item carousel-item">
+          {% include icons/landing-page/interactive-charts.svg %}
+          <h3>Interactive charts</h3>
+          <p class="p4">Analyse the story behind the data with interactive charts.</p>
+        </div>
+        <!-- landing-page-flex-section-item -->
+
+        <!-- ITEM -->
+        <div class="landing-page-flex-section-item carousel-item">
+          {% include icons/landing-page/step-by-step-figures.svg %}
+          <h3>Step-by-step figures</h3>
+          <p class="p4">Grasp complex ideas by stepping through our simple slidelines.</p>
+        </div>
+        <!-- landing-page-flex-section-item -->
+
+        <!-- ITEM -->
+        <div class="landing-page-flex-section-item carousel-item">
+          {% include icons/landing-page/videos-and-transcripts.svg %}
+          <h3>Videos and transcripts</h3>
+          <p class="p4">Engage with economists in action in high-quality video, with transcripts in multiple languages.</p>
+        </div>
+        <!-- landing-page-flex-section-item -->
+
+        <!-- ITEM -->
+        <div class="landing-page-flex-section-item carousel-item">
+          {% include icons/landing-page/pop-up-definitions.svg %}
+          <h3>Pop-up definitions</h3>
+          <p class="p4">Click on key terms to see instant definitions without losing your place.</p>
+        </div>
+        <!-- landing-page-flex-section-item -->
+
+        <!-- ITEM -->
+        <div class="landing-page-flex-section-item carousel-item">
+          {% include icons/landing-page/bookmarks-and-notes.svg %}
+          <h3>Bookmarks and notes</h3>
+          <p class="p4">Save your place with bookmarks and make notes with a free CORE account.</p>
+        </div>
+        <!-- landing-page-flex-section-item -->
+
+        <!-- ITEM -->
+        <div class="landing-page-flex-section-item carousel-item">
+          {% include icons/landing-page/index-of-concepts.svg %}
+          <h3>Index of concepts</h3>
+          <p class="p4">Want to see every place a concept is covered? Use the concept index, whether on the web or in print.</p>
+        </div>
+        <!-- landing-page-flex-section-item -->
+      
+      </div>
+      <!-- landing-page-flex-section-container -->
+
+    </div>
+    <!-- landing-page-flex-section -->
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="landing-page-toc">
+
+      <!-- H2 -->
+      <h2 id="contents">The Economy 2.0</h2>
+
+      <!-- SECTION -->
+      <div class="landing-page-toc-section landing-page-toc-section-closed">
+        
+        <h3 id="microeconomics-section">
+          <button class="landing-page-accordion-head">
+            <span>Microeconomics – Actors, Institutions, and Outcomes</span>
+            <span class="arrow-up visuallyhidden">{% include icons/landing-page/arrow-up.svg %}</span>
+            <span class="arrow-down">{% include icons/landing-page/arrow-down.svg %}</span>
+          </button>
+        </h3>
+        
+        <!-- BUTTON -->
+        <a href="{{ path-to-root-directory }}microeconomics/0-3-contents.html" class="button button-empty">Full table of contents</a>
+
+        <!-- FLEX CONTAINER -->
+        <div class="landing-page-toc-flex-section">
+
+          {% include landing-page/toc-item
+            link="microeconomics/0-4-preface.html"
+            image="micro-preface-header"
+            alt-text="Building a scaffold with bamboo in Hong Kong. "
+            unit-number="Preface"
+            unit-title="We're changing the way economics is taught"
+            description="Learn more about our mission and what makes *The&nbsp;Economy*&nbsp;2.0 a unique textbook."
+            class="landing-page-preface"
+          %}
+
+          {% include landing-page/toc-item
+            link="microeconomics/01-prosperity-inequality-01-ibn-battuta.html"
+            image="micro-unit-01-header"
+            alt-text="A giant bushfire burning out of control near Cape Town, South Africa in 2009"
+            unit-number="Unit 1"
+            unit-title="Prosperity, inequality, and planetary limits"
+            description="How capitalism revolutionized the way we live, and how economics attempts to understand this and other economic systems."
+          %}
+
+          {% include landing-page/toc-item
+            link="microeconomics/02-technology-incentives-01-kutesmart-tailoring.html"
+            image="micro-unit-02-header"
+            alt-text="Production of made-to-measure suits, at the KuteSmart firm in Shandong, China."
+            unit-number="Unit 2"
+            unit-title="Technology and incentives"
+            description="How improvements in technology happen, and how they sustain growth in living standards."
+          %}
+        
+          {% include landing-page/toc-item
+            link="microeconomics/03-scarcity-wellbeing-01-work-fewer-hours.html"
+            image="micro-unit-03-header"
+            alt-text="Commuters rushing to work across Reuters Square"
+            unit-number="Unit 3"
+            unit-title="Doing the best you can: Scarcity, wellbeing, and working hours"
+            description="How individuals do the best they can within the options available, and how they resolve the trade-off between earnings and free time."
+          %}
+          
+          {% include landing-page/toc-item
+            link="microeconomics/04-strategic-interactions-01-climate-negotiations.html"
+            image="micro-unit-04-header"
+            alt-text="Irrigated Rice Terrace Fields in Yuanyang County, Yunnan Province, China"
+            unit-number="Unit 4"
+            unit-title="Strategic interactions and social dilemmas"
+            description="How, when social dilemmas arise from self-interested behaviour, a combination of social norms, a regard for the wellbeing of others, and appropriate institutions may lead to more desirable social outcomes."
+          %}
+          
+          {% include landing-page/toc-item
+            link="microeconomics/05-the-rules-of-the-game-01-pirate-economics.html"
+            image="micro-unit-05-header"
+            alt-text="Suffragettes on their way to Boston"
+            unit-number="Unit 5"
+            unit-title="The rules of the game: Who gets what and why"
+            description="How institutions influence the fairness and efficiency of the outcomes that result when people interact in the economy."
+          %}
+
+          {% include landing-page/toc-item
+            link="microeconomics/06-firm-and-employees-01-exploding-tyres.html"
+            image="micro-unit-06-header"
+            alt-text="Woman working late from home"
+            unit-number="Unit 6"
+            unit-title="The firm and its employees"
+            description="How the interactions among the firm’s owners, managers, and employees influence wages, work, and profits, and how this affects the entire economy."
+          %}
+
+          {% include landing-page/toc-item
+            link="microeconomics/07-firm-and-customers-01-winning-brands.html"
+            image="micro-unit-07-header"
+            alt-text="Shelves full of bottled water for sale in supermarket"
+            unit-number="Unit 7"
+            unit-title="The firm and its customers"
+            description="How a profit-maximizing firm producing a differentiated product interacts with its customers."
+          %}
+
+          {% include landing-page/toc-item
+            link="microeconomics/08-supply-demand-01-american-civil-war.html"
+            image="micro-unit-08-header"
+            alt-text="People buying vegetables from a vegetable market, Municipal Market, Panaji, North Goa, India"
+            unit-number="Unit 8"
+            unit-title="Supply and demand: Markets with many buyers and sellers"
+            description="How markets work in competitive equilibrium, when all buyers and sellers act as price-takers."
+          %}
+          
+          {% include landing-page/toc-item
+            link="microeconomics/09-lenders-borrowers-01-chambar-moneylenders.html"
+            image="micro-unit-09-header"
+            alt-text="A pawnbroker's building in Detroit, Michigan."
+            unit-number="Unit 9"
+            unit-title="Lenders and borrowers and differences in wealth"
+            description="How borrowing and lending expand opportunities for mutual gain, and the factors that limit their capacity to accomplish this."
+          %}
+
+          {% include landing-page/toc-item
+            link="microeconomics/10-market-successes-failures-01-bananas-fish-cancer.html"
+            image="micro-unit-10-header"
+            alt-text="Pacific ocean and plastic waste"
+            unit-number="Unit 10"
+            unit-title="Market successes and failures: The societal effects of private decisions"
+            description="How credit, money, and banks expand opportunities for mutual gain, and the factors that limit their capacity to accomplish this."
+          %}
+
+        </div>
+        <!-- landing-page-toc-flex-section -->
+
+      </div>
+      <!-- landing-page-toc-section -->
+
+      <!-- SECTION -->
+      {% unless site.output == "app" %}
+      <div class="landing-page-toc-section landing-page-toc-section-closed">
+
+        <h3 id="macroeconomics-section">
+          <button class="landing-page-accordion-head">
+            <span>Macroeconomics – Employment, Growth, and Fluctuations</span>
+            <span class="arrow-up visuallyhidden">{% include icons/landing-page/arrow-up.svg %}</span>
+            <span class="arrow-down">{% include icons/landing-page/arrow-down.svg %}</span>
+          </button>
+        </h3>
+
+        <!-- BUTTON -->
+        <a href="{{ path-to-root-directory }}macroeconomics/0-3-contents.html" class="button button-empty">Full table of contents</a>
+
+        <!-- FLEX CONTAINER -->
+        <div class="landing-page-toc-flex-section">
+          
+          {% include landing-page/toc-item
+            link="macroeconomics/01-supply-side-macroeconomy-01-jobs-wages.html"
+            image="macro-unit-01-header"
+            alt-text="Deda Chicken Processing Plant, Dehui City, Jilin Province, China, 2005."
+            unit-number="Unit 1"
+            unit-title="The supply side of the macroeconomy: Unemployment and real wages"
+            description="How equilibrium in the economy-wide market for labour determines wages, employment, and the rate of unemployment."
+          %}
+
+          {% include landing-page/toc-item
+            link="macroeconomics/02-unemployment-wages-inequality-01-scarred-generation.html"
+            image="macro-unit-02-header"
+            alt-text="This protest in Niagara Falls, Canada was organized to protest cuts to education being proposed by the government of the province."
+            unit-number="Unit 2"
+            unit-title="Unemployment, wages, and inequality: Supply-side policies and institutions"
+            description="How differences in institutions, policies, and shocks affect macroeconomic
+            outcomes."
+          %}
+          
+          {% include landing-page/toc-item
+            link="macroeconomics/03-aggregate-demand-01-great-recession-hardship.html"
+            image="macro-unit-03-header"
+            alt-text="Under construction, West Brunswick, Victoria."
+            unit-number="Unit 3"
+            unit-title="Aggregate demand and the multiplier model"
+            description="How economies fluctuate between booms and recessions as they are
+            continuously hit by good and bad shocks."
+          %}
+          
+          {% include landing-page/toc-item
+            link="macroeconomics/04-inflation-and-employment-01-cost-of-living-crisis.html"
+            image="macro-unit-04-header"
+            alt-text="The response of a London eatery to rapidly rising prices in 2023: the sign says 'All you can eat for...', leaving the price blank."
+            unit-number="Unit 4"
+            unit-title="Inflation and unemployment"
+            description="How fluctuations in aggregate demand and changes on the supply side of
+            the economy affect inflation and unemployment."
+          %}
+
+          {% include landing-page/toc-item
+            link="macroeconomics/05-macroeconomic-policy-01-government-popularity-inflation-unemployment.html"
+            image="macro-unit-05-header"
+            alt-text="The Reserve Bank of New Zealand—a pioneer in inflation-targeting monetary policy."
+            unit-number="Unit 5"
+            unit-title="Macroeconomic policy: Inflation and unemployment"
+            description="How governments can moderate costly fluctuations in employment and inflation."
+          %}
+
+          {% include landing-page/toc-item
+            link="macroeconomics/00-coming-soon.html"
+            image="macro-preface-header"
+            alt-text="Aerial view of skyscrapers alongside small houses."
+            unit-number="Units 6–10"
+            unit-title="Coming soon"
+            description="Units 6–10 of the macroeconomics volume will be available in autumn 2024."
+          %}
+
+          <!-- {% include landing-page/toc-item
+            link="macroeconomics/06.html"
+            image="micro-unit-06-header"
+            alt-text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            unit-number="6"
+            unit-title="The nation and the world economy"
+            description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          %}
+          
+          {% include landing-page/toc-item
+            link="macroeconomics/07.html"
+            image="micro-unit-07-header"
+            alt-text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            unit-number="7"
+            unit-title="Economic inequality"
+            description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          %}
+
+          {% include landing-page/toc-item
+            link="macroeconomics/08.html"
+            image="micro-unit-08-header"
+            alt-text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            unit-number="8"
+            unit-title="Economics of the environment"
+            description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          %}
+
+          {% include landing-page/toc-item
+            link="macroeconomics/09.html"
+            image="micro-unit-09-header"
+            alt-text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            unit-number="9"
+            unit-title="Innovation, information, and the networked economy"
+            description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          %}
+
+          {% include landing-page/toc-item
+            link="macroeconomics/10.html"
+            image="micro-unit-10-header"
+            alt-text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            unit-number="10"
+            unit-title="Economics, politics, and public policy"
+            description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+          %} -->
+
+        </div>
+        <!-- landing-page-toc-flex-section -->
+
+      </div>
+      {% endunless %}
+      <!-- landing-page-toc-section -->
+    
+    </div>
+
+    <!-- FORMATS -->
+    <div class="landing-page-flex-section">
+
+      <!-- H2 -->
+      <h2 id="formats">Formats</h2>
+
+      <!-- BUTTON -->
+      <a href="https://www.core-econ.org/comparing-offline-ebook-access-formats/" class="button button-empty">Compare features across formats</a>
+
+      <!-- FLEX CONTAINER -->
+      <div class="landing-page-flex-section-container no-carousel">
+
+        <!-- ITEM -->
+        <a href="{{ path-to-root-directory }}microeconomics/01-prosperity-inequality-01-ibn-battuta.html" class="landing-page-flex-section-item">
+          {% include icons/landing-page/free-to-read-online.svg %}
+          <h3>Free-to-read online</h3>
+          <p class="p4"><em>The Economy</em> is free for anyone to read online. Jump to unit 1 now.</p>
+        </a>
+        <!-- landing-page-flex-section-item -->
+
+        <!-- ITEM -->
+        <a href="https://www.core-econ.org/how-to-get-the-economy-2-0-print-book/" class="landing-page-flex-section-item">
+          {% include icons/landing-page/buy-the-print-textbook.svg %}
+          <h3>Buy the print textbook</h3>
+          <p class="p4">If you like to learn on paper, or want a copy for yourself or your library, you can buy the full-colour print edition.</p>
+        </a>
+        <!-- landing-page-flex-section-item -->
+
+        {% unless site.output == "app" %}
+        <!-- ITEM -->
+        <div class="landing-page-flex-section-item">
+          {% include icons/landing-page/install-the-app.svg %}
+          <h3>Install the app</h3>
+          <p class="p4">The apps for <em>The Economy 2.0</em> are coming soon.</p>
+        </div>
+        <!-- landing-page-flex-section-item -->
+        {% endunless %}
+
+        <!-- ITEM -->
+        <div class="landing-page-flex-section-item">
+          {% include icons/landing-page/download-the-free-ebook.svg %}
+          <h3>Download the free ebook</h3>
+          <p class="p4">The .epub edition of <em>The Economy 2.0</em> is coming soon.</p>
+        </div>
+        <!-- landing-page-flex-section-item -->
+
+
+        <!-- ITEM -->
+        <!-- <div class="landing-page-flex-section-item">
+          {% include icons/landing-page/download-the-pdf-online.svg %}
+          <h3>Download the PDF online</h3>
+          <p class="p4">The PDF for <em>The Economy 2.0</em> is coming soon.</p>
+        </div> -->
+        <!-- landing-page-flex-section-item -->
+
+      </div>
+      <!-- landing-page-flex-section-container -->
+
+    </div>
+    <!-- landing-page-flex-section -->
+
+    <!-- RESOURCES -->
+    <div class="landing-page-flex-section">
+      <h2 id="extra-resources">Extra instructor & learner resources</h2>
+
+      <!-- BUTTON -->
+      <a href="https://www.core-econ.org/resources/" class="button button-empty">See more resources</a>
+
+      <!-- FLEX CONTAINER -->
+      <div class="landing-page-flex-section-container no-carousel">
+
+        <!-- ITEM -->
+        <a href="https://core-econ.org/test-bank/" class="landing-page-flex-section-item">
+          {% include icons/landing-page/test-bank.svg %}
+          <h3>Test bank</h3>
+          <p class="p4">Browse and try over 900 MCQs, and export them for Canvas or Moodle.</p>
+        </a>
+        <!-- landing-page-flex-section-item -->
+
+        <!-- ITEM -->
+        <a href="https://www.core-econ.org/teaching-community/" class="landing-page-flex-section-item">
+          {% include icons/landing-page/teaching-community.svg %}
+          <h3>Teaching community</h3>
+          <p class="p4">Learn from and share with others teaching with CORE.</p>
+        </a>
+        <!-- landing-page-flex-section-item -->
+
+        <!-- ITEM -->
+        <a href="https://jackblun.github.io/Globalinc/" class="landing-page-flex-section-item">
+          {% include icons/landing-page/visualising-global-inequality.svg %}
+          <h3>Visualising global inequality</h3>
+          <p class="p4">Explore how income distribution within and between countries has changed over time.</p>
+        </a>
+        <!-- landing-page-flex-section-item -->
+
+      </div>
+      <!-- landing-page-flex-section-container -->
+    
+    </div>
+    <!-- landing-page-flex-section -->
+    
+    <!-- BOTTOM -->
+    <div class="landing-page-bottom">
+
+      <!-- BEHIND THE BOOK -->
+      <div class="landing-page-behind-the-book">
+        {% include video
+          host="youtube"
+          id="iNNTkLZSwro"
+          link="#iNNTkLZSwro"
+          title="Professor Wendy Carlin (UCL and Director of CORE) provides an overview of the CORE Project and textbooks and resources available for free from https://www.core-econ.org."
+        %}
+      
+        <div class="landing-page-behind-text-container">
+          <h2 id="behind-the-book">Behind the book</h2>
+
+          <p class="p2">We are a cooperative of knowledge producers committed to free digital access to <em>The Economy</em>.</p>
+
+          <p class="p4">We want as many people as possible to be able to reason about, and act to address, the challenges of the twenty-first century economy, society, and biosphere. Our hope is that the best of economics can become part of how all citizens understand and seek to address the problems that we confront.</p>
+
+          <a href="{{ path-to-root-directory }}microeconomics/0-4-preface.html" class="button button-dark">Read more about the book</a>
+        </div>
+      
+      </div>
+      <!-- landing-page-behind-the-book -->
+
+      <!-- CONTRIBUTORS -->
+      <div class="landing-page-contributors-container">
+
+        {% include landing-page/contributor
+          image="camila"
+          alt-text="Thumbnail portrait of Camila Cea"
+          statement="We want to change the way economics is taught. Students in economics all over the world are asking: “Why has the subject of economics become detached from our experience of real life?”"
+          name="Camila Cea"
+          affiliation="University of Chile" 
+        %}
+        
+        {% include landing-page/contributor
+          image="wendy"
+          alt-text="Thumbnail portrait of Wendy Carlin"
+          statement="New problems now challenge introductory courses: mounting inequalities, climate change, concerns about the future of work, and financial instability. The tools to address them are available, can be accessible, engaging, and coherent to first-year students."
+          name="Wendy Carlin"
+          affiliation="UCL, CORE director" 
+        %}
+        
+        {% include landing-page/contributor
+          image="sam"
+          alt-text="Thumbnail portrait of Samuel Bowles"
+          statement="People today think that economics should be addressing inequality, climate change, instability, the future of work, and innovation. But none of these issues play any substantial role in what our introductory economics students are learning."
+          name="Samuel Bowles"
+          affiliation="Santa Fe Institute, CORE author" 
+        %}
+
+      </div>
+      <!-- landing-page-contributors-container -->
+
+      <a href="{{ path-to-root-directory }}microeconomics/0-6-contributors.html" class="button button-dark centre">See all contributors</a>
+    
+    </div>
+    <!-- landing-page-bottom -->
+  </div>
+  <!-- landing-page-content -->
+</div>
+<!-- landing-page-body -->

@@ -1,0 +1,25 @@
+{% capture biblio-html %}
+
+{% comment %}
+This include is for showing citations stored in a work's
+references.yml, or a language subfolder's, e.g.
+_data/works/<book>/references.yml or _data/works/<book>/it/references.yml.
+
+It is only used in the TE1 Italian translation.
+{% endcomment %}
+
+{% include metadata %}
+
+{% if is-translation %}
+    {% assign biblio-reference = site.data.works.[book-directory].[language].references | where: "ref", include.ref | first %}
+{% else %}
+    {% assign biblio-reference = site.data.works.[book-directory].references | where: "ref", include.ref | first %}
+{% endif %}
+
+{% if biblio-reference and biblio-reference.text != "" %}
+{{ biblio-reference.text | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}
+{% elsif site.data.settings.references.on-missing-biblio-id == "error" %}
+*The reference `{{ include.ref }}` is not in `references.yml`.*{:.highlighter.error}
+{% endif %}
+
+{% endcapture %}{{ biblio-html | strip_newlines }}

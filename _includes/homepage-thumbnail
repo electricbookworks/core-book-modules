@@ -1,0 +1,24 @@
+{% comment %}
+Include for use on thumbnail-style landing pages (specifically CORE Insights).
+{% endcomment %}
+
+{% capture filename %}{{ include.title | slugify }}{% endcapture %}
+
+{% comment %}
+We can't use the {{ description }} created in the metadata include, as this is 
+used on the index page and not within a book directory.
+{% endcomment %}
+{% assign works = site.data.meta.works | where: "directory", filename %}
+
+{% for work in works %}
+    {% capture description %}{{ work.description }}{% endcapture %}
+{% endfor %}
+
+<div class="homepage-thumbnail">
+      <a href="{{ filename }}/text/01.html"><div class="homepage-thumbnail-image">
+          <img src="{{ filename }}/images/{{ site.output }}/{{ filename }}-header.jpg">
+      </div></a>
+      <a href="{{ filename }}/text/01.html"><p class="title">{{ include.title }}{% if include.subtitle %}: {{ include.subtitle }}{% endif %}</p></a>
+      <p>{{ description }}</p>
+      <a class="read-now" href="{{ filename }}/text/01.html" title="{{ include.title }}">Read now</a>
+</div>

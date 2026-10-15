@@ -1,0 +1,73 @@
+{% comment %}
+  Universal landing-page TOC item — one include shared across CORE v2 repos.
+
+  Content resolves inline-first, then falls back to the landing-page data file
+  at data.contents[include.volume][include.unit]. Data-driven repos (TE2, DE,
+  EE, Insights) pass `volume` + `unit`; inline repos (Docs) pass fields directly.
+
+  `volume`/`unit` are data-lookup keys. The item is data.contents[volume][unit],
+  or data.contents[volume] when no `unit` is given (single-entry books, where
+  each book directory is its own volume). The href folder is the `directory`
+  param; when omitted it falls back to `volume` (correct wherever the volume key
+  is the book directory). With neither set, `link` is a full root-relative path
+  (the Docs case).
+
+  Links are per-element: the image and the heading each link to the item, so a
+  buttons block can sit cleanly below the text. When `buttons` is set the image
+  and heading are left unlinked and navigation is via the included buttons.
+
+  Params (all optional unless noted):
+    link*        page filename, or full root-relative path when no `directory`
+    image        image basename in assets/images/{{ site.output }}/; omit to drop the image
+    directory    content folder for the href (the EBT "book" directory); defaults to `volume`
+    volume/unit  data-lookup keys; with no `unit`, the item is read at the volume level
+    unit-number  inline override for the bold number/label
+    unit-title   inline override for the title
+    description  inline override for the description
+    authored     inline override for the authorship line
+    note         inline override for the note line
+    alt-text     inline override for the image alt text
+    coming-soon  "True" renders an unlinked "Coming soon" item
+    class        extra class(es) on .landing-page-toc-flex-item
+    buttons      when set, image/heading are unlinked and landing-page/toc-item-buttons
+                 is included for navigation (e.g. EE experiment access buttons)
+{% endcomment %}
+
+{% comment %} With no `unit`, the item resolves at the volume level (single-entry books) {% endcomment %}
+{% assign item = data.contents[include.volume][include.unit] | default: data.contents[include.volume] %}
+{% assign toc-number = include.unit-number | default: item.number %}
+{% assign toc-title = include.unit-title | default: item.title %}
+{% assign toc-description = include.description | default: item.description %}
+{% assign toc-authored = include.authored | default: item.authored %}
+{% assign toc-note = include.note | default: item.note %}
+{% assign toc-alt = include.alt-text | default: item.alt-text %}
+{% assign toc-coming-soon = include.coming-soon | default: item.coming-soon %}
+{% assign media-base = external-media | default: path-to-root-directory %}
+{% assign toc-directory = include.directory | default: include.volume %}
+{% capture toc-href %}{{ path-to-root-directory }}{% if toc-directory %}{{ toc-directory }}{{ link-directory }}/{% endif %}{{ include.link }}{% endcapture %}
+{% if include.buttons %}{% assign toc-has-buttons = true %}{% else %}{% assign toc-has-buttons = false %}{% endif %}
+{% comment %} When buttons carry navigation (e.g. EE), the image and heading are left unlinked {% endcomment %}
+{% if include.link and include.link != "" and toc-coming-soon != "True" and toc-has-buttons == false %}{% assign toc-linked = true %}{% else %}{% assign toc-linked = false %}{% endif %}
+
+<div class="landing-page-toc-flex-item{% if include.class %} {{ include.class }}{% endif %}">
+
+  {% comment %} Image is optional; when present it links to the item unless unlinked/coming soon {% endcomment %}
+  {% if include.image and include.image != "" %}
+    {% if toc-linked %}
+      <a href="{{ toc-href }}" class="landing-page-toc-flex-img-link">
+        <img src="{{ media-base }}assets/images/{{ site.output }}/{{ include.image }}.jpg" alt="{{ toc-alt }}" />
+      </a>
+    {% else %}
+      <img src="{{ media-base }}assets/images/{{ site.output }}/{{ include.image }}.jpg" alt="{{ toc-alt }}" />
+    {% endif %}
+  {% endif %}
+
+  <div class="landing-page-toc-flex-text">
+    <h4>{% if toc-linked %}<a href="{{ toc-href }}">{% endif %}{% if toc-coming-soon == "True" %}<strong>Coming soon</strong><br>{% elsif toc-number %}<strong>{{ toc-number }}</strong><br>{% endif %}{{ toc-title }}{% if toc-linked %}</a>{% endif %}</h4>
+    {% if toc-description %}<p class="p4">{{ toc-description | markdownify | replace: "<p>", "" | replace: "</p>", "" }}</p>{% endif %}
+    {% if toc-authored %}<p class="p4">{{ toc-authored | markdownify | replace: "<p>", "" | replace: "</p>", "" }}</p>{% endif %}
+    {% if toc-note %}<p class="p4"><br>{{ toc-note | markdownify | replace: "<p>", "" | replace: "</p>", "" }}</p>{% endif %}
+    {% if toc-has-buttons and toc-coming-soon != "True" %}{% include landing-page/toc-item-buttons link=include.link volume=include.volume unit=include.unit %}{% endif %}
+  </div>
+
+</div>
