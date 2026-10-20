@@ -1,0 +1,230 @@
+// BOXES
+
+.box {
+  background-color: inherit;
+  border: 2 * $rule-thickness solid $color-accent;
+  border-bottom-right-radius: $core-element-border-radius;
+  
+  ul, ol {
+    margin-left: 1.5rem;
+  }
+  
+  p:last-child, ul:last-child, ol:last-child {
+    margin-bottom: 0;
+  }
+}
+
+ol.box,
+ul.box {
+  padding: ($line-height-default / 2) ($line-height-default);
+}
+
+// Blockquotes
+blockquote {   
+  padding: 0 1rem;
+}
+
+// Einstein and Great Economists boxes
+.einstein,
+.great-economist,
+.great-economists,
+.economists,
+.economist,
+.expandable-box {
+  background: $color-light;
+  margin: 1.5em 0;
+  padding-bottom: $line-height-default / 2;
+  padding-left: 0.5em;
+  padding-top: 0;
+  padding-right: 0.5em;
+
+  h2, h3, h4, h5, h6 {
+    color: $color-accent;
+    font-family: $font-text-main;
+    font-style: italic;
+    font-weight: normal;
+    
+    // Put the first bold word, e.g. 'Einstein', in a bar at the top
+    strong:first-of-type {
+      background: $color-accent;
+      color: white;
+      display: block;
+      font-family: $font-text-secondary;
+      font-style: normal;
+      font-weight: bold;
+      text-transform: uppercase;
+      
+      // magic numbers, depend on box padding:
+      padding-left: 0.35em;
+      padding-right: 0.35em;
+      margin-bottom: 0.5em;
+      margin-left: -(0.35em);
+      margin-right: -(0.35em);
+      
+      // use overflow: auto to ensure that the + expander gets the correct styling
+      overflow: auto;
+
+      // increase line height to enure there's no scroll
+      line-height: 1.5;
+    }
+    
+    // Italics in headings should be roman
+    em {
+      font-style: normal;
+    }
+  }
+  
+  h4, h5, h6 {
+    color: $color-text-main;
+  }
+  
+  // Give code a white background in grey boxes
+  pre, code, .highlight, .highlighter-rouge {
+    background-color: white;
+  }
+  
+  .exercise, .question {
+    h3 {
+      strong:first-of-type {
+        color: $color-accent;
+        background: transparent;
+        display: inline;
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  p:last-child, ol:last-child, ul:last-child {
+    margin-bottom: 0;
+  }
+
+  .extension-preview {
+    margin-bottom: $line-height-default;;
+  }
+
+  .figure.thumbnail {
+    margin-right: 0;
+  }
+}
+
+// Info boxes
+.info,
+.exercise {
+  border: 2 * $rule-thickness solid $color-accent;
+  border-bottom-right-radius: $core-element-border-radius;
+  clear: both;
+  margin: 1.5em 0;
+  padding: ($line-height-default / 2);
+
+  font-size: $font-size-default * 0.8;
+  font-family: $font-text-secondary;
+
+  p {
+    font-size: $font-size-default * 0.8;
+  }
+  
+  h2, h3, h4, h5, h6 {
+    color: $color-accent;
+    font-family: $font-text-secondary;
+    font-size: $font-size-default * 1.1 * $font-serif-sans-ratio;
+    font-style: normal;
+    font-weight: normal;
+    line-height: $line-height-default;
+    margin: 0;
+
+    strong:first-of-type {
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  p:last-child, ol:last-child, ul:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.info {
+  color: $color-accent;
+  
+  h3, h4 {
+    font-weight: bold;
+  }
+  
+  p {
+    color: $color-accent
+  }
+  
+}
+
+// Prerequisite boxes
+.prerequisites {
+  background-color: $color-accent-light;
+  border: none;
+  border-bottom-right-radius: $core-element-border-radius;
+  border-left: $chapter-opener-border-width solid $color-accent;
+  font-family: $font-text-secondary;
+  font-size: $font-size-default * 0.8;
+  line-height: 1.5;
+  margin: 0;
+  padding: 1.5rem;
+
+  h2 {
+    color: $color-accent;
+    font-family: $font-text-secondary;
+    font-style: normal;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .anchorjs-link {
+    display: none;
+  }
+}
+
+// Summary boxes
+.box.summary {
+  background-color: $color-accent-light;
+  border: none;
+  border-left: $chapter-opener-border-width solid $color-accent;
+  padding: 2rem;
+
+  h3 {
+    font-family: $font-text-secondary;
+    font-style: normal;
+  }
+}
+
+// Toggle visibility of boxes
+.toggle {
+  color: inherit;
+  cursor: pointer;
+  float: right;
+
+  &:after {
+    content: " –";
+    font-weight: 300;
+  }
+  
+  &.closed:after {
+    content: " +";
+  }
+  
+  &.open:after {
+    content: " \2013";
+  }
+}
+
+// Boxes that should be full-width on screen
+// Partials already allow for `web-wide` sidenotes
+.web-full-width {
+  float: none;
+  max-width: 100%;
+}
+
+// Boxes without space between paragraphs and lists
+.web-condensed {
+  p {
+    margin-bottom: 0;
+  }
+}
+

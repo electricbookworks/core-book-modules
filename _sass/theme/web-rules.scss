@@ -1,0 +1,122 @@
+// Add your theme's CSS rules here. These will load
+// after your variables and imports. To keep things
+// organised, create your new rules in separate files
+// in _sass/theme/partials, and @import them here.
+// ----------------------------------------------
+
+// ---------------------
+// Theme modules
+// ---------------------
+
+// Mixins
+@import "theme/partials/web-mixins";
+
+// Page settings
+@import "theme/partials/web-wrappers";
+
+// Typography
+@import "theme/partials/web-base-typography";
+@import "theme/partials/web-buttons";
+
+// Typography special cases
+@import "theme/partials/web-dark-mode-code";
+@import "theme/partials/web-dialogue";
+@import "theme/partials/web-epigraphs";
+@import "theme/partials/web-code";
+@import "theme/partials/web-type-features";
+@import "theme/partials/web-components";
+
+// Navigation
+@import "theme/partials/web-accordion";
+@import "theme/partials/web-google-cse";
+@import "theme/partials/web-footer";
+@import "theme/partials/web-masthead";
+@import "theme/partials/web-nav";
+@import "theme/partials/web-search";
+@import "theme/partials/web-pagination";
+@import "theme/partials/web-progress-bar";
+
+// Special pages
+@import "theme/partials/web-bibliographies";
+@import "theme/partials/web-cover";
+@import "theme/partials/web-glossary";
+@import "theme/partials/web-landing-page";
+@import "theme/partials/web-leibniz";
+@import "theme/partials/web-resources-page";
+@import "theme/partials/web-toc";
+@import "theme/partials/web-transcripts";
+@import "theme/partials/web-index";
+@import "theme/partials/web-resources-page";
+@import "theme/partials/web-team-gallery";
+@import "theme/partials/web-frontmatter-endmatter";
+
+// Capstone features
+@import "theme/partials/web-capstone-colours";
+@import "theme/partials/web-theme-legends";
+
+// Book-feature classes
+@import "theme/partials/web-anchor-links";
+@import "theme/partials/web-boxes";
+@import "theme/partials/web-chapter-openers";
+@import "theme/partials/web-definitions";
+@import "theme/partials/web-figures";
+@import "theme/partials/web-filters";
+@import "theme/partials/web-footnotes";
+@import "theme/partials/web-fullscreen-images";
+@import "theme/partials/web-instructor-tip";
+@import "theme/partials/web-interactive-graphs";
+@import "theme/partials/web-lists";
+@import "theme/partials/web-login-prompts";
+@import "theme/partials/web-maths";
+@import "theme/partials/web-mcqs";
+@import "theme/partials/web-notifications";
+@import "theme/partials/web-qr-codes";
+@import "theme/partials/web-sidenote";
+@import "theme/partials/web-slides";
+@import "theme/partials/web-table-of-questions";
+@import "theme/partials/web-tables";
+@import "theme/partials/web-text-questions";
+@import "theme/partials/web-sources";
+@import "theme/partials/web-video";
+
+
+// User features
+@import "theme/partials/web-bookmarks";
+@import "theme/partials/web-controls";
+@import "theme/partials/web-dark-mode";
+@import "theme/partials/web-share-links";
+
+// Accessibility
+@import "theme/partials/web-focus";
+@import "theme/partials/web-links";
+
+// Wordpress
+@import "theme/partials/web-wordpress-integration";
+@import "theme/partials/web-wordpress-user-profile";
+
+// Analytics
+@import "theme/partials/web-cookie-banner";
+
+// Annotator
+@import "theme/partials/web-annotator";
+
+// Beta
+@import "theme/partials/web-beta";
+
+// Docs
+@import "theme/partials/web-docs";
+
+// RTL
+@import "theme/partials/web-rtl";
+
+// Translation features
+@import "theme/partials/web-chinese";
+@import "theme/partials/web-korean";
+@import "theme/partials/web-italian";
+@import "theme/partials/web-persian";
+
+// Print-out styles
+@import "theme/partials/web-print";
+
+// Reset sequences
+@import "theme/partials/web-reset-sequences";

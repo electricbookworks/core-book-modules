@@ -1,0 +1,48 @@
+// Leibniz supplements
+
+// These styles are from The Economy 1.0
+// and might not be becessary in 2.0.
+
+.leibniz {
+
+    // Every Leibniz starts at page 1, because
+    // these are published as separate PDFs,
+    // but might be output here in one PDF.
+    counter-reset: page 1;
+
+    h1 {
+        @include head-1-reverse();
+
+        display: block;
+        margin-bottom: $line-height-default * 3;
+
+        // remove border above heading text
+        &:before {
+            border: 0;
+        }
+    }
+
+    // The intro paragraph(s)
+    .intro {
+        font-family: $font-text-secondary;
+        line-height: $line-height-default * 1.2;
+        margin: 0 0 $line-height-default 0;
+
+        & + p {
+            text-indent: 0;
+        }
+
+        // Extra space before whatever follows the intro
+        & + *:not(.intro) {
+            margin-top: $line-height-default * 2;
+        }
+    }
+
+    // Text-width sidenotes in Leibnizes
+    .text-width {
+
+        // correct for usual sidenote shift to show faux border
+        margin-outside: -1pt;
+        padding: 0 ($paragraph-indent / 2);
+    }
+}

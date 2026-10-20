@@ -1,0 +1,281 @@
+// TOC
+
+// Single-column TOC layout.
+// Apply by adding the class `landing-page-toc-single-column`
+// to a `.landing-page-toc` element in any project's landing page.
+@mixin landing-page-single-column {
+  .landing-page-toc-section {
+    h3 {
+      @include h2();
+    }
+
+    .landing-page-toc-section-description {
+      color: $color-charcoal;
+      max-width: 51rem;
+    }
+
+    // CHAPTER LINKS
+    .landing-page-toc-flex-section {
+      .landing-page-toc-flex-item {
+        max-width: 51rem;
+
+        .landing-page-toc-flex-text {
+          p {
+            margin-bottom: 1rem;
+
+            &:last-of-type {
+              margin-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // WIDE SCREENS
+  @media only screen and (min-width: $breakpoint-toc-grid) {
+    .landing-page-toc-section {
+      .landing-page-toc-flex-section {
+        grid-template-columns: auto;
+
+        // Stop the preface item spanning both columns, which would otherwise
+        // force a second column and defeat the single-column layout
+        .landing-page-toc-flex-item.landing-page-preface {
+          grid-column: auto;
+        }
+      }
+    }
+  }
+}
+
+.landing-page {
+  .landing-page-body {
+    .landing-page-content {
+      .landing-page-toc {
+        background-color: $color-ghost;
+        padding-top: 2.5rem;
+
+        // Prevent spurious line of background colour in Chrome
+        box-shadow: 0 -1px $color-ghost;
+
+        @media only screen and (max-width: $breakpoint-nav) {
+          width: 100vw;
+          position: relative;
+          margin-left: -50vw;
+          left: 50%;
+        }
+
+        & > h2 {
+          margin-top: 0;
+          padding: 0 1.5rem;
+        }
+
+        // SECTION PER BOOK
+        .landing-page-toc-section {
+          padding: 0 1.5rem;
+          margin-bottom: 2.5rem;
+
+          &:last-of-type {
+            margin-bottom: 0;
+            padding-bottom: 2.5rem;
+          }
+
+          h2, h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+
+            button.landing-page-accordion-head {
+              all: inherit;
+              margin-bottom: 0;
+              display: flex;
+              cursor: pointer;
+              gap: 1.5rem;
+
+              &:active, &:focus {
+                svg {
+                  outline: 5px auto Highlight;
+                  outline: 5px auto -webkit-focus-ring-color;
+                }
+              }
+  
+              // ACCORDION ARROW
+              svg { 
+                flex-basis: 1.75rem;
+                flex-shrink: 0;
+              }
+            }
+          }
+
+          // TOC BUTTON
+          a.button { 
+            margin-bottom: 2rem;
+          }
+
+          // When included in toc-item with `buttons=true`
+          .landing-page-toc-flex-buttons {
+            
+            a.button {
+
+              // Override other button styles
+              float: none;
+              margin-top: 0.5rem;
+            }
+          }
+
+          @media only screen and (min-width: $breakpoint-toc-header-low) and (max-width: $breakpoint-nav), (min-width: $breakpoint-toc-header-high) {
+            a.button {
+              float: right;
+              margin-right: 1.5rem;
+              margin-top: -3rem;
+
+              @media only screen and (min-width: $breakpoint-toc-header-high) {
+                margin-right: 0;
+              }
+            }
+            
+            .landing-page-toc-flex-section {
+              clear: both;
+            }
+          }
+          
+          // CHAPTER LINKS
+          .landing-page-toc-flex-section {
+            .landing-page-toc-flex-item {
+              display: flex;
+              flex-wrap: wrap;
+              justify-content: flex-start;
+              flex-direction: column;
+              max-width: 35rem;
+              
+              a, .landing-page-toc-flex-img-link {
+                flex-shrink: 0;
+              }
+            
+              img {
+                height: 6.25rem;
+                width: 6.25rem;
+                border: $rule-thickness solid $color-white;
+                border-radius: 0.75rem;
+                filter: drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.16));
+                object-fit: cover;
+              }
+              
+              .landing-page-toc-flex-text {
+                margin-bottom: 1.5rem;
+
+                h4 {    
+                  color: $color-charcoal;
+                  margin-top: 0.75rem;
+                  line-height: 1.25;
+
+                  a {
+                    color: inherit;
+                    text-decoration: none;
+                  }
+                }
+                
+                p {
+                  color: $color-charcoal;
+                  margin-bottom: 0;
+
+                  a {
+                    color: $color-links;
+                    text-decoration: none;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        .landing-page-toc-section-closed {
+          a.button {
+            margin-bottom: 1.25rem;
+          }
+
+          .landing-page-toc-flex-section {
+            .landing-page-toc-flex-item {    
+              img {
+                display: none;
+              }
+
+              .landing-page-toc-flex-text {
+                margin-bottom: 0.75rem;
+
+                p {
+                  display: none;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // WIDE SCREENS
+      @media only screen and (min-width: $breakpoint-toc-grid) {
+        .landing-page-toc {
+          & > h2 {
+            padding: 0 3.5rem;
+          }
+
+          .landing-page-toc-section {
+            margin-bottom: 5rem;
+            padding: 0 3.5rem;
+
+            &:last-of-type {
+              margin-bottom: 0;
+              padding-bottom: 5rem;
+            }
+
+            .landing-page-toc-flex-section {
+              display: grid;
+              grid-template-columns: 47% 47%;
+              grid-gap: 3rem 2.5rem;
+              
+              .landing-page-toc-flex-item {
+                flex-wrap: nowrap;
+                flex-direction: row;
+                gap: 1rem;
+                align-items: center;
+
+                &.landing-page-preface {
+                  grid-column: 1 / 3;
+                }
+   
+                img {
+                  width: 12rem;
+                  height: 12rem;
+                  border-radius: 1rem;
+                  object-fit: cover;
+
+                  @media only screen and (max-width: $breakpoint-toc-images) {
+                    width: 9rem;
+                    height: 9rem;
+                  }
+                }
+              }
+            }
+          }
+          .landing-page-toc-section-closed {
+            .landing-page-toc-flex-section {
+              .landing-page-toc-flex-item {
+                img {
+                  display: block;
+                  width: 5rem;
+                  height: 5rem;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Single-column TOC, opt in per project with this class on the TOC element.
+// The full ancestor chain matches the base multi-column rule's specificity
+// so the single-column overrides win.
+.landing-page .landing-page-body .landing-page-content .landing-page-toc.landing-page-toc-single-column {
+  @include landing-page-single-column;
+}

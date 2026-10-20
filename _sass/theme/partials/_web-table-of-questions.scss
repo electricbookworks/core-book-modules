@@ -1,0 +1,36 @@
+// Table of questions
+// Special table-of-questions page
+
+.table-of-questions {
+  table {
+    font-size: smaller;
+  }
+  
+  .mcq-options, .mcq-feedback {
+    list-style-type: decimal;
+  }
+  
+  .question-content {
+    .mcq-feedback {
+      display: none;
+    }
+  }
+  
+  .answer-content {
+    .mcq-feedback {
+      display: block;
+    }
+    
+    & > *:not(.mcq-feedback) {
+      display: none;
+    }
+  }
+  
+  .toq-excel-tip {
+    cursor: pointer;
+    display: inline-block;
+    font-family: $font-text-secondary;
+    font-size: smaller;
+    margin-left: $line-height-default / 2;
+  }
+}

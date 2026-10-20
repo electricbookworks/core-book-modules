@@ -1,0 +1,65 @@
+// Glossary and index
+// These pages use all three columns in our grid.
+
+.contains-glossary,
+.contains-index {
+
+    // overrides template; columns provided by .content
+    columns: 1;
+
+    .content {
+        column-count: 3;
+        column-gap: $sidebar-gap-width;
+    }
+
+    .glossary,
+    .reference-index,
+    .reference-index-manual {
+        @include endmatter-text();
+
+        // overrides template; columns provided by .content
+        columns: 1;
+
+        .index-subhead {
+            font-weight: bold;
+            margin-top: $line-height-default;
+            column-break-after: avoid;
+            page-break-after: avoid;
+        }
+    }
+
+    .glossary {
+
+        dt {
+
+            // overrides template, instead, we display inline
+            float: none;
+
+            display: inline;
+            font-family: $font-text-secondary;
+            font-weight: bold;
+            font-size: $font-size-default * 0.7;
+            margin-right: 0.5em;
+
+            // In Prince output, Asap font aligns slightly low on the baseline.
+            margin-top: -($font-size-default * 0.075);
+
+            &:after {
+                content: normal;
+            }
+        }
+
+        dd {
+            margin: 0;
+
+            // run in with dt
+            display: inline;
+
+            // force a line break after each definition
+            &:after {
+                content: "";
+                display: block;
+            }
+        }
+    }
+}

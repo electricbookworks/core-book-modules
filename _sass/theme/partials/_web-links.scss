@@ -1,0 +1,29 @@
+// Links
+
+a {
+  // Links are underlined by default for accessibility
+  text-decoration: underline;
+  text-underline-offset: 0.1em;
+
+  // There are some exceptions, for design reasons
+  &.accordion-show-all-button,
+  .bookmark-date &,
+  .bookmark-title &,
+  .contents-page &,
+  .expandable-box &.toggle,
+  &.figure-image-link,
+  &.footnote,
+  h2 &,
+  .homepage-thumbnail &,
+  .language-select &,
+  .masthead &,
+  &.nav-back-button,
+  &.nav-button,
+  .nav-list &,
+  .nav-slides &,
+  .wrapper.resources &,
+  .subheadline &,
+  &.theme-legend-filter-button {
+    text-decoration: none;
+  }
+}

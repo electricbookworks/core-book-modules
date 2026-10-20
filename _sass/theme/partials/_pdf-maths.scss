@@ -1,0 +1,78 @@
+// Maths
+
+// TODO
+// ----
+// These rules were originally written for MathJax v2,
+// and probably need to be replaced or discarded
+// now that we are using MathJax v3.
+
+// MathJax
+// Only use these styles to position maths blocks, not to style
+// the maths itself. Actual maths styling should be done, with caution,
+// in the MathJax config in _includes/head-elements.
+// See http://stackoverflow.com/a/25329062/1781075
+// and http://docs.mathjax.org/en/latest/reference/CSS-styles.html
+.MathJax_Display,
+.MathJax_SVG_Display,
+.mjpage__block,
+math[display="block"] {
+    margin: $line-height-default auto;
+    page-break-before: avoid;
+
+    // No indents on paras after maths, or after floated or sidebar elements after maths
+    & + p,
+    & + .info + p,
+    & + .figure + p,
+    & + .sidenote + p {
+        text-indent: 0;
+    }
+
+    // Let users allow a page break after an element before mathjax;
+    // allow for the mathjax_preview span
+    .allow-break-at-maths + &,
+    .allow-break-at-maths + & + &,
+    .allow-break-at-maths + span + & {
+        page-break-before: auto;
+    }
+}
+
+// PDF output override to match math font size to
+// text font size when using mathjax-node-page
+.mjpage * {
+    font-size: 75%;
+}
+
+// Remove space around maths in table cells, question lists
+th,
+td,
+.mcq-questions,
+.mcq-options {
+
+    .MathJax_SVG_Display:last-of-type,
+    .mjpage__block:last-of-type,
+    math[display="block"]:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .MathJax_SVG_Display:first-of-type,
+    .mjpage__block:first-of-type,
+    math[display="block"]:first-of-type {
+        margin-top: 0;
+    }
+}
+
+// HTML/CSS superscripts over subscripts
+// Only works for single-digit superscripts
+.align-sup-on-sub {
+    position: relative;
+
+    sup {
+        position: relative;
+        left: -0.5em;
+        font-size: 0.6em;
+    }
+
+    sub {
+        font-size: 0.6em;
+    }
+}

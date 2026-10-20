@@ -1,0 +1,78 @@
+.info {
+    @include sidenote();
+
+    // padding overrides sidenote mixin,
+    // allowing for this feature's border
+    padding: ($line-height-default * 0.5 - $border-width) ($sidebar-gap-width * 0.5 - ($border-width));
+
+    border: $border-width solid $color-accent;
+    border-bottom-right-radius: $core-element-border-radius;
+    font-family: $font-text-secondary;
+    font-size: $font-size-default * 0.8;
+    color: $color-accent;
+    break-inside: avoid;
+
+    h2, h3, h4, h5, h6 {
+        font-family: $font-text-secondary;
+        font-size: $font-size-default * 0.8;
+        font-style: normal;
+        text-transform: uppercase;
+        font-weight: bold;
+        letter-spacing: 0.01em;
+        margin: 0;
+
+        // Line space above images after headings
+        & + p img:only-child {
+            margin-top: $line-height-default;
+        }
+
+        // no space between headings and lists
+        & + ul, & + ol {
+            margin-top: 0;
+        }
+    }
+
+    // Images placed with kramdown syntax
+    // Do not apply this restrict to image with class math-* as these are manually sized
+    p img:only-child:not([class^="math-"]) {
+        max-width: $sidebar-content-width - $sidebar-gap-width;
+    }
+
+    // No space after last element.
+    // Parent padding takes care of this.
+    & > *:last-child {
+        margin-bottom: 0;
+    }
+
+    blockquote {
+        margin: 0;
+    }
+
+    // Put the text-indent back on the following paragraph...
+    p + & + p {
+        text-indent: $paragraph-indent;
+    }
+
+    // ...unless it follows a heading or a list
+    h1 + & + p,
+    h2 + & + p,
+    h3 + & + p,
+    h4 + & + p,
+    h5 + & + p,
+    h6 + & + p,
+    ul + & + p,
+    ol + & + p {
+        text-indent: 0;
+    }
+
+    @include wide-sidenotes();
+
+    .figure {
+        float: none;
+        width: 100%;
+
+        .figure-body {
+            width: 100%;
+        }
+    }
+}

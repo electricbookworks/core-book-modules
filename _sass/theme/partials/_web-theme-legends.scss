@@ -1,0 +1,213 @@
+// Theme legends
+
+.theme-legend-heading {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.theme-legend {
+  font-family: $font-text-secondary;
+  font-size: $font-size-default * $font-serif-sans-ratio;
+  margin-top: 3.375rem; // space below the chapter-opener band
+  @include outside-right();
+
+  // Keep that spacing where the legend floats (the mixin resets margin-top to 0),
+  // aligning it with the 'expand all' button.
+  @media (min-width: $break-point-xl) {
+    margin-top: 3.375rem;
+  }
+}
+
+.theme-legend-list {
+  list-style-type: none;
+  margin: 0 0 $line-height-default 0;
+  
+  @media (min-width: $break-point-m) {
+    column-count: 2;
+  }
+  
+  @media (min-width: $break-point-xl) {
+    column-count: 1;
+  }
+}
+
+.theme-legend-filter-button {
+  cursor: pointer;
+  margin-left: -($line-height-default / 2);
+  
+  &:after {
+    color: $theme-legend-filter-button-color;
+    content: $theme-legend-filter-button;
+    font-size: $font-size-default;
+    
+    &:hover {
+      color: $theme-legend-filter-button-color-hover;
+    }
+  }
+  
+  &.theme-legend-filter-button-active {
+    &:after {
+        content: $theme-legend-filter-button-active;
+    }
+  }
+}
+
+.theme-legend-theme {
+  svg {
+    height: 1.5em;
+    position: relative;
+    top: 0.4em;
+    width: 1.5em;
+  }
+}
+
+// Theme keys, shown inside section heading h2s
+.theme-key-theme {
+  svg {
+    height: 1em;
+    position: relative;
+    top: 0.15em;
+    width: 1em;
+  }
+}
+
+// Theme keys are relocated by theme-keys.js into the section-heading <h2>,
+// which holds the accordion button and then the .theme-key block as siblings.
+.accordion-header {
+  position: relative;
+
+  // Mobile-first: closed discs sit just below the heading text (no labels).
+  .accordion-toggle[aria-expanded="false"] ~ .theme-key {
+    display: block;
+    margin-top: -1.5rem; // pull the discs up close to the heading
+
+    .theme-key-theme {
+      display: inline-block;
+      margin: 0 0.25em 0 0;
+      padding-right: 0;
+
+      svg {
+        height: 1.5rem;
+        top: 0; // overrides base nudge
+        width: 1.5rem;
+      }
+    }
+
+    .theme-key-label {
+      display: none;
+    }
+  }
+
+  // Open heading (all widths): show each disc with its label, flowing below the
+  // heading text in the smaller secondary font.
+  .accordion-toggle[aria-expanded="true"] ~ .theme-key {
+    display: block;
+    line-height: 1.3;
+    margin-bottom: 2rem; // room before the section body text
+    margin-top: -1rem; // pull the keys up close to the heading
+
+    .theme-key-theme {
+      color: $color-text-main;
+      display: inline-block;
+      font-family: $font-text-secondary; // overrides inherited style from h2
+      font-size: $font-size-default; // readable, not the large inherited h2 size
+      font-weight: normal; // overrides inherited style from h2
+      letter-spacing: 0; // overrides inherited style from h2
+      margin: 0 1em 0 0;
+      text-transform: none; // overrides inherited style from h2
+
+      svg {
+        margin-right: 0.35em;
+      }
+    }
+
+    .theme-key-label {
+      display: inline;
+    }
+  }
+
+  // Large screens: move the closed discs onto the heading line at the right,
+  // reserving text space so a wrapping heading clears them. theme-keys.js sets
+  // --theme-key-count per heading.
+  @media (min-width: $break-point-l) {
+    .accordion-toggle[aria-expanded="false"] > span:first-child {
+      padding-right: calc(var(--theme-key-count, 0) * 2.1rem + 4.5rem);
+    }
+
+    .accordion-toggle[aria-expanded="false"] ~ .theme-key {
+      margin-top: 0;
+      position: absolute;
+      right: 1rem; // sit just left of the toggle icon (which now reaches the edge)
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  }
+}
+
+// SVG dot colors
+.theme-legend-theme-17,
+.theme-key-17 {
+  svg {
+    circle {
+      fill: $theme-17-color;
+      stroke: none;
+    }
+  }
+}
+
+.theme-legend-theme-18,
+.theme-key-18 {
+  svg {
+    circle {
+      fill: $theme-18-color;
+      stroke: none;
+    }
+  }
+}
+
+.theme-legend-theme-19,
+.theme-key-19 {
+  svg {
+    circle {
+      fill: $theme-19-color;
+      stroke: none;
+    }
+  }
+}
+
+.theme-legend-theme-20,
+.theme-key-20 {
+  svg {
+    circle {
+      fill: $theme-20-color;
+      stroke: none;
+    }
+  }
+}
+
+.theme-legend-theme-21,
+.theme-key-21 {
+  svg {
+    circle {
+      fill: $theme-21-color;
+      stroke: none;
+    }
+  }
+}
+
+.theme-legend-theme-22,
+.theme-key-22 {
+  svg {
+    circle {
+      fill: $theme-22-color;
+      stroke: none;
+    }
+  }
+}
+
+// Theme keys for subheadlines
+.subheadline {
+  .theme-key-theme {
+    display: none;
+  }
+}

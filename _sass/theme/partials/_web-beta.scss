@@ -1,0 +1,79 @@
+// Beta information
+
+@mixin beta-information() {
+	background-color: $color-highlight;
+	border-radius: $button-border-radius;
+	box-shadow: 0 0 10px $color-accent;
+	color: $color-text-main;
+	display: none;
+	font-weight: normal;
+	left: 1em;
+	letter-spacing: 0;
+	margin-top: -0.25em; // overlap with button so that hover from button to info is continuous
+	padding: 0.5em;
+	position: absolute;
+	right: 1em;
+	text-transform: none;
+	z-index: 200;
+	
+	// Narrower for large screens:
+	@media (min-width: $break-point-l) {
+    left: $max-width-default * 0.25 / 3;
+    right: $max-width-default * 0.25 / 3;
+	}
+
+	a {
+    color: $color-links;
+	}
+
+	p:last-child {
+    margin-bottom: 0;
+	}
+
+	// Show info on hover or button hover
+	&:hover,
+	.beta-button .button:hover + & {
+    display: block;
+	}
+}
+
+.beta-information {
+  @include beta-information();
+}
+
+.masthead {
+  // Beta button
+  .beta-button .button {
+    background-color: $color-highlight;
+    color: $color-accent;
+    margin: 0 0.25em;
+    
+    &:hover {
+      background-color: $color-text-main;
+    }
+  }
+}
+
+.landing-page {
+  h1 {
+    // Beta info and button
+    .beta-information {
+      @include beta-information();
+      font-size: 0.5em;
+    }
+    
+    .beta-button .button {
+      background-color: $color-highlight;
+      bottom: 0.15em;
+      color: $color-accent;
+      font-size: 0.6em;
+      margin-left: 0.25em;
+      position: relative;
+      text-align: center;
+      
+      &:hover {
+        background-color: $color-text-main;
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+// Instructor tips
+
+.instructor-tip {
+    background-color: $color-light;
+    border-left: $border-width solid $color-accent;
+    box-sizing: border-box;
+    font-family: $font-text-secondary;
+    font-size: $font-size-default * $font-size-smaller;
+    line-height: $line-height-default;
+
+    // margin values contain $font-size-smaller to scale up to $font-size-default
+    margin: (-$line-height-default * $font-size-smaller) 0 0 (1em / $font-size-smaller + 0.2em);
+    padding: ($line-height-default * 0.5) ($paragraph-indent * 0.5);
+
+    & + ol,
+    & + ul {
+        margin-top: $line-height-default;
+    }
+}

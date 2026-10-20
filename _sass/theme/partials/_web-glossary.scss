@@ -1,0 +1,34 @@
+// Glossary
+
+.glossary {
+  dt {
+    font-family: $font-text-secondary;
+    font-weight: bold;
+    font-size: inherit;
+    margin-right: 0.5em;
+    
+    &:after {
+      content: normal;
+    }
+
+    &.filter-hidden + dd {
+      display: none;
+    }
+  }
+
+  dd {
+    // Italics in cross-references need to appear upright
+    em.glossary-cross-reference em {
+      font-style: normal;
+    }
+  }
+  
+  .glossary-example {
+    // add space before example
+    &:before {
+      content: "";
+      display: block;
+      margin-top: 0.5em;
+    }
+  }
+}

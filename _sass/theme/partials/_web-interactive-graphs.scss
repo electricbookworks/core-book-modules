@@ -1,0 +1,61 @@
+// Interactive graphs
+
+iframe.owid-iframe {
+  border: 0px none;
+  height: 600px;
+  // Same margin as figure div would have in its place
+  margin-bottom: 1.5em;
+  width: 100%;
+
+  .slides & {
+    margin-bottom: 0;
+  }
+}
+
+.slides.contains-iframe {
+  // Make sure it looks clean in a slideline
+  background-color: $color-background;
+  border-top: 0px none;
+}
+
+.graph-options {
+  // Graph options button
+  display: block;
+  @include p5($factor: $font-serif-sans-ratio);
+  margin: auto;
+  margin-bottom: $line-height-default;
+  padding: 0.5em;
+}
+
+button.load-iframe-button {
+  @include button-filled();
+}
+
+.figure-more.multiple-links {
+  @include dialog-styles();
+  background-color: $color-background;
+  left: 50%;
+  margin-top: 1rem;
+  padding: 0;
+  position: absolute;
+  transform: translateX(-50%);
+  top: 2rem;
+  z-index: 1;
+  
+  & > * {
+    background-color: $color-background;
+    color: $color-text-main !important;
+    display: block;
+    @include p5($factor: $font-serif-sans-ratio);
+    margin: 0 !important;
+    padding: 0.5em;
+    text-align: left;
+    text-decoration: none;
+    width: -webkit-fill-available;
+    
+    &:hover, &:focus {
+      background-color: $color-accent;
+      color: $color-background !important;
+    }
+  }
+}

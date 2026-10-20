@@ -1,0 +1,29 @@
+// These styles are originally from The Economy 1.0.
+// Some repeat styles now included in the EBT template styles.
+// They are retained here to ensure consistency during production.
+
+// Show the URL of a link with a show-url class.
+a.show-url:after {
+    content: " (" attr(href) ")";
+}
+
+a.show-url-only:after {
+    content: attr(href);
+}
+
+a.show-tidy-url-only:after {
+    content: attr(data-figure-more-tidy-url);
+}
+
+// Show the page number of a link with a show-page-number class.
+a.show-page-number:after {
+
+    // use prince-script to only insert this content if we're
+    // not already on the same page as the target reference.
+    content: prince-script(pagereference, counter(page), target-counter(attr(href), page));
+}
+
+// Use `show-page-number-lower-roman` for page refs to lower-roman pages
+a.show-page-number-lower-roman::after {
+    content: prince-script(pagereference, counter(page), target-counter(attr(href), page, lower-roman));
+}

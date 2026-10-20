@@ -1,0 +1,29 @@
+// Copyright page
+
+.copyright-page {
+
+    // Center vertically
+
+    // override template's absolute bottom
+    position: relative;
+    top: (($page-height - $margin-top - $margin-bottom) * 0.5);
+    transform: translatey(-50%);
+
+    // Center on page horizontally
+    padding: 0 $margin-inside;
+
+    p {
+        text-align: center;
+        margin-bottom: $line-height-default * 0.5;
+    }
+
+    img {
+        width: $sidebar-content-width * 0.5;
+    }
+
+    &.align-bottom {
+        position: absolute;
+        top: auto;
+        transform: none;
+    }
+}

@@ -1,0 +1,10 @@
+@mixin web-image-max-height() {
+    @for $i from 1 through 10 {
+        $max-height: $i * 100;
+        &.web-image-max-height-#{$max-height} {
+            img, p img {
+                max-height: #{$max-height}px;
+            }
+        }
+    }
+}

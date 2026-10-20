@@ -1,0 +1,30 @@
+// Team gallery
+
+.team-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  margin: 1.5rem 0;
+  font-family: $font-text-secondary;
+  font-size: $font-size-default * $font-serif-sans-ratio;
+  text-align: center;
+  
+  .team-gallery-member {
+    margin: 0;
+    width: auto;
+    
+    img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      display: block;
+    }
+    
+    .team-gallery-member-name {
+      display: block;
+      font-weight: bold;
+    }
+  }
+}

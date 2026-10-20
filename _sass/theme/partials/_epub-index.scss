@@ -1,0 +1,24 @@
+// Index
+
+.reference-index,
+.reference-index-manual {
+  margin-left: $line-height-default;
+  
+  .index-subhead {
+    font-family: $font-display-main;
+    font-weight: bold;
+    margin-top: $line-height-default;
+  }
+  
+  li {
+    text-indent: -($line-height-default);
+    
+    ul {
+      margin-bottom: 0;
+
+      li {
+        margin: 0;
+      }
+    }
+  }
+}

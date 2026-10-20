@@ -1,0 +1,81 @@
+// Text questions
+// Projects pages (designed originally for Doing Economics)
+
+// number questions within h2 sections
+h2, header {
+  counter-reset: section;
+}
+
+.text-question {
+  counter-reset: question;
+  list-style-type: none; // remove list style because we're creating our own counters
+  margin-left: 1.5em; // no list indentation
+  padding: 0; // necessary when text-question is used for a blockquote to group paras
+
+  &:before {
+    color: $color-accent;
+    counter-increment: section;
+    content: counter(section);
+    float: left;
+    font-family: $font-text-secondary;
+    font-weight: bold;
+    margin-left: -1.5em;
+    margin-top: -0.1em; // accounts for font's low baseline
+  }
+
+  // When h3 with no margin-bottom precedes a text-question,
+  // add margin to force the counter number downwards
+  // to align with the text.
+  h3 + & {
+    margin-top: $line-height-default;
+  }
+
+  li ol, li ul {
+    margin-bottom: $line-height-default;
+    margin-top: 0;
+  }
+}
+
+.text-sub-question {
+  list-style-type: none; // remove list style because we're creating our own counters
+  margin-left: 1.5em;
+  padding: 0;
+  
+  // Reduce space between sub-questions
+  & + & {
+    margin-top: -1em;
+  }
+
+  &:before {
+    content: "(" counter(question, lower-alpha) ") ";
+    counter-increment: question;
+    float: left;
+    font-style: italic;
+    margin-right: 0.5em;
+    margin-top: -0.1em; // accounts for font's low baseline
+  }
+
+  ul, ol {
+    margin-left: $line-height-default * 2;
+  }
+}
+
+// Solutions pages get extra treatment
+body.solutions {
+  // This is a fragile hack to use the .text-question class
+  // for the first para in solutions. It indents everything,
+  // except h2s and h3s, after a solution's first para (if it's
+  // tagged with text-question) until the next text-question.
+  .text-question {
+    & ~ :not(.text-question):not(h2):not(h3) {
+      margin-left: 1.5em;
+    }
+  }
+
+  .text-sub-question {
+    & ~ ul:not(.text-question):not(.text-sub-question),
+    & ~ ol:not(.text-question):not(.text-sub-question) {
+      margin-left: 4.5em !important; // important to override more specific :not above
+    }
+  }
+}

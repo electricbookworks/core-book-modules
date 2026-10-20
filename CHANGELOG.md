@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.2.8](https://github.com/electricbookworks/core-book-modules/compare/v5.2.7...v5.2.8) (2026-10-13)
+
+### [5.2.7](https://github.com/electricbookworks/core-book-modules/compare/v5.2.6...v5.2.7) (2026-10-13)
+
+### [5.2.6](https://github.com/electricbookworks/core-book-modules/compare/v5.2.5...v5.2.6) (2026-10-12)
+
+### [5.2.5](https://github.com/electricbookworks/core-book-modules/compare/v5.2.4...v5.2.5) (2026-10-08)
+
+### [5.2.4](https://github.com/electricbookworks/core-book-modules/compare/v5.2.3...v5.2.4) (2026-10-08)
+
+### [5.2.3](https://github.com/electricbookworks/core-book-modules/compare/v5.2.2...v5.2.3) (2026-10-06)
+
+### [5.2.2](https://github.com/electricbookworks/core-book-modules/compare/v5.2.1...v5.2.2) (2026-10-06)
+
+### [5.2.1](https://github.com/electricbookworks/core-book-modules/compare/v5.2.0...v5.2.1) (2026-10-05)
+
+## [5.2.0](https://github.com/electricbookworks/core-book-modules/compare/v5.1.8...v5.2.0) (2026-10-01)
+
+### [5.1.8](https://github.com/electricbookworks/core-book-modules/compare/v5.1.7...v5.1.8) (2026-10-01)
+
 ### [5.1.7](https://github.com/electricbookworks/core-book-modules/compare/v5.1.6...v5.1.7) (2026-09-29)
 
 ### [5.1.6](https://github.com/electricbookworks/core-book-modules/compare/v5.1.5...v5.1.6) (2026-09-22)

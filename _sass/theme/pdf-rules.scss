@@ -1,0 +1,47 @@
+// Note that the order of these partials is important,
+// especially for Setup and Refinement.
+
+// Setup
+@import "theme/partials/pdf-mixins";
+@import "theme/partials/pdf-font-faces";
+@import "theme/partials/pdf-sidebar";
+@import "theme/partials/pdf-headers-footers";
+@import "theme/partials/pdf-page-setup-ingram-pod";
+
+// Main styles
+@import "theme/partials/pdf-base-typography";
+@import "theme/partials/pdf-bibliographies";
+@import "theme/partials/pdf-boxes";
+@import "theme/partials/pdf-chapter-openers";
+@import "theme/partials/pdf-code";
+@import "theme/partials/pdf-contributors";
+@import "theme/partials/pdf-copyright-acknowledgements";
+@import "theme/partials/pdf-copyright-page";
+@import "theme/partials/pdf-definitions";
+@import "theme/partials/pdf-dialogue";
+@import "theme/partials/pdf-endmatter";
+@import "theme/partials/pdf-exercises";
+@import "theme/partials/pdf-figures";
+@import "theme/partials/pdf-footnotes";
+@import "theme/partials/pdf-frontmatter";
+@import "theme/partials/pdf-images";
+@import "theme/partials/pdf-index-glossary";
+@import "theme/partials/pdf-info-boxes";
+@import "theme/partials/pdf-leibnizes";
+@import "theme/partials/pdf-maths";
+@import "theme/partials/pdf-pdf-bookmarks";
+@import "theme/partials/pdf-pullquotes";
+@import "theme/partials/pdf-qr-codes";
+@import "theme/partials/pdf-questions";
+@import "theme/partials/pdf-show-url-page";
+@import "theme/partials/pdf-slides";
+@import "theme/partials/pdf-smallcaps";
+@import "theme/partials/pdf-tables";
+@import "theme/partials/pdf-team-gallery";
+@import "theme/partials/pdf-tip-boxes";
+@import "theme/partials/pdf-title-pages";
+@import "theme/partials/pdf-toc";
+@import "theme/partials/pdf-videos";
+
+// Refinement
+@import "theme/partials/pdf-refinement";

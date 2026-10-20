@@ -1,0 +1,245 @@
+// BASE TYPOGRAPHY
+
+// Mixins
+@mixin h1($factor: 1) {
+  font-size: $factor * 2.25rem;
+  font-weight: 700;
+  text-align: left;
+  line-height: 1.25;
+
+  @media only screen and (min-width: $breakpoint-typography) {
+    font-size: $factor * 3rem;
+  }
+}
+
+@mixin h1strong($factor: 1) {
+  font-size: $factor * 1.75rem;
+  line-height: 1.25;
+  font-weight: 400;
+
+  @media only screen and (min-width: $breakpoint-typography) {
+    font-size: $factor * 2rem;
+  }
+}
+
+@mixin h2($factor: 1) {
+  font-size: $factor * 1.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+
+  @media only screen and (min-width: $breakpoint-typography) {
+    font-size: $factor * 2.25rem;
+  }
+}
+
+@mixin h3($factor: 1) {
+  font-weight: 700;
+  font-size: $factor * 1.25rem;
+  line-height: 1.25;
+
+  @media only screen and (min-width: $breakpoint-typography) {
+    font-size: $factor * 1.5rem;
+  }
+}
+
+@mixin h3exercise($factor: 1) {
+  font-size: $factor * 1.25rem;
+  line-height: 1.25;
+  font-weight: 400;
+
+  strong {
+    font-weight: 700;
+  }
+
+  @media only screen and (min-width: $breakpoint-typography) {
+    font-size: $factor * 1.5rem;
+  }
+}
+
+@mixin h4($factor: 1) {
+  font-size: $factor * 1.25rem;
+  font-style: normal;
+  line-height: 1;
+}
+
+@mixin h5($factor: 1) {
+  font-style: normal;
+  font-size: $factor * 1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+@mixin subheadline($factor: 1) {
+  font-size: $factor * 1.5rem;
+  line-height: 1.3;
+
+  @media only screen and (min-width: $breakpoint-typography) {
+    font-size: $factor * 2.25rem;
+    line-height: 1.25;
+  }
+}
+
+@mixin p1($factor: 1) {
+  font-size: $factor * 1.5rem;
+  line-height: 1.25;
+  
+  @media only screen and (min-width: $breakpoint-typography) {
+    font-size: $factor * 1.875rem;
+  }
+}
+
+@mixin p2($factor: 1) {
+  font-size: $factor * 1.25rem;
+  line-height: 1.3;
+
+  @media only screen and (min-width: $breakpoint-typography) {
+    font-size: $factor * 1.5rem;
+  }
+}
+
+@mixin p3($factor: 1) {
+  font-size: $factor * 1rem;
+  line-height: 1.5;
+
+  @media only screen and (min-width: $breakpoint-typography) {
+    font-size: $factor * 1.25rem;
+  }
+}
+
+@mixin p4($factor: 1) {
+  font-size: $factor * 0.875rem;
+  line-height: 1.5;
+
+  @media only screen and (min-width: $breakpoint-typography) {
+    font-size: $factor * 1rem;
+    line-height: 1.25;
+  }
+}
+
+@mixin p5($factor: 1) {
+  font-size: $factor * 0.75rem;
+  line-height: 1.3;
+
+  @media only screen and (min-width: $breakpoint-typography) {
+    font-size: $factor * 0.875rem;
+  }
+}
+
+@mixin body($factor: 1) {
+  font-size: $factor * 1.125rem;
+  line-height: 1.5;
+
+  @media only screen and (min-width: $breakpoint-typography) {
+    font-size: $factor * 1.375rem;
+  }
+}
+
+// Usage
+
+h1 {
+  @include h1();
+  color: $color-ghost;
+
+  strong {
+    @include h1strong();
+    color: $color-accent;
+  }
+}
+
+h2 {
+  @include h2();
+  color: $color-accent;
+
+  .landing-page & {
+    color: $color-charcoal
+  }
+}
+
+h3 {
+  @include h3();
+  color: $color-charcoal;
+  
+  .default-page &, .frontmatter-page &, .endmatter-page & {
+    @include h3($factor: 1 / $font-serif-sans-ratio);
+    font-family: $font-text-main;
+    font-style: italic;
+    color: $color-accent;  
+
+    em {
+      font-style: normal;
+    }
+  }
+
+  .landing-page-flex-section-item & {
+    @include h4();
+    font-weight: 600;
+  }
+
+  .landing-page-contributors-item & {
+    @include h5();
+    font-weight: 600;
+  }
+}
+
+h4 {
+  @include h4();
+  font-family: $font-text-main;
+  
+  .default-page &, .frontmatter-page &, .endmatter-page & {
+    @include h4($factor: 1.2);
+    font-style: italic;
+
+    em {
+      font-style: normal;
+    }
+  }
+
+  .landing-page & {
+    font-family: $font-text-secondary;
+    font-weight: 600;
+
+    strong {
+      @include h5();
+      // Themeable via --landing-accent; falls back to the accent
+      // colour so repos without the theme partial still render.
+      color: var(--landing-accent, #{$color-accent});
+      text-transform: uppercase;
+    }
+  }
+
+}
+
+h5 {
+  @include h5();
+  font-family: $font-text-secondary;
+}
+
+body {
+  @include body();
+  color: $color-charcoal;
+}
+
+p, p + p {
+  @include body();
+  color: $color-charcoal;
+  margin-bottom: 0.75rem;
+}
+
+.p1 {
+  @include p1();
+  color: $color-ghost;
+}
+
+.p2 {
+  @include p2();
+  color: $color-ghost;
+}
+
+.p4 {
+  @include p4();
+}
+
+a {
+  text-decoration: none;
+  color: $color-links;
+}

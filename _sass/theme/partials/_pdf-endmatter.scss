@@ -1,0 +1,108 @@
+.endmatter-page {
+    width: $content-width;
+    column-count: 2;
+    column-gap: $sidebar-gap-width;
+
+    h1 {
+        @include head-1-reverse();
+
+        column-span: all;
+        display: block;
+        margin-outside: 0;
+
+        // remove border above heading text
+        &:before {
+            border: 0;
+        }
+    }
+
+    table {
+
+        // One column wide
+        max-width: ($content-width * 0.5) - $sidebar-gap-width;
+        width: auto;
+    }
+
+    .figure,
+    .figure.figure-no-source {
+        float: column top;
+
+        // One column wide
+        width: ($content-width * 0.5) - $sidebar-gap-width;
+        margin: 0 0 $line-height-default 0;
+
+        .figure-body {
+            width: ($content-width * 0.5) - $sidebar-gap-width;
+
+            img {
+                width: 100%;
+            }
+
+            table {
+                max-width: 100%;
+            }
+        }
+
+        &.fixed {
+            float: none;
+            margin-top: $line-height-default;
+        }
+
+        &.pdf-wide,
+        &.pdf-full-width {
+            float: bottom;
+            margin-top: $line-height-default * 2;
+            margin-bottom: 0;
+            column-span: all;
+            width: $content-width;
+
+            .figure-body {
+                width: 100%;
+
+                .caption {
+                    margin-outside: 0;
+                }
+            }
+
+            table {
+
+                // 50-50 tables in wide figures need padding to align the
+                // text in them with two-column body text
+                &.table-50-50 {
+
+                    td, th {
+
+                        &:first-of-type {
+
+                            // 0.25pt is for half of cell border
+                            padding-right: ($sidebar-gap-width * 0.5) - 0.25pt;
+                        }
+
+                        &:last-of-type {
+
+                            // 0.25pt is for half of cell border
+                            padding-left: ($sidebar-gap-width * 0.5) - 0.25pt;
+                        }
+                    }
+                }
+            }
+
+            &.fixed {
+                float: none;
+                margin: $line-height-default 0;
+            }
+
+            &.float-top {
+                float: top;
+                margin-top: 0;
+                margin-bottom: $line-height-default * 2;
+            }
+        }
+
+        &.float-column-bottom {
+            float: column-bottom;
+            margin-top: $line-height-default * 2;
+            margin-bottom: 0;
+        }
+    }
+}

@@ -1,0 +1,77 @@
+// Footnotes
+
+sup[id^=fnref] {
+  @include number-marker();
+  margin-left: 0.25em;
+
+  a {
+    color: $color-white;
+    cursor: pointer;
+  }
+}
+
+.footnote-detail {
+  @include dialog-styles();
+  
+  border-bottom-right-radius: $core-element-border-radius / 2;
+  left: $max-width-default * 0.25 / 3;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0;
+  max-width: $max-width-default;
+  position: absolute;
+  right: $max-width-default * 0.25 / 3;
+  // pull footnote-detail out of the doc flow so they hover above text
+  z-index: 1;
+  
+  p {
+    margin-bottom: 0;
+  }
+  
+  // When footnotes are in sidenotes, let them be wider
+  .sidenote & {
+    left: 0;
+    right: 0;
+  }
+}
+
+.footnotes {
+  border-top: $rule-thickness solid $color-light;  
+  color: $color-text-secondary;
+  clear: both;
+}
+
+.footnote-detail {
+  .reversefootnote {
+    @include number-marker();
+    
+    border: 0;
+    color: $color-white;
+    font-size: 1em;
+    height: 1em;
+    line-height: 1;
+    padding: 0.15em 0.1em 0em 0.1em; // override number-marker padding
+    position: absolute;
+    right: -($line-height-default / 2);
+    top: -($line-height-default / 2);
+    width: 1em;
+    
+    &:before {
+      content: $footnote-close;
+      font-size: 1em;
+      display: inline-block;
+      position: relative;
+      top: -0.1em;
+      width: 1em;
+    }
+  }
+}
+
+.footnotes a.reversefootnote svg {
+  // style the arrows in the footnote references
+  background-color: inherit;
+  display: inline-block;
+  height: 0.8em;
+  margin: 0;
+  vertical-align: inherit;
+}

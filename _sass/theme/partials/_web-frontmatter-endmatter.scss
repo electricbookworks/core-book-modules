@@ -1,0 +1,16 @@
+// FRONTMATTER AND ENDMATTER
+
+.frontmatter,
+.endmatter {
+  h1 {
+    margin-top: 3rem;
+  }
+  
+  h2, h3 {
+    .anchorjs-link {
+      display: inline-block;
+      vertical-align: middle;
+      line-height: normal;
+    }
+  }
+}

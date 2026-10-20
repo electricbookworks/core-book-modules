@@ -1,0 +1,16 @@
+// Chapter contributors
+.contributors {
+
+    // Position
+    position: absolute;
+    top: ($line-height-default * 22) - $margin-top;
+    margin-outside: -($sidebar-content-width + $sidebar-gap-width);
+
+    // Appearance
+    text-indent: 0;
+    font-family: $font-display-main;
+    font-size: $font-size-default * 0.8;
+    color: $color-mid;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}

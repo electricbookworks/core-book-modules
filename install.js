@@ -8,8 +8,10 @@ const path = require('path')
  * Syncs folders to the parent package and creates .gitignore files
  */
 
-// Folders to sync to parent package
-const FOLDERS_TO_SYNC = ['_tools', '_webpack', '_docs', '_app']
+// Folders to sync to parent package.
+// The shared _sass folder ships only the common `template` styles; each parent
+// keeps its book-specific `theme` styles in `_sass-custom/theme`.
+const FOLDERS_TO_SYNC = ['_tools', '_webpack', '_docs', '_app', '_sass']
 
 let moduleRoot
 let parentRoot
@@ -90,7 +92,7 @@ async function install () {
         })
 
         // Create .gitignore file in the copied folder
-        const gitignoreContent = `# Electric Book ${folder === '_tools' ? 'Tools' : 'Webpack'}
+        const gitignoreContent = `# Electric Book ${folder}
 # This folder is managed by @electricbookworks/core-book-modules
 # Do not track any files in this folder
 *
@@ -103,7 +105,8 @@ async function install () {
       }
     }
 
-    // Sync custom folders from parent (e.g. _tools-custom -> _tools)
+    // Sync custom folders from parent (e.g. _tools-custom -> _tools,
+    // or _sass-custom/theme -> _sass/theme)
     for (const folder of FOLDERS_TO_SYNC) {
       try {
         const customFolderPath = path.join(parentRoot, `${folder}-custom`)

@@ -1,0 +1,200 @@
+// Nav
+
+.nav-buttons {
+  left: 0;
+  margin: 0.8rem;
+  width: fit-content;
+}
+
+.nav-back-button {
+  // padding: 0.25em 0.5em;
+  // Hide, since it's only used in the app and we don't need it there
+  display: none;
+}
+
+[href="#nav"] {
+  @include button-filled;
+  margin: 0;
+    
+  .js-nav-open & {
+    background-color: transparent;
+  }
+}
+
+#nav {
+  border-top: $rule-thickness solid $nav-bar-border-color;
+  box-sizing: content-box;
+  padding-right: 17px; // Hides scroll bar
+  padding-top: 2rem;
+
+  @include p3($factor: $font-serif-sans-ratio);
+
+  a.nav-logo img {
+    width: 10rem;
+    margin-left: 1rem;
+  }
+
+  .nav-title {
+    @include h2();
+    color: $color-accent;
+    margin-bottom: 0;
+    padding-left: 0.9rem;
+  }
+
+  .nav-title-space {
+    margin-bottom: 1rem;
+  }
+
+  .nav-subtitle {
+    @include h3();
+    color: $color-accent;
+    font-weight: normal;
+    margin-bottom: 1rem;
+    padding-left: 0.9rem;
+  }
+
+  .widgets {
+    margin: 0 -17px 0 0; // Fills width of container-with-hidden-scrollbar
+  }
+
+  .js-nav & {
+    border-right: $rule-thickness solid $nav-bar-border-color;
+    left: 0;
+    width: $nav-bar-width;
+    z-index: 100;
+  }
+
+  // Search
+  $search-enabled: true !default;
+  @if $search-enabled {
+    .search {
+      margin: 0 -17px 0 0; // Fills width of container-with-hidden-scrollbar
+
+      input {
+        color: $color-mid;
+        margin: 0;
+        padding: 0.75em 0.75em;
+      }
+    }
+  }
+
+  @else {
+    .search {
+      display: none;
+    }
+  }
+
+  .nav-list {
+    margin: 0 -17px 3rem 0; // Fills width of container-with-hidden-scrollbar
+
+    // First level parent navigation
+    ol, ul {
+      li {
+        // Avoid li with class name from meta
+        // from getting accent colour background
+        &[class*="theme-"] {
+          background-color: transparent;
+        }
+        
+        a {
+          max-width: $nav-bar-width * 0.7; // Leaves space for child prompt
+          display: block;
+          padding: .1em 2em .1em .75em; 
+        }
+
+        &:hover, &:focus, &:active { // Hovered, focused, tapped on touchscreen
+          background-color: $nav-bar-parent-hover-color;
+          color: $nav-bar-parent-text-hover-color;
+          width: 100%; // extend right to edge
+
+          & > a, button:after {
+            color: $nav-bar-child-text-hover-color;
+          }
+        }
+
+        &.active { // The active page
+          width: 100%; // extend right to edge
+
+          a, button:after {
+            color: $nav-bar-child-text-hover-color;
+          }
+
+          li {
+            a {
+              color: $nav-bar-child-text-color;
+
+              &:focus, &:hover {
+                color: $color-light;
+              }
+            }
+          }
+        }
+      }
+      
+      // Child navigation, after the parent, the rest of the nav-list
+      ol, ul {
+        width: 100%;
+
+        li {
+          padding-left: 1em; // Indent sub lists, while keeping full-width background hover
+          width: 100%; // Use full width of li area
+
+          a { // Make link fill entire li area
+            display: block;
+            
+            &.active {
+              &:focus, &:hover {
+                color: $color-light;
+              }
+            }
+          }
+
+          &:hover, &:focus, &:active {
+            width: 100%; // extend right to edge
+          }
+        }
+
+        // Indent sub-sub lists, while keeping full-width background hover
+        ol, ul {
+          margin-left: -1em;
+          padding-left: 2em;
+
+          li {
+            padding-left: 2em;
+            position: relative;
+            left: -2em;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Buttons
+[data-toggle] {
+  height: 1.65em; // This magic number may not always work
+  margin: 0 0 0 -0.5em;
+  padding: 0 0.5em;
+
+  &:focus {
+    outline: 5px auto Highlight;
+    outline: 5px auto -webkit-focus-ring-color;
+}
+}
+
+[data-nav-close] {
+  font-size: inherit;
+
+  &:after {
+    color: $color-accent;
+  }
+
+  &:active, &:focus {
+    outline: 5px auto Highlight;
+    outline: 5px auto -webkit-focus-ring-color;
+  }
+}
+
+[data-toggle-nav] {
+  right: .5em;
+}

@@ -1,0 +1,17 @@
+// Theme colours
+$color-accent: #f05a5b; // CORE red
+$color-accent-dark: #BC4546; // Brick
+$color-accent-light: #F8EBEB; // Rose
+
+$color-accent-10pc: #fdeeee; // rgb(253, 238, 238);
+$color-accent-15pc: #FCF9F9;
+$color-accent-30pc: #facdcd; // 30% tint of color-accent
+
+// CYMK values for print output
+
+@if $output-format == "print-pdf" {
+
+    // Theme colours
+
+
+}

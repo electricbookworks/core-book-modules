@@ -1,0 +1,15 @@
+// Copyright acknowledgements
+
+.contains-copyright-acknowledgements {
+
+    // override template; columns provided by .endmatter
+    columns: 1;
+
+    .content {
+        column-count: auto;
+    }
+
+    p {
+        @include endmatter-text();
+    }
+}

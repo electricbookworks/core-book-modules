@@ -1,13 +1,13 @@
 {
   "name": "@electricbookworks/core-book-modules",
-  "version": "5.1.7",
+  "version": "5.2.8",
   "description": "A distributable package of modules used in CORE projects originally derived from the Electric Book Template.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "node install.js",
     "first-release": "npx standard-version --first-release  && git push --follow-tags",
     "release": "standard-version && git push --follow-tags",
-    "watch": "nodemon --exec \"yalc push\""
+    "watch": "nodemon --ext js,mjs,cjs,json,scss --exec \"yalc push\""
   },
   "repository": {
     "type": "git",

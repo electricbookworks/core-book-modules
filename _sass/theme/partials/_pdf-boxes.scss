@@ -1,0 +1,594 @@
+.box {
+
+    // Let sidebar elements from preceding elements
+    // flow beside this one
+    clear: none;
+
+    float: top;
+
+    // Flush at top of page; and why we can't do 'float: top unless-fit'
+    margin-top: 0;
+
+    // Subtract border-width from padding
+    // so that box aligns with baseline grid.
+    padding: ($line-height-default * 0.5 - $border-width) ($paragraph-indent * 0.5);
+    border: $border-width solid $color-accent;
+
+    // No space after last element in box,
+    // padding takes care of that
+    & > :last-child {
+        margin-bottom: 0;
+    }
+
+    .sidenote,
+    .footnote-detail {
+        @include sidenote();
+
+        &:before {
+
+            // Remove pseudo-'border' from sidenotes in boxes
+            background: transparent;
+        }
+    }
+
+    & + p {
+        text-indent: $paragraph-indent;
+    }
+
+    &.fixed {
+        float: none;
+        margin-top: $line-height-default;
+
+        & + p {
+            text-indent: 0;
+        }
+    }
+
+    .figure {
+
+        .figure-body {
+
+            // Add space where these figures are not normally floated
+            margin-bottom: $line-height-default;
+        }
+
+        .figure-source {
+
+            // TODO: confirm if this spacing works.
+            // Account for narrower figure-body
+            margin-outside: -($sidebar-content-width + $sidebar-gap-width) - ($paragraph-indent * 0.5);
+        }
+
+        // TODO: check if this is necessary,
+        // it was originally, before Prince sidenotes
+        &.figure-no-source {
+            display: inline-block;
+        }
+
+        // A clearfix-like solution for exercise boxes
+        // not expanding to height of figure
+        // when figure is last the element in an exercise box
+        &:last-child:after {
+
+            // needs some content to take up space
+            content: " ";
+
+            // needs this, perhaps to fill width
+            display: block;
+
+            // must clear its parent's float
+            clear: both;
+
+            // remove space normally added after last element in exercise
+            margin-bottom: -($line-height-default);
+        }
+    }
+
+    &.contains-figures {
+
+        // If a box contains figures, its height can collapse,
+        // leaving figures outside its borders. By adding this class
+        // to the box, we float the entire figure, which forces it
+        // to expand to its children's height. We also don't float the
+        // figures, in order to keep them inside the box's borders.
+        float: inside;
+
+        .figure {
+            float: none;
+        }
+    }
+
+    .slides {
+        margin: $line-height-default 0;
+
+        .figure {
+            margin: 0;
+
+            // allow for padding on parent box
+            width: (($main-text-width - $paragraph-indent * 1.5) * 0.5);
+
+            .figure-body {
+
+                // allow for padding on parent box
+                width: (($main-text-width - $paragraph-indent * 1.5) * 0.5);
+            }
+
+            .figure-source {
+                display: none;
+            }
+
+            &.summary {
+                float: none;
+
+                // $paragraph indent is to allow for parent-box padding
+                width: ($main-text-width + $sidebar-content-width + $sidebar-gap-width) - $paragraph-indent;
+
+                margin-outside: -($sidebar-content-width + $sidebar-gap-width);
+                margin-inside: 0;
+
+                &.figure-no-source {
+
+                    // let sidebar elements float beside
+                    display: inline-block;
+
+                    // nothing in sidebar
+                    margin-outside: 0;
+
+                    // prevent slides from floating over the summary
+                    display: block;
+                }
+
+                // Clear the float before slides begin
+                &:after {
+                    content: "";
+                    display: block;
+                    clear: both;
+                }
+
+                .figure-body {
+                    float: inside;
+
+                    // $paragraph indent is to allow for parent-box padding
+                    width: ($main-text-width) - ($paragraph-indent);
+                    margin: 0;
+                }
+
+                .figure-source {
+                    width: $sidebar-content-width;
+                    float: outside;
+                    margin-outside: 0;
+
+                    // reverse display: none
+                    display: inline-block;
+
+                    .source {
+                        width: $sidebar-content-width;
+                        padding: 0;
+
+                        // reverse display: none
+                        display: inline-block;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Various named feature boxes.
+// Also see figures for these boxes in the Figures section.
+
+// Default styles for feature boxes
+@each $box in $feature-boxes {
+    .#{$box} {
+        // Decided against this. These seem to need to appear
+        // where they're placed in the flow...
+        // .. if necessary, use local overrides listed
+        // in 'Fixes' below, e.g. `.float-top-unless-fit`.
+        // float: top unless-fit;
+
+        // let sidebar elements from preceding elements flow beside this one
+        clear: none;
+
+        box-decoration-break: clone;
+        background: $color-light;
+        padding: ($line-height-default * 0.5) ($paragraph-indent * 0.5);
+        margin-top: $line-height-default;
+        margin-bottom: $line-height-default;
+        border: 0;
+        width: $main-text-width;
+
+        // No space after last element in box, padding takes care of that
+        & > :last-child {
+            margin-bottom: 0;
+        }
+
+        &.source-last {
+            padding-bottom: 0;
+
+            &::after {
+                content: "";
+                display: inline-block;
+                height: 1px;
+                position: relative;
+                vertical-align: middle;
+                margin-right: 0.5em;
+            }
+        }
+
+        h2, h3, h4, h5, h6 {
+            font-family: $font-text-main;
+            font-size: $font-size-default * 1.2;
+            color: $color-accent;
+            font-weight: normal;
+            margin: 0;
+
+            font-style: italic;
+            em { font-style: normal; }
+
+            // Put the first bold word, e.g. 'Einstein', in a bar at the top
+            strong:first-of-type {
+                display: block;
+                background: $color-accent;
+                color: white;
+                text-transform: uppercase;
+                font-size: $font-size-default;
+                font-family: $font-text-secondary;
+                font-style: normal;
+                font-weight: bold;
+                padding-top: $line-height-default * 0.25;
+                padding-right: $paragraph-indent * 0.5;
+                padding-bottom: $line-height-default * 0.25;
+                padding-left: $paragraph-indent * 0.5;
+                margin-top: -($line-height-default * 0.5);
+                margin-right: -($paragraph-indent * 0.5);
+                margin-bottom: ($line-height-default * 0.5);
+                margin-left: -($paragraph-indent * 0.5);
+            }
+
+            // When the heading is followed by an image
+            // add space above the image.
+            & + p > img:only-child {
+                margin-top: $line-height-default * 0.25;
+            }
+
+            // Avoid starting a box only to break it in the first paragraph.
+            &:first-of-type + p:first-of-type {
+                page-break-inside: avoid;
+            }
+        }
+
+        h4, h5, h6 {
+            color: $color-text-main;
+        }
+
+        // If the heading follows a paragraph, add some space above it.
+        p + h2,
+        p + h3,
+        p + h4,
+        p + h5,
+        p + h6 {
+            margin-top: $line-height-default!important;
+        }
+
+        // Where figures and slides appear inside one of these boxes,
+        // their border and background should match their parent box.
+        // This means, too, that we shouldn't float them or we'll have
+        // floated figures with odd-looking backgrounds lying about.
+        .figure {
+            float: none;
+            margin-top: $line-height-default;
+
+            // $paragraph-indent is for the padding on the parent economist box
+            max-width: $main-text-width - $paragraph-indent;
+
+            img {
+
+                // fit image inside parent box with colour around it
+                width: $main-text-width - $paragraph-indent;
+
+                // add white space around artwork with none
+                border: ($line-height-default * 0.5) solid white;
+                border-left-width: ($paragraph-indent * 0.5);
+                border-right-width: ($paragraph-indent * 0.5);
+            }
+
+            table {
+                width: 100%;
+            }
+
+            // No indent on paras after figures in these boxes
+            & + p {
+                text-indent: 0;
+            }
+
+            .figure-body {
+
+                // add space where these figures are not normally floated
+                margin-bottom: $line-height-default;
+
+                // $paragraph-indent is for the padding
+                // on the parent economist box
+                max-width: $main-text-width - $paragraph-indent;
+
+                [class*="contains-"] img {
+                    padding: 0;
+
+                    // experimental; this may create problems
+                    // when figures contain 2, 4 or more images
+                    width: $main-text-width - $paragraph-indent;
+                }
+            }
+
+            .figure-source {
+                @include sidenote();
+
+                // Align with top of image
+                padding-top: $line-height-default * 0.5;
+            }
+
+            &.figure-no-source {
+
+                // TODO: confirm is this is necessary in TE2
+                // required to let sidebar elements float beside
+                display: inline-block;
+
+                // $paragraph-indent is for the padding on the parent economist box
+                // reiterated here to override specificity of default .figure.figure-no-source
+                max-width: $main-text-width - $paragraph-indent;
+            }
+
+            // Figures in these boxes should be followed by non-indented paras
+            & + p,
+            & + .sidenote + p,
+            & + .footnote-detail + p {
+                text-indent: 0;
+            }
+
+            &.thumbnail {
+                border: none;
+                box-sizing: border-box;
+                float: right;
+                margin: 0 ($paragraph-indent * 0.5) $line-height-default $paragraph-indent;
+                padding: 0;
+
+                // Override allowance for normal figures
+                // in boxes that have footnotes.
+                transform: none;
+            }
+        }
+
+        // Slides when in boxes.
+        // TODO: still working with new EBT slides styles?
+        .slides {
+            float: none;
+            background: inherit;
+            margin: $line-height-default 0;
+            width: $page-width - $margin-inside - $margin-outside - $paragraph-indent;
+            columns: 2;
+            column-gap: $paragraph-indent * 0.5;
+            text-align: left;
+
+            .figure {
+                float: none;
+                margin: 0;
+
+                // allow for padding on parent box
+                width: (($main-text-width - $paragraph-indent * 1.5) * 0.5);
+
+                // override inherited style
+                padding: 0;
+
+                .figure-body {
+
+                    // allow for padding on parent box
+                    width: (($main-text-width - $line-height-default * 1.5) * 0.5);
+                }
+
+                .figure-source {
+                    display: none;
+                }
+
+                &.summary {
+                    float: none;
+                    width: ($main-text-width + $sidebar-content-width + $sidebar-gap-width) - $paragraph-indent;
+                    margin-top: ($line-height-default * 0.5);
+                    margin-bottom: $line-height-default;
+                    margin-outside: -($sidebar-content-width + $sidebar-gap-width);
+                    margin-inside: 0;
+                    column-span: all;
+
+                    &.figure-no-source {
+
+                        // TODO: confirm if still necessary in TE2.
+                        // let sidebar elements float beside
+                        display: inline-block;
+
+                        // nothing in sidebar
+                        margin-outside: 0;
+
+                        // only way to prevent slides from floating over the summary
+                        display: block;
+                    }
+
+                    // Clear the float before slides begin
+                    &:after {
+                        content: "";
+                        display: block;
+                        clear: both;
+                    }
+
+                    .figure-body {
+                        float: inside;
+                        width: ($main-text-width) - ($paragraph-indent);
+                        margin: 0;
+                    }
+
+                    .figure-source {
+                        width: $sidebar-content-width;
+                        float: outside;
+                        margin-outside: 0;
+
+                        // reverse display: none
+                        display: inline-block;
+
+                        .source {
+                            width: $sidebar-content-width;
+                            padding: 0;
+
+                            // reverse display: none
+                            display: inline-block;
+                        }
+                    }
+                }
+            }
+
+            // Slides in these boxes should be followed by non-indented paras
+            // and need a little space between.
+            & + p,
+            & + .sidenote + p,
+            & + .footnote-detail + p {
+                margin-top: $line-height-default * 0.5;
+                text-indent: 0;
+            }
+        }
+
+        &.contains-figures {
+
+            // If an element contains figures, its height can collapse,
+            // leaving figures outside its borders. By adding this class
+            // to the element, we float the entire figure, which forces it
+            // to expand to its children's height. We also don't float the
+            // figures, in order to keep them inside the element's borders.
+            float: inside;
+
+            .figure {
+                float: none;
+            }
+        }
+
+        // No indent on paras after a (floated) figure after this box
+        & + .figure + p {
+            text-indent: 0;
+        }
+
+        // Unless the box itself is also floated, in which case keep the indent
+        &.float-top + .figure + p,
+        &.float-top-next + .figure + p,
+        p + &.float-top + p,
+        p + &.float-top-next + p {
+            text-indent: $paragraph-indent;
+        }
+
+        // No margin above boxes floated to the top of the page
+        &.float-top,
+        &.float-top-next,
+        &.page-break-before {
+            margin-top: 0;
+        }
+
+        // Exercises inside these boxes
+        .exercise {
+            border: none;
+            padding: 0;
+
+            // Override inherited style of box h3 to apply exercise h3 styles
+            h3 {
+                font-family: $font-text-secondary;
+                font-style: normal;
+                font-size: $font-size-default * 0.85; // 8.5pt;
+                font-weight: bold;
+                line-height: $line-height-default;
+
+                em {
+                    font-style: italic;
+                }
+
+                strong {
+                    font-size: $font-size-default * 0.85;
+                    display: inline;
+                    background-color: transparent;
+                    color: $color-accent;
+                }
+            }
+        }
+
+        // Questions inside these boxes
+        .mcq, .question {
+            background-color: transparent;
+
+            h3 {
+                font-weight: bold;
+
+                strong {
+                    background-color: transparent;
+                    color: $color-accent;
+                    display: inline;
+                    font-size: inherit;
+                }
+            }
+        }
+    }
+}
+
+.prerequisites,
+.link-to-component {
+    @include sidenote();
+    background-color: $color-accent-light;
+    padding: ($line-height-default * 0.5) ($paragraph-indent * 0.5);
+
+    // No faux border
+    &:before {
+        background: $color-accent-light;
+    }
+
+    h3, h4, h5, h6 {
+        font-family: $font-display-main;
+        font-size: inherit;
+        font-style: normal;
+        font-weight: bold;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    @include wide-sidenotes();
+
+}
+
+.expandable-box {
+
+    @include wide-boxes();
+
+    .extension-preview {
+
+        // By setting overflow:hidden, we create a 'block formatting context',
+        // which prevents this parent div from not containing the floated
+        // QR code, when the QR code is taller than the content that it
+        // floats beside. https://stackoverflow.com/a/32301823/1781075
+        overflow: hidden;
+
+        // Extension QR codes appear inside the extension box so that
+        // it is very clear that it belongs to the extension.
+        .qr-code {
+            float: right;
+            margin: 0 0 ($line-height-default * 0.5) $paragraph-indent;
+            width: auto;
+            max-width: $sidebar-content-width;
+        }
+
+        // Hide everything after the preview.
+        // Need !important for specificity of some
+        // elements whose display is set explicitly
+        // (e.g. .figure is `display: inline-block`)
+        & ~ * {
+            display: none!important;
+        }
+    }
+
+    math {
+
+        // Prevent math overflowing box
+        max-width: 100%;
+    }
+}
