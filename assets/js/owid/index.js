@@ -14,6 +14,7 @@ const ebOwidGraphMount = ({ id, containerId, book }) => {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>html,body{height:100%;margin:0}#owid-mount{height:100%}</style>
+    <link rel="stylesheet" href="https://ourworldindata.org/fonts.css" />
     </head>
     <body>
     <div id="owid-mount"></div>

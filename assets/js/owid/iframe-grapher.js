@@ -43,11 +43,17 @@ const prepareData = async () => {
     return def
   })
   const config = {
-    ...configRaw
+    ...configRaw,
+    canonicalUrl: null,
+    hideDownloadButton: true,
+    hideDonateButton: true
   }
   columnDefs.forEach(columnDef => {
     const dimension = config.dimensions.find(d => d.variableId === columnDef.id)
-    if (dimension) dimension.slug = columnDef.shortName
+    if (dimension) {
+      dimension.slug = columnDef.shortName
+      delete dimension.variableId
+    }
   })
   return { config, csv, columnDefs }
 }
