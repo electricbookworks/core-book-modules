@@ -300,7 +300,7 @@ First let's replace non-ascii characters in the reference with ascii versions to
                     {% comment %}Loop through the more-links to output buttons.{% endcomment %}
                     {% for link in more-links %}
                         
-                        <button class="load-iframe-button js-interactive button {% if include.class contains 'start-interactive' %} visuallyhidden start-interactive {% endif %}" data-link="{{ link }}">
+                        <button class="load-iframe-button js-interactive button {% if include.class contains 'start-interactive' %} visuallyhidden start-interactive {% endif %}" data-link="{{ link }}" data-owid-id="{{ include.owid-id }}" data-book="{{ book-directory }}">
                             {% if interactive-graph-texts[more-links-index] %}
                                 {{ interactive-graph-texts[more-links-index] }}
                             {% else %}
@@ -313,7 +313,7 @@ First let's replace non-ascii characters in the reference with ascii versions to
 
                     {% endfor %}
                     
-                    <button class="load-iframe-button js-static button visuallyhidden" tabindex="-1">
+                    <button class="load-iframe-button js-static button visuallyhidden" tabindex="-1" data-owid-id="{{ include.owid-id }}">
                         {{ locale.figures.see-static-graph }}
                     </button>
 
