@@ -96,15 +96,6 @@ $wordpress-buttons-height: 2.5rem;
     padding: 0.5rem 1rem;
 }
 
-// Hide the masthead to save vertical space in the app
-.wrapper:not(.landing-page) .masthead {
-    height: 0;
-
-    ul {
-        display: none;
-    }
-}
-
 .landing-page .masthead {
     flex-direction: row;
 
