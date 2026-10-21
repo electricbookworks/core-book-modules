@@ -3,6 +3,8 @@
 // iframe's own document, so nothing leaks between the page and the chart.
 // Bundled by webpack into assets/js/dist/owid-iframe.dist.js.
 
+// see https://docs.owid.io/projects/grapher/
+
 import './grapher.css'
 import { GrapherLoader } from './grapher.standalone.min.js'
 
