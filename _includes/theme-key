@@ -1,0 +1,53 @@
+{% comment %}Assuming themes have been defined{% endcomment %}
+{% unless include.themes == "" %}
+
+{% comment %}Put all our work in a variable we can filter later{% endcomment %}
+{% capture theme-key %}
+
+{% comment %}
+Get the list of theme numbers and remove spaces that might be around commas.
+Put the comma-separated images into an array.
+If the user has used `theme=` not `themes=`, add that number to the array.
+Then get the total number of themes in the array, in case we need it.
+{% endcomment %}
+{% capture theme-list %}{{ include.themes | remove: " " }}{% endcapture %}
+{% assign themes = theme-list | split: "," %}
+{% if include.theme %}
+{% assign themes = themes | push: include.theme %}
+{% endif %}
+{% assign number-of-themes = themes | size %}
+
+{% if site.output == "web" or site.output == "app" %}
+{% comment %}Loop through the themes, making a list{% endcomment %}
+{% for theme in themes %}
+<a href="{{ theme }}.html" class="theme-key-theme theme-key-{{ theme }}" title="{{ [theme] }}">
+<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /></svg>
+<span class="theme-key-label">{{ [theme] }}</span>
+</a>
+{% endfor %}
+
+{% else %}
+{% comment %}Loop through the themes, putting each one in a span{% endcomment %}
+{% for theme in themes %}
+    {% if theme and theme != "" %}<span class="theme-key-{{ theme }}">{{ theme }}</span>{% endif %}
+{% endfor %}
+
+{% endif %}
+
+{% endcapture %}
+
+{% comment %}Echo our original variable, without p tags or newlines{% endcomment %}
+
+{% comment %}Need an inline element in the TOC, and a block element for use in chapters{% endcomment %}
+
+{% if include.theme-type and include.theme-type == "inline" %}
+
+<span class="theme-key{% if include.class %} {{ include.class }}{% endif %}">{{ theme-key | remove: '<p>' | remove: '</p>' | strip_newlines }}</span>
+
+{% else %}
+
+<div class="theme-key{% if include.class %} {{ include.class }}{% endif %}">{{ theme-key | remove: '<p>' | remove: '</p>' | strip_newlines }}</div>
+
+{% endif %}
+
+{% endunless %}

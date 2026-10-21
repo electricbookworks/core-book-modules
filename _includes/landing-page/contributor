@@ -1,0 +1,6 @@
+<div class="landing-page-contributors-item">
+  <img src="{{ external-media }}assets/images/{{ site.output }}/{{ include.name }}.jpg" alt="{{ data.contributors[include.name].alt-text }}"/>
+  <p class="p4">{{ data.contributors[include.name].statement }}</p>
+  <h3>{{ data.contributors[include.name].name }}</h3>
+  <p class="p4">{{ data.contributors[include.name].affiliation }}</p>
+</div>

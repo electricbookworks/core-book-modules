@@ -1,0 +1,9 @@
+{% comment %}Warning that you're looking at a testing site.{% endcomment %}
+
+{% if site.build != "live" %}
+
+<div class="notification warning-testing-site">
+    You're looking at a testing site for {{ series-name }}, not the real, live site.
+</div>
+
+{% endif %}
