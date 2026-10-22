@@ -1,0 +1,67 @@
+{% comment %}Get metadata for language{% endcomment %}
+{% include metadata %}
+
+{% comment %}Assuming themes have been defined{% endcomment %}
+{% unless include.themes == "" %}
+
+{% comment %}Put all our work in a variable we can filter later{% endcomment %}
+{% capture theme-legend %}
+
+{% comment %}
+Get the list of theme numbers and remove spaces that might be around commas.
+Put the comma-separated images into an array.
+If the user has used `theme=` not `themes=`, add that number to the array.
+Then get the total number of themes in the array, in case we need it.
+{% endcomment %}
+{% capture theme-list %}{{ include.themes | remove: " " }}{% endcapture %}
+{% assign themes = theme-list | split: "," %}
+{% if include.theme %}
+{% assign themes = themes | push: include.theme %}
+{% endif %}
+{% assign number-of-themes = themes | size %}
+
+{% comment %}A list of theme titles{% endcomment %}
+{% assign theme-names = site.data.works.[book-directory].themes %}
+{% if is-translation %}
+    {% assign theme-names = site.data.works.[book-directory].[language].themes %}
+{% endif %}
+
+{% capture 17 %}{{ theme-names.17 }}{% endcapture %}
+{% capture 18 %}{{ theme-names.18 }}{% endcapture %}
+{% capture 19 %}{{ theme-names.19 }}{% endcapture %}
+{% capture 20 %}{{ theme-names.20 }}{% endcapture %}
+{% capture 21 %}{{ theme-names.21 }}{% endcapture %}
+{% capture 22 %}{{ theme-names.22 }}{% endcapture %}
+
+{% comment %}Standard legend label, then the list of themes{% endcomment %}
+<div class="theme-legend{% if include.class %} {{ include.class}}{% endif %}">
+<p class="theme-legend-heading" data-bookmarkable="no">{{ locale.themes.legend-heading }}</p>
+<ul class="theme-legend-list" data-bookmarkable="no">
+{% for theme in themes %}
+<li class="theme-legend-theme theme-legend-theme-{{ theme }}" data-bookmarkable="no">
+
+    {% if site.output == "web" or site.output == "app" %}
+        <a href="{{ theme }}.html" class="theme-key-theme theme-key-{{ theme }}" title="{{ [theme] }}">
+            {% unless site.export.format == "docx" %}<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/></svg>{% endunless %}
+            <span class="visuallyhidden">{{ theme }}: </span>{{ [theme] }}
+        </a>
+    {% elsif site.output == "epub" %}
+        <a href="{{ theme }}.html" class="theme-key-theme theme-key-{{ theme }}" title="{{ [theme] }}">
+            <span>{{ theme }}: </span>{{ [theme] }}
+        </a>
+    {% else %}
+            {% unless site.export.format == "docx" %}<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/></svg>{% endunless %}
+            <span>{{ theme }}: </span>{{ [theme] }}
+    {% endif %}
+
+</li>
+{% endfor %}
+</ul>
+</div>
+
+{% endcapture %}
+
+{% comment %}Echo our original variable, without newlines{% endcomment %}
+{{ theme-legend | strip_newlines }}
+
+{% endunless %}

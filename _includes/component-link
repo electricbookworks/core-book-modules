@@ -1,0 +1,51 @@
+{% capture component-link %}
+
+{% if component-id %}
+  {% assign component-id = component-id | plus: 1 %}
+{% else %}
+  {% assign component-id = 1 %}
+{% endif %}
+
+{% capture url-string %}
+
+{% if include.sections %}{{ include.sections | replace: ".html", "" | replace: ".md", "" | replace: " ", "" }}{% endif %}
+{% if include.section %}{{ include.section | replace: ".html", "" | replace: ".md", "" | replace: " ", "" }}{% endif %}
+
+{% endcapture %}
+
+{% assign url-list = url-string | replace: "~", "|" | split: "|" %}
+
+{% capture link-path %}
+  {% if include.book and include.book != '' %}
+    {{ path-to-root-directory }}{{ include.book }}/{% if is-translation == true %}{{ book-subdirectory }}/{% endif %}
+  {% endif %}
+{% endcapture %}
+
+{% capture from-path %}
+  {% if include.book != nil and include.book != book-directory %}
+    {{ path-to-root-directory }}{{ book-directory }}/{% if is-translation == true %}{{ book-subdirectory }}/{% endif %}
+  {% endif %}
+{% endcapture %}
+
+{% if site.output == "web" or site.output == "app"  %}
+
+  {% assign title = include.title | markdownify | url_encode %}
+
+  <a id="component-{{ component-id }}" data-component-link=true href="{{ link-path | strip_newlines | strip }}{{ url-list[0] }}.html?component=true&title={{ title }}&from={{ from-path | strip_newlines | strip }}{{ current-file }}&id=component-{{ component-id }}&sections={{ url-string | replace: '|', '>' }}">{{ include.text }}</a>
+
+{% else %}
+
+  {% if include.tinylink and include.tinylink != "" %}
+
+    <a href="{{ include.tinylink }}" class="show-url">{{ include.text }}</a>
+
+  {% else %}
+
+    <a href="{{ url-list[0] }}.html" class="show-page-number">{{ include.text }}</a>
+  
+  {% endif %}
+
+{% endif %}
+
+{% comment %} Do not add a blank line at the end of this file. {% endcomment %}
+{% endcapture %}<span class="component-link-wrapper">{{ component-link | strip_newlines | strip }}&#8288;</span>

@@ -1,0 +1,13 @@
+<div class="cookie-banner-background visuallyhidden">
+  <div class="cookie-banner visuallyhidden">
+    <!-- LOGO -->
+    <img src="{% if external-media and external-media != "" %}{{ external-media }}{% else %}{{ path-to-root-directory }}{% endif %}assets/images/web/core-logo_no-strapline.png" role="presentation" />
+    <p>
+      {{ site.data.locales[language].cookie-banner.text | markdownify | replace: "<p>", "" | replace: "</p>", "" }}
+    </p>
+    <div class="button-wrapper">
+        <button class="consent js-reject">{{ site.data.locales[language].cookie-banner.essential | markdownify | replace: "<p>", "" | replace: "</p>", "" }}</button>
+        <button class="consent js-accept">{{ site.data.locales[language].cookie-banner.all | markdownify | replace: "<p>", "" | replace: "</p>", "" }}</button>
+    </div>
+  </div>
+</div>
