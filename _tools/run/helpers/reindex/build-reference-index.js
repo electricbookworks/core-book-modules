@@ -29,6 +29,39 @@ function decodeHtmlEntitiesPreservingTags (html) {
   return $.root().html()
 }
 
+// Elements that should never host an index target. A block comment
+// pointing at one of these gets a standalone anchor instead.
+const INDEX_TARGET_DENYLIST = new Set([
+  'br', 'hr', 'wbr', 'script', 'style', 'template',
+  'col', 'colgroup', 'source', 'track', 'param', 'meta', 'link', 'base', 'area'
+])
+
+// Parents whose content model forbids a <span> child. Inside these we
+// mark an element rather than inject a standalone anchor (avoids RSC-005).
+const INDEX_RESTRICTED_PARENTS = new Set([
+  'ul', 'ol', 'dl', 'table', 'thead', 'tbody', 'tfoot', 'tr',
+  'select', 'optgroup', 'menu', 'colgroup'
+])
+
+// Walk forward from a comment over sibling nodes, skipping whitespace-only
+// text and other comments, to classify what the comment actually points at:
+// an element (a potential host), a significant text node (e.g. display
+// math, which can't host an ID), or nothing in scope.
+function firstSignificantFollowing (comment) {
+  let node = comment.next
+  while (node) {
+    if (node.type === 'text') {
+      if (/\S/.test(node.data || '')) {
+        return { kind: 'text' }
+      }
+    } else if (node.type === 'tag' || node.type === 'script' || node.type === 'style') {
+      return { kind: 'element', node: node } // eslint-disable-line
+    }
+    node = node.next
+  }
+  return { kind: 'none' }
+}
+
 // Turn HTML comments for book indexes into index targets.
 // In web output, index targets are added dynamically in the browser
 // by assets/js/index-targets.js, so they are not present in the static
@@ -41,7 +74,7 @@ function decodeHtmlEntitiesPreservingTags (html) {
 // with an ID at the comment's position. Each target's entries are
 // recorded in a `data-index-entries` attribute.
 function renderIndexCommentsAsTargets ($) {
-  // If the targets have already been baked in (e.g. by the gulp
+  // If the targets have already been pre-rendered (e.g. by the gulp
   // pre-processing used for PDF and epub), there's nothing to do.
   if ($('body').attr('data-index-targets') === 'loaded') {
     return
@@ -75,16 +108,32 @@ function renderIndexCommentsAsTargets ($) {
         position = 'inline'
       }
 
-      // For a block comment, the element this comment indexes is the
-      // following element. For an inline comment, we insert a <span>
-      // target below.
+      // For a block comment we normally mark the following element. But if
+      // the comment points at something that can't host an ID -- a non-element
+      // node like display math, a denylisted element, or nothing in scope --
+      // we insert a standalone anchor at the comment's position instead,
+      // unless the parent's content model forbids a <span> child.
       let indexedElement
+      let blockTargetMode
       if (position === 'block') {
-        indexedElement = $(comment).nextAll().first()
+        const following = firstSignificantFollowing(comment)
+        const parentName = comment.parent && comment.parent.name
 
-        // If there's no following element to index, skip this comment.
-        if (!indexedElement || indexedElement.length === 0) {
-          return
+        if (following.kind === 'element' &&
+            !INDEX_TARGET_DENYLIST.has(following.node.name)) {
+          indexedElement = $(following.node)
+          blockTargetMode = 'mark'
+        } else if (INDEX_RESTRICTED_PARENTS.has(parentName)) {
+          // A standalone <span> would be invalid here, so mark the next
+          // element if there is one; otherwise skip this comment.
+          if (following.kind === 'element') {
+            indexedElement = $(following.node)
+            blockTargetMode = 'mark'
+          } else {
+            return
+          }
+        } else {
+          blockTargetMode = 'anchor'
         }
       }
 
@@ -157,7 +206,7 @@ function renderIndexCommentsAsTargets ($) {
         return
       }
 
-      if (position === 'block') {
+      if (position === 'block' && blockTargetMode === 'mark') {
         // Mark the following element itself. Give it an ID if it
         // doesn't already have one; if it does, we reuse it.
         if (!indexedElement.attr('id')) {
@@ -179,12 +228,11 @@ function renderIndexCommentsAsTargets ($) {
         indexedElement.attr('data-index-entries',
           JSON.stringify(existingEntries.concat(entriesForElement)))
       } else {
-        // Insert a <span> target at the exact position of the inline
-        // comment. A span is valid phrasing content wherever an inline
-        // comment can appear, so this never creates invalid markup.
-        // The span contains a zero-width space and is positioned
-        // absolutely so that PrinceXML renders it (it drops empty
-        // elements) without affecting the surrounding text flow.
+        // Insert a <span> target at the comment's position. This runs for
+        // inline comments and for block comments that point at a non-hostable
+        // node (e.g. display math). A span is valid phrasing content wherever
+        // a comment can appear in flow or phrasing content, so this never
+        // creates invalid markup.
         const idBase = entriesForElement[0].slug
         const occurrencesSoFar = (generatedIdCounts[idBase] || 0) + 1
         generatedIdCounts[idBase] = occurrencesSoFar
@@ -193,7 +241,19 @@ function renderIndexCommentsAsTargets ($) {
           .addClass('index-target')
           .attr('id', idBase + '--iid-' + occurrencesSoFar)
           .attr('data-index-entries', JSON.stringify(entriesForElement))
-          .attr('style', 'position: absolute')
+
+        if (position === 'block') {
+          // A standalone anchor between blocks (e.g. before display math).
+          // Keep it in flow but zero-size so the PDF `break-after: avoid`
+          // rule can hold it on the same page as the content it precedes.
+          newSpanElement
+            .addClass('index-target-standalone')
+            .attr('style', 'display: block; height: 0; line-height: 0; overflow: hidden')
+        } else {
+          // Inline anchor: position absolutely so it doesn't disturb the
+          // surrounding text, and so PrinceXML renders it.
+          newSpanElement.attr('style', 'position: absolute')
+        }
 
         newSpanElement.insertAfter(comment)
       }
@@ -263,7 +323,7 @@ async function buildReferenceIndex (outputFormat, filesData) {
 
     // Add the index targets to the DOM. In web output these are added
     // dynamically in the browser, so they aren't in the static HTML.
-    // For PDF and epub they're already baked in, so this is a no-op.
+    // For PDF and epub they're already pre-rendered, so this is a no-op.
     renderIndexCommentsAsTargets($)
 
     // Check if the page has any index targets.
