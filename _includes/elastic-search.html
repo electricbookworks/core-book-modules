@@ -1,0 +1,16 @@
+{% include metadata %}
+{% include files-listed.html %}
+
+{% comment %}
+We only want this to be populated on pages that will be indexed
+We are assuming that this is all pages in the web files list
+{% endcomment %}
+
+{% if list-of-files contains page.url %}
+
+<meta property="estype" content="es_ebook">
+<meta property="esstatus" content="publish">
+<meta property="esdate" content="{{ date }} 00:00:00">
+<meta property="esmodified_date" content="{{ site.time | date: '%Y-%m-%d %H:%M:%S' }}">
+
+{% endif %}
