@@ -1,5 +1,3 @@
-/* global MutationObserver */
-
 import { locales, pageLanguage } from './locales'
 import { ebTrackExpandableBoxOpen } from './analytics.js'
 
@@ -9,12 +7,6 @@ import { ebTrackExpandableBoxOpen } from './analytics.js'
 
 // Empty extension boxes do not need to be expandable
 const expandableBoxSelector = '.expandable-box:not(.extension-empty)'
-
-// Extension previews are never hidden and so should be excluded
-const expandableBoxContentSelector = 'h3 ~ *:not(.extension-preview),' +
-'h4 ~ *:not(.extension-preview),' + 'h5 ~ *:not(.extension-preview),' +
-'h6 ~ *:not(.extension-preview)'
-
 const boxHeaderSelector = 'h3 strong, h4 strong, h5 strong, h6 strong'
 
 // Toggle the visibility of the contents of the box
@@ -23,8 +15,6 @@ function ebExpandableBoxToggle (event) {
   const box = target.closest('.expandable-box')
   const toggle = box.querySelector('a.toggle')
   const button = box.querySelector('.preview-read-more')
-
-  const expandableBoxContent = box.querySelectorAll(expandableBoxContentSelector)
 
   if (toggle.classList.contains('closed')) {
     // Analytics tracking of walk-through box opens
@@ -42,11 +32,7 @@ function ebExpandableBoxToggle (event) {
   // Switch the class of the toggle button - content changes between '-' and '+'
   toggle.classList.toggle('open')
   toggle.classList.toggle('closed')
-
-  // Toggle the visibility of the box contents
-  expandableBoxContent.forEach(function (item) {
-    item.classList.toggle('visuallyhidden')
-  })
+  box.classList.toggle('closed')
 
   // Toggle the visibility of the 'Read More' button, if there is one
   if (button) {
@@ -159,14 +145,8 @@ function ebExpandableBoxInitialiseBoxes () {
   const expandableBoxes = document.querySelectorAll(expandableBoxSelector)
 
   expandableBoxes.forEach(function (box) {
-    const expandableBoxContent = box.querySelectorAll(expandableBoxContentSelector)
-
-    expandableBoxContent.forEach(function (item) {
-      item.classList.add('visuallyhidden')
-    })
-
+    box.classList.add('closed')
     ebExpandableBoxAddBoxToggle(box)
-
     // Add Read More button to extension previews
     if (box.querySelector('.extension-preview')) {
       ebExpandableBoxAddPreviewButton(box)
@@ -175,37 +155,13 @@ function ebExpandableBoxInitialiseBoxes () {
 }
 
 // Expandable box startup process
-function ebStartExpandableBox () {
+function ebExpandableBox () {
   ebExpandableBoxInitialiseBoxes()
   ebExpandableBoxListenForIncomingLinks()
   ebExpandableBoxCheckURLForTargets()
   window.addEventListener('hashchange', function () {
     ebExpandableBoxCheckURLForTargets()
   }, false)
-}
-
-function ebExpandableBox () {
-  // MathJax v4 has no StartupHook, so we wait for the `data-mathjax-rendered`
-  // flag that is set on <body> once typesetting finishes, then initialise the
-  // boxes exactly once. Initialising more than once appends duplicate toggles.
-  const mathjaxEnabled = process.env.config['mathjax-enabled'] === 'true'
-
-  if (!mathjaxEnabled || document.body.getAttribute('data-mathjax-rendered') === 'true') {
-    ebStartExpandableBox()
-    return
-  }
-
-  const expandableBoxObserver = new MutationObserver(function (mutations, observer) {
-    if (document.body.getAttribute('data-mathjax-rendered') === 'true') {
-      observer.disconnect() // run once; other modules also mutate <body> attributes
-      ebStartExpandableBox()
-    }
-  })
-
-  expandableBoxObserver.observe(document.body, {
-    attributes: true,
-    attributeFilter: ['data-mathjax-rendered']
-  })
 }
 
 export default ebExpandableBox
