@@ -1,6 +1,13 @@
+{% comment %}
+  Landing-page contributor card. Called in a loop from landing-page.html with
+  each contributor's fields passed inline, so a book can list any number of
+  contributors. Params: image (basename of the .jpg), alt-text, statement,
+  name (display name), affiliation.
+{% endcomment %}
+{% assign media-base = external-media | default: path-to-root-directory %}
 <div class="landing-page-contributors-item">
-  <img src="{{ external-media }}assets/images/{{ site.output }}/{{ include.name }}.jpg" alt="{{ data.contributors[include.name].alt-text }}"/>
-  <p class="p4">{{ data.contributors[include.name].statement }}</p>
-  <h3>{{ data.contributors[include.name].name }}</h3>
-  <p class="p4">{{ data.contributors[include.name].affiliation }}</p>
+  <img src="{{ media-base }}assets/images/{{ site.output }}/{{ include.image }}.jpg" alt="{{ include.alt-text }}"/>
+  <p class="p4">{{ include.statement }}</p>
+  <h3>{{ include.name }}</h3>
+  <p class="p4">{{ include.affiliation }}</p>
 </div>
