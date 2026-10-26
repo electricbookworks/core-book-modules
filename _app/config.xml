@@ -47,6 +47,7 @@ layout: min
     <allow-intent href="geo:*" />
     <platform name="android">
         <preference name="android-targetSdkVersion" value="36" />
+        <preference name="AndroidEdgeToEdge" value="false" />
         <icon src="res/icon.png" />
         <preference name="SplashMaintainAspectRatio" value="true"/>
         <preference name="SplashShowOnlyFirstTime" value="true"/>
@@ -78,7 +79,7 @@ layout: min
         <preference name="WindowsStorePublisherName" value="{% if site.build-language and site.build-language != "" %}{{ site.data.secrets[site.build-language].windows.publisher-display-name }}{% else %}{{ site.data.secrets.windows.publisher-display-name }}{% endif %}" />
         <preference name="WindowsStoreDisplayName" value="{% if site.build-language and site.build-language != "" %}{{ site.data.locales[site.build-language].project.name }}{% else %}{{ series-name }}{% endif %}"/>
     </platform>
-    <engine name="android" spec="~14.0.0" />
+    <engine name="android" spec="~15.0.0" />
     <engine name="ios" spec="~4.4.0" />
 
     <plugin name="cordova-plugin-youtube-referer" spec="plugins/cordova-plugin-youtube-referer" />
