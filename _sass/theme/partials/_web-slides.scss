@@ -16,7 +16,7 @@
   clear: both;
   margin-bottom: 2em;
   
-  svg {
+  :not(.MathJax_SVG) > svg {
     background-color: white;
   }
   
