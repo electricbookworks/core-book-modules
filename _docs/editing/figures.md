@@ -174,7 +174,7 @@ Interactive graphs are loaded using the [OWiD Grapher package](https://docs.owid
 
 The CSV data and JSON config files for OWiD interactive graphs are added to media repos, using the following structure: `<book>/data/owid/<owid-slug>/`.
 
-Each slug directory will contain a CSV file, a config JSON file, and one or metadata JSON files.
+Each slug directory will contain a CSV file, a config JSON file, and one or more metadata JSON files.
 
 Use `<owid-slug>` for the `owid-id` figure attribute and specify the interactive toggle button label using the `interactive-graph-text` attribute.
 
@@ -192,3 +192,4 @@ Example:
    interactive-graph-text="View interactive graph"
 %}
 ```
+{% endraw %}
