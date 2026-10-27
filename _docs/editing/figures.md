@@ -37,6 +37,7 @@ In the tag for each figure, we can define the following information:
 * a source (appears below the figure)
 * the height of the image in lines
 * a [class](classes.html) (for styling the layout of a given figure).
+* an Our World in Data (OWiD) interactive graph identifier and toggle button label
 
 The template uses that information differently depending on the output format. For instance, on the web and in the epub, the alt text is the text that screen-readers will read aloud to visually impaired users who can't see an image; and we don't need to display it in print.
 
@@ -60,6 +61,8 @@ Here is a full example:
    source="Electric Book Works, 2017"
    image-height="10"
    class="featured"
+   owid-id="folder-name-slug"
+   interactive-graph-text="View interactive graph"
 %}
 ```
 {% endraw %}
@@ -165,3 +168,27 @@ If it's important to you that the image isn't in a blockquote, and there is no c
 {:.figure}
 ~~~
 
+## Interactive Our World in Data (OWiD) graphs
+
+Interactive graphs are loaded using the [OWiD Grapher package](https://docs.owid.io/projects/grapher/).
+
+The CSV data and JSON config files for OWiD interactive graphs are added to media repos, using the following structure: `<book>/data/owid/<owid-slug>/`.
+
+Each slug directory will contain a CSV file, a config JSON file, and one or metadata JSON files.
+
+Use `<owid-slug>` for the `owid-id` figure attribute and specify the interactive toggle button label using the `interactive-graph-text` attribute.
+
+Example:
+
+{% raw %}
+```
+{% include figure
+   images="mydog.jpg"
+   reference="Figure 1.2a"
+   caption="This is the figure caption."
+   title="My Example Figure"
+   alt-text="This should describe what the images look like."
+   owid-id="my-dog-interactive"
+   interactive-graph-text="View interactive graph"
+%}
+```
