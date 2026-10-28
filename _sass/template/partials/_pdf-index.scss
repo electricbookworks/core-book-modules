@@ -58,4 +58,11 @@ $pdf-index: true !default;
 		text-decoration: none;
 	}
 
+	// Standalone index-target anchors (e.g. before display math) must not be
+	// separated by a page break from the content they precede, or the index
+	// would cite the wrong page.
+	.index-target-standalone {
+		break-after: avoid;
+	}
+
 }
