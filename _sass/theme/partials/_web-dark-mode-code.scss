@@ -24,7 +24,8 @@ $background-native: #404040;
       .o { color: #ffffff } /* Operator */
       .x { color: #ffffff } /* Other */
       .p { color: #ffffff } /* Punctuation */
-      .highlight .cm { color: #008800; font-style: italic; background-color: $background-fruity } /* Comment.Multiline .highlight .cp { color: #ff0007; font-weight: bold; font-style: italic; background-color: $background-fruity } /* Preproc */
+      .cm { color: #008800; font-style: italic; background-color: $background-fruity } /* Comment.Multiline */
+      .cp { color: #ff0007; font-weight: bold; font-style: italic; background-color: $background-fruity } /* Preproc */
       .c1 { color: #008800; font-style: italic; background-color: transparent } /* Comment.Single */ // adapted
       .cs { color: #008800; font-style: italic; background-color: $background-fruity } /* Comment.Special */
       .gd { color: #ffffff } /* Generic.Deleted */
