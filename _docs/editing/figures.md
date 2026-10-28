@@ -176,7 +176,7 @@ The CSV data and JSON config files for OWiD interactive graphs are added to medi
 
 Each slug directory will contain a CSV file, a config JSON file, and one or more metadata JSON files.
 
-Use `<owid-slug>` for the `owid-id` figure attribute and specify the interactive toggle button label using the `interactive-graph-text` attribute.
+Use `<owid-slug>` for the `owid-id` figure attribute and specify the interactive toggle button label using the `interactive-graph-text` attribute. For multiple interactive graphs, separate the `owid-id` values with `|` in the same order as the links in `more`; `interactive-graph-text` can use the same separator to provide a matching label for each graph.
 
 Example:
 

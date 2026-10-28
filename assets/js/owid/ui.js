@@ -59,11 +59,12 @@ function showStaticGraph (button) {
   button.classList.add('visuallyhidden')
   button.setAttribute('tabindex', '-1')
 
-  // Remove OWID interactive graph
-  const owidId = button.getAttribute('data-owid-id')
-  const owidContainerId = `owid-container-${owidId}`
-  const owidContainer = document.getElementById(owidContainerId)
-  owidContainer.remove()
+  // Remove OWID interactive graph(s)
+  const figure = button.closest('.figure')
+  const owidContainers = figure.querySelectorAll('.owid-container')
+  owidContainers.forEach(function (owidContainer) {
+    owidContainer.remove()
+  })
 
   const interactiveButtons = button.parentElement.querySelectorAll('.js-interactive')
   interactiveButtons.forEach(function (interactiveButton) {
