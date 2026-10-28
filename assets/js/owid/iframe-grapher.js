@@ -61,6 +61,7 @@ const prepareData = async () => {
 }
 
 prepareData().then(({ config, csv, columnDefs }) => {
+  console.log({ config, csv, columnDefs })
   GrapherLoader.fromCsv({
     config,
     csv,
