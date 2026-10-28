@@ -16,7 +16,13 @@ $background-native: #404040;
 
       .hll { background-color: $background-fruity }
       .c { color: #008800; font-style: italic; background-color: $background-fruity } /* Comment */
-      .err { color: #ffffff } /* Error */
+
+      // As in light mode, we override this Rouge default
+      // to hide errors, since false-positive errors are common
+      // on CORE pages that mix languages.
+      // .err { color: #ffffff } /* Error */
+      .err { color: inherit; border: 0; background: transparent; }
+
       .g { color: #ffffff } /* Generic */
       .k { color: #fb660a; font-weight: bold } /* Keyword */
       .l { color: #ffffff } /* Literal */
@@ -93,7 +99,13 @@ $background-native: #404040;
 
       .hll { background-color: $background-native }
       .c { color: #999999; font-style: italic } /* Comment */
-      .err { color: #a61717; background-color: #e3d2d2 } /* Error */
+
+      // As in light mode, we override this Rouge default
+      // to hide errors, since false-positive errors are common
+      // on CORE pages that mix languages.
+      // .err { color: #a61717; background-color: #e3d2d2 } /* Error */
+      .err { color: inherit; border: 0; background: transparent; }
+
       .g { color: #d0d0d0 } /* Generic */
       .k { color: #6ab825; font-weight: bold } /* Keyword */
       .l { color: #d0d0d0 } /* Literal */
@@ -171,7 +183,13 @@ $background-native: #404040;
 
       .hll { background-color: $background-monokai; }
       .c { color: #75715e } /* Comment */
-      .err { color: #960050; background-color: transparent } /* Error */
+
+      // As in light mode, we override this Rouge default
+      // to hide errors, since false-positive errors are common
+      // on CORE pages that mix languages.
+      // .err { color: #960050; background-color: transparent } /* Error */
+      .err { color: inherit; border: 0; background: transparent; }
+
       .k { color: #66d9ef } /* Keyword */
       .l { color: #ae81ff } /* Literal */
       .n { color: #f8f8f2 } /* Name */
