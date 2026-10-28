@@ -282,14 +282,15 @@ First let's replace non-ascii characters in the reference with ascii versions to
                     <div class="figure-more-text">
                         {{ include.more | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}
                     </div>
-                {% comment %}Otherwise, treat as a URL{% endcomment %}
-                {% else %}
+                {% endif %}
+                
+                {% if include.owid-id and include.owid-id != "" %}
 
-                    {% comment %}Create an array of more-links, in case more than one.{% endcomment %}
-                    {% assign more-links = include.more | split: "|" %}
+                    {% comment %}Create an array of owid-ids, in case more than one.{% endcomment %}
+                    {% assign owid-ids = include.owid-id | split: "|" %}
 
                     {% comment %}Set an index for our loop below.{% endcomment %}
-                    {% assign more-links-index = 0 %}
+                    {% assign owid-ids-index = 0 %}
 
                     {% assign interactive-graph-texts = "" %}
 
@@ -297,27 +298,28 @@ First let's replace non-ascii characters in the reference with ascii versions to
                         {% assign interactive-graph-texts = include.interactive-graph-text | split: "|" %}
                     {% endif %}
 
-                    {% comment %}Loop through the more-links to output buttons.{% endcomment %}
-                    {% for link in more-links %}
+                    {% comment %}Loop through the owid-ids to output buttons.{% endcomment %}
+                    {% for link in owid-ids %}
                         
-                        <button class="load-iframe-button js-interactive button {% if include.class contains 'start-interactive' %} visuallyhidden start-interactive {% endif %}" data-link="{{ link }}" data-owid-id="{{ include.owid-id }}" data-book="{{ book-directory }}">
-                            {% if interactive-graph-texts[more-links-index] %}
-                                {{ interactive-graph-texts[more-links-index] }}
+                        <button class="load-iframe-button js-interactive button {% if include.class contains 'start-interactive' %} visuallyhidden start-interactive {% endif %}" data-link="{{ link }}" data-owid-id="{{ owid-ids[owid-ids-index] }}" data-book="{{ book-directory }}">
+                            {% if interactive-graph-texts[owid-ids-index] %}
+                                {{ interactive-graph-texts[owid-ids-index] }}
                             {% else %}
                                 {{ locale.figures.see-interactive-graph }}
                             {% endif %}
                         </button>
 
                         {% comment %}Increment the index for the next loop.{% endcomment %}
-                        {% assign more-links-index = more-links-index | plus: 1 %}
+                        {% assign owid-ids-index = owid-ids-index | plus: 1 %}
 
                     {% endfor %}
                     
-                    <button class="load-iframe-button js-static button visuallyhidden" tabindex="-1" data-owid-id="{{ include.owid-id }}">
+                    <button class="load-iframe-button js-static button visuallyhidden" tabindex="-1" data-owid-id="{{ owid-ids[0] }}">
                         {{ locale.figures.see-static-graph }}
                     </button>
 
                 {% endif %}
+
             {% comment %}PDF output{% endcomment %}
             {% else %}
             <div class="figure-more {% if include.more contains '|' %}multiple-links{% endif %}">
