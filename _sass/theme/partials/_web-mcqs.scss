@@ -248,3 +248,16 @@
     left: 0.5rem;
   }
 }
+
+// "Report a problem" link under each question
+// (rendered by the question include when settings.questions.user-report.enabled)
+.question-report-cont {
+  margin: 0 1em 0 0;
+  text-align: right;
+}
+
+.question-report-link {
+  font-family: $font-text-secondary;
+  font-size: 1em * $font-size-smaller;
+  color: $color-dark-grey;
+}
