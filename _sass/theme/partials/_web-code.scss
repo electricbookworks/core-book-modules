@@ -20,8 +20,13 @@ pre {
   background-color: $color-light;
   .hll { background-color: #ffffcc }
   .c { color: #8f5902; font-style: italic } /* Comment */
-  // The line below is commented out because a bug in rouge makes some underscores red blocks
+
+  // The default .err is commented out because a bug in rouge makes some underscores
+  // and other syntax show as errors (e.g. a JSON snippet in a mostly-Python page)
   // .err { color: #a40000; border: 1px solid #ef2929 } /* Error */
+  // So instead we do this, overriding the .err style from `template`
+  .err { color: inherit; border: 0; background: transparent; }
+
   .g { color: #000000 } /* Generic */
   .k { color: #204a87; font-weight: bold } /* Keyword */
   .l { color: #000000 } /* Literal */
