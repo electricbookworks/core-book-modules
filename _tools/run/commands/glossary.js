@@ -1,0 +1,152 @@
+// For more on yargs command modules like this one, see
+// https://github.com/yargs/yargs/blob/main/docs/advanced.md#providing-a-command-module
+
+// Generates a book's glossary.yml from glossary-unified.yml
+// (copied from core-book-glossary) and glossary-override.yml.
+// The glossary.yml is then output by `{% include glossary %}`.
+//
+// Files live in _data/works/<book>/ (parent language)
+// or _data/works/<book>/<language>/ (translations).
+//
+// glossary-override.yml (optional):
+//
+//   - id: consumption
+//     overrides:
+//       - field: term
+//         find: "Consumption"
+//         replace: "Con&shy;sumption"
+
+// Modules
+
+const fs = require('fs-extra')
+const fsPath = require('path')
+const yaml = require('js-yaml')
+const chalk = require('chalk')
+const languagePathSegment = require('../helpers/paths/languagePathSegment.js')
+
+// Constants
+
+const FIELDS = ['term', 'definition', 'example', 'cross-reference']
+const SOURCE_FILE = 'glossary-unified.yml'
+const OVERRIDE_FILE = 'glossary-override.yml'
+const OUTPUT_FILE = 'glossary.yml'
+
+// Helpers
+
+function readYAML (path) {
+  return yaml.load(fs.readFileSync(path, 'utf8'))
+}
+
+// Validate overrides and normalise them into a list of
+// { id, field, find, replace } rules, collecting problems.
+function parseOverrides (data, path) {
+  const rules = []
+  const errors = []
+
+  if (data === null || data === undefined) return { rules, errors }
+  if (!Array.isArray(data)) {
+    errors.push(path + ': expected a list of entries, each with `id` and `overrides`.')
+    return { rules, errors }
+  }
+
+  data.forEach(function (entry, i) {
+    const where = path + ' entry ' + (i + 1)
+    if (!entry || typeof entry.id !== 'string' || !entry.id) {
+      errors.push(where + ': missing `id`.')
+      return
+    }
+    if (!Array.isArray(entry.overrides)) {
+      errors.push(where + ' (' + entry.id + '): `overrides` must be a list.')
+      return
+    }
+    entry.overrides.forEach(function (override, j) {
+      const whereOverride = where + ' (' + entry.id + '), override ' + (j + 1)
+      if (!override || !FIELDS.includes(override.field)) {
+        errors.push(whereOverride + ': `field` must be one of ' + FIELDS.join(', ') + '.')
+      } else if (typeof override.find !== 'string' || override.find === '') {
+        errors.push(whereOverride + ': `find` must be a non-empty string.')
+      } else if (typeof override.replace !== 'string') {
+        errors.push(whereOverride + ': `replace` must be a string.')
+      } else {
+        rules.push({ id: entry.id, field: override.field, find: override.find, replace: override.replace })
+      }
+    })
+  })
+
+  return { rules, errors }
+}
+
+// Apply override rules to glossary entries (in place),
+// replacing every occurrence of each `find` string.
+function applyOverrides (glossary, rules) {
+  const warnings = []
+  let applied = 0
+
+  rules.forEach(function (rule) {
+    const entry = glossary.find(function (item) { return item.id === rule.id })
+    const label = rule.id + ' → ' + rule.field + ': "' + rule.find + '"'
+
+    if (!entry) {
+      warnings.push(label + ' – no glossary entry with this id.')
+    } else if (typeof entry[rule.field] !== 'string') {
+      warnings.push(label + ' – entry has no ' + rule.field + '.')
+    } else if (!entry[rule.field].includes(rule.find)) {
+      warnings.push(label + ' – text not found.')
+    } else {
+      entry[rule.field] = entry[rule.field].split(rule.find).join(rule.replace)
+      applied++
+    }
+  })
+
+  return { applied, warnings }
+}
+
+// Exports
+
+exports.command = 'glossary'
+exports.desc = 'Generate glossary.yml from glossary-unified.yml and glossary-override.yml'
+exports.handler = function (argv) {
+  const dataDirectory = fsPath.normalize(process.cwd() + '/_data/works/' +
+    argv.book + languagePathSegment(argv))
+  const sourcePath = fsPath.join(dataDirectory, SOURCE_FILE)
+  const overridePath = fsPath.join(dataDirectory, OVERRIDE_FILE)
+  const outputPath = fsPath.join(dataDirectory, OUTPUT_FILE)
+  const relative = function (path) { return fsPath.relative(process.cwd(), path) }
+
+  try {
+    if (!fs.existsSync(sourcePath)) {
+      throw new Error('Unified glossary not found: ' + relative(sourcePath))
+    }
+    const glossary = readYAML(sourcePath)
+    if (!Array.isArray(glossary)) {
+      throw new Error(relative(sourcePath) + ' must contain a list of glossary entries.')
+    }
+
+    let rules = []
+    if (fs.existsSync(overridePath)) {
+      const parsed = parseOverrides(readYAML(overridePath), relative(overridePath))
+      if (parsed.errors.length) {
+        throw new Error('Invalid overrides:\n  ' + parsed.errors.join('\n  '))
+      }
+      rules = parsed.rules
+    } else {
+      console.log(chalk.yellow('No overrides file at ' + relative(overridePath) + '; copying glossary as is.'))
+    }
+
+    const result = applyOverrides(glossary, rules)
+    result.warnings.forEach(function (warning) {
+      console.log(chalk.yellow('Override skipped: ' + warning))
+    })
+
+    const header = '# Generated by `npm run eb -- glossary` from ' + SOURCE_FILE +
+      ' and ' + OVERRIDE_FILE + '.\n# Do not edit this file: edit ' + OVERRIDE_FILE + ' instead.\n'
+    fs.writeFileSync(outputPath, header +
+      yaml.dump(glossary, { lineWidth: -1, quotingType: '"', forceQuotes: true }))
+
+    console.log(chalk.green('Wrote ' + glossary.length + ' entries to ' + relative(outputPath) +
+      ' (' + result.applied + ' of ' + rules.length + ' overrides applied).'))
+  } catch (error) {
+    console.error(chalk.red(error.message))
+    process.exitCode = 1
+  }
+}
