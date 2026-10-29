@@ -71,7 +71,17 @@ only the part after the last `---`. So don't use `---` elsewhere in the question
 <div class="question{% if include.class %} {{ include.class }}{% endif %}{% if question-is-mcq %} mcq{% endif %}" markdown="1" data-question="{{ question-file }}" data-question-code="{% include question-secret-code.html correct=question-correct-options %}">
 
 <div class="question-content" markdown="1">
+
 {{ question-markdown }}
+
+{% if site.data.settings.questions.user-report.enabled %}
+<p class="question-report-cont">
+	<a class="question-report-link" href="{{ site.data.settings.questions.user-report.google-form-url }}?{{ site.data.settings.questions.user-report.field-book }}={{ book-directory | url_encode }}&{{ site.data.settings.questions.user-report.field-question }}={{ question-file | url_encode }}&usp=pp_url" target="_blank" rel="noopener noreferrer">
+		Report a problem
+	</a>
+</p>
+{% endif %}
+
 </div>
 
 </div>
