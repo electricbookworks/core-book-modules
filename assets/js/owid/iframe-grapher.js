@@ -20,6 +20,14 @@ const columnRenames = {
   id: 'entityId'
 }
 
+const typeRenames = {
+  float: 'Numeric',
+  int: 'Integer',
+  ordinal: 'Ordinal',
+  string: 'String',
+  mixed: 'NumberOrString'
+}
+
 const normaliseCsvHeader = csv => {
   const newlineIndex = csv.indexOf('\n')
   if (newlineIndex === -1) return csv
@@ -40,7 +48,7 @@ const prepareData = async () => {
   const columnPromises = columnIds.map(columnId => fetch(`${baseUrl}/${columnId}.metadata.json`).then(res => res.json()))
   const columnDefsRaw = await Promise.all(columnPromises)
   const columnDefs = columnDefsRaw.map(def => {
-    def.type === 'float' && (def.type = 'Numeric')
+    def.type && (def.type = typeRenames[def.type] || def.type)
     def.slug = def.shortName
     return def
   })
