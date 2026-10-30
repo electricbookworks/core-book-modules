@@ -29,6 +29,13 @@
     color: $color-ghost;
   }
 
+  // Landing-page icons use `currentColor` (instead of a hard-coded hex),
+  // so each book's accent drives them via `color`.
+  .landing-page-accordion-head svg,
+  .landing-page-flex-section-item svg {
+    color: $color-accent;
+  }
+
   :not(.cookie-banner) > p {
     max-width: 38rem;
   }
