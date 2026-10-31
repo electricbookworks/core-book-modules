@@ -6,7 +6,7 @@
   {% include metadata %} first so `language` and the media/path
   variables are set. Sections are gated on their data, so a book shows
   only the parts it populates. Lists (banner.buttons, contents.volumes,
-  contributors.items) let a book show any number of each.
+  contributors.items, resources.items) let a book show any number of each.
 {% endcomment %}
 
 {% assign data = site.data.landing-page[language] %}
@@ -343,41 +343,27 @@
         <!-- FLEX CONTAINER -->
         <div class="landing-page-flex-section-container no-carousel">
 
-          <!-- ITEM -->
-          {% if data.resources.test-bank.label and data.resources.test-bank.label != "" %}
-            <a href="https://core-econ.org/test-bank/" class="landing-page-flex-section-item">
-              {% include icons/landing-page/test-bank.svg %}
-              <h3>{{ data.resources.test-bank.label }}</h3>
-              <p class="p4">{{ data.resources.test-bank.description }}</p>
-            </a>
-          {% endif %}
-
-          <!-- ITEM -->
-          {% if data.resources.community.label and data.resources.community.label != "" %}
-            <a href="https://www.core-econ.org/teaching-community/" class="landing-page-flex-section-item">
-              {% include icons/landing-page/teaching-community.svg %}
-              <h3>{{ data.resources.community.label }}</h3>
-              <p class="p4">{{ data.resources.community.description }}</p>
-            </a>
-          {% endif %}
-
-          <!-- ITEM -->
-          {% if data.resources.inequality.label and data.resources.inequality.label != "" %}
-            <a href="https://jackblun.github.io/Globalinc/" class="landing-page-flex-section-item">
-              {% include icons/landing-page/visualising-global-inequality.svg %}
-              <h3>{{ data.resources.inequality.label }}</h3>
-              <p class="p4">{{ data.resources.inequality.description }}</p>
-            </a>
-          {% endif %}
-
-          <!-- ITEM -->
-          {% if data.resources.cite.label and data.resources.cite.label != "" %}
-            <a href="{{ path-to-root-directory }}{{ data.resources.cite.directory | default: 'book' }}{{ link-directory }}/{{ data.resources.cite.link | default: '0-5-note-to-instructors.html#how-to-cite-the-economy' }}" class="landing-page-flex-section-item">
-              {% include icons/landing-page/how-to-cite.svg %}
-              <h3>{{ data.resources.cite.label }}</h3>
-              <p class="p4">{{ data.resources.cite.description }}</p>
-            </a>
-          {% endif %}
+          {% comment %}
+            Every resource card is a list item. An item links out with an
+            external `href`, or to a page in the book via `directory`/`link`;
+            `icon` is a filename in icons/landing-page/. Cards are gated on label.
+          {% endcomment %}
+          {% for item in data.resources.items %}
+            {% if item.label and item.label != "" %}
+              {% capture resource-icon %}icons/landing-page/{{ item.icon | default: 'demo-icon.svg' }}{% endcapture %}
+              {% if item.href and item.href != "" %}
+                {% capture resource-href %}{{ item.href }}{% endcapture %}
+              {% else %}
+                {% capture resource-href %}{{ path-to-root-directory }}{{ item.directory | default: 'book' }}{{ link-directory }}/{{ item.link }}{% endcapture %}
+              {% endif %}
+              <!-- ITEM -->
+              <a href="{{ resource-href }}" class="landing-page-flex-section-item">
+                {% include {{ resource-icon }} %}
+                <h3>{{ item.label }}</h3>
+                <p class="p4">{{ item.description }}</p>
+              </a>
+            {% endif %}
+          {% endfor %}
 
         </div>
       </div>
