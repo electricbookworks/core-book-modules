@@ -291,6 +291,15 @@
           {% endif %}
 
           <!-- ITEM -->
+          {% if data.formats.print.label and data.formats.print.label != "" %}
+            <div class="landing-page-flex-section-item">
+              {% include icons/landing-page/buy-the-print-textbook.svg %}
+              <h3>{{ data.formats.print.label }}</h3>
+              <p class="p4">{{ data.formats.print.description }}</p>
+            </div>
+          {% endif %}
+
+          <!-- ITEM -->
           {% if data.formats.app.label and data.formats.app.label != "" and site.output != "app" %}
             <div class="landing-page-flex-section-item">
               {% include icons/landing-page/install-the-app.svg %}
@@ -305,15 +314,6 @@
               {% include icons/landing-page/download-the-free-ebook.svg %}
               <h3>{{ data.formats.epub.label }}</h3>
               <p class="p4">{{ data.formats.epub.description }}</p>
-            </div>
-          {% endif %}
-
-          <!-- ITEM -->
-          {% if data.formats.print.label and data.formats.print.label != "" %}
-            <div class="landing-page-flex-section-item">
-              {% include icons/landing-page/buy-the-print-textbook.svg %}
-              <h3>{{ data.formats.print.label }}</h3>
-              <p class="p4">{{ data.formats.print.description }}</p>
             </div>
           {% endif %}
 
