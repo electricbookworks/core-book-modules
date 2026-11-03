@@ -18,6 +18,20 @@ App output and this documentation is still experimental and a work in progress. 
 
 The default output will be a debug version of your app for local testing only.
 
+Android builds use Cordova Android 15 and target Android 16 (API 36). Install Node.js 20.17.0 or later, JDK 17, Android SDK Platform 36, and Android SDK Build Tools 36.0.0.
+
+The app template sets `AndroidEdgeToEdge` to `false`. Cordova Android 15 handles the system-bar insets to keep content and pagination controls clear of the status and navigation bars, including on Android 16 where the native edge-to-edge opt-out no longer works. Keep the target SDK at 36; lowering it is not a fix for this layout issue.
+
+When upgrading an existing project, update the shared modules dependency first so that its managed `_app/config.xml` is refreshed, then regenerate the app output. If `_site/app` already contains an older Android platform, preserve any manual native changes before recreating it from that directory:
+
+```sh
+cordova platform remove android
+cordova platform add android@15.0.0
+cordova build android
+```
+
+Test pagination on Android 15 and 16 with both gesture and three-button navigation, and in portrait and landscape orientations.
+
 To create a signed release, create or check that you have a `secrets.yml` file in `_data`. *Do not* commit `secrets.yml` (or any file you link to inside it, like a keystore) to version control.
 
 > Note: If you're building a large app that requires an expansion file for Google Play, see [our template for creating an Android app with an expansion file](https://github.com/electricbookworks/electric-book-android).

@@ -23,11 +23,10 @@ $nav-bar-back-button-hide: false !default;
         font-size: inherit;
         color: $nav-bar-label-color;
         background-color: $nav-bar-label-background-color;
-        border: $rule-thickness solid $nav-bar-label-border-color;
         border-radius: $button-border-radius;
         padding: 0.25rem 0.5rem;
         cursor: pointer;
-        margin: 0.5rem 0 0.5rem 0.5rem;
+        margin: 0.5rem 1px 0.5rem 0.5rem;
 
         @if $nav-bar-back-button-hide {
             display: none;

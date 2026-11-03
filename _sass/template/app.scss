@@ -89,19 +89,11 @@ $wordpress-buttons-height: 2.5rem;
     display: inline;
 
     // Match nav menu button
+    font-size: 1rem;
     border-radius: 2.5rem;
     line-height: 1;
     margin: 0;
     padding: 0.5rem 1rem;
-}
-
-// Hide the masthead to save vertical space in the app
-.wrapper:not(.landing-page) .masthead {
-    height: 0;
-
-    ul {
-        display: none;
-    }
 }
 
 .landing-page .masthead {

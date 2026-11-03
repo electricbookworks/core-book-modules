@@ -2,14 +2,15 @@ const path = require('path')
 const { execSync } = require('child_process')
 const { FusesPlugin } = require('@electron-forge/plugin-fuses')
 const { FuseV1Options, FuseVersion } = require('@electron/fuses')
+const forgeProjectVars = require('./forge.project-vars')
 
 module.exports = {
   packagerConfig: {
     asar: true,
-    appVersion: '2.1.1',
     icon: 'res/icon/electron/icon',
-    name: 'The Economy 2 by CORE Econ',
-    appBundleId: 'org.core-econ.books.the-economy',
+    appVersion: forgeProjectVars.appVersion,
+    name: forgeProjectVars.name,
+    appBundleId: forgeProjectVars.appBundleId,
     afterCopyExtraResources: [(stagingPath, electronVersion, platform, arch, done) => {
       if (platform !== 'darwin') return done()
       // Electron 35+ ships with linker-signed adhoc binaries. After
@@ -17,7 +18,7 @@ module.exports = {
       // signatures reference non-existent sealed resources, causing
       // codesign to fail. Strip all stale signatures so osx-sign can
       // re-sign everything cleanly from scratch.
-      const appName = 'The Economy 2 by CORE Econ'
+      const appName = forgeProjectVars.name
       const appPath = path.join(stagingPath, appName + '.app')
       try {
         execSync(
@@ -54,9 +55,9 @@ module.exports = {
         devCert: '',
         makeVersionWinStoreCompatible: true,
         packageDescription: 'An open-access textbook for any first course in economics, whether principles, micro, or macro.',
-        packageDisplayName: 'The Economy 2 by CORE Econ',
-        packageName: 'EBW.TheEconomy2byCOREEcon',
-        packageVersion: '2.1.1.0',
+        packageDisplayName: forgeProjectVars.name,
+        packageName: forgeProjectVars.packageName,
+        packageVersion: forgeProjectVars.packageVersion,
         publisher: 'CN=605D56E7-3B41-4152-B0D8-39A6751462A4',
         publisherDisplayName: 'Electric Book Works'
       }
