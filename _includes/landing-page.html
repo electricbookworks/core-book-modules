@@ -290,40 +290,42 @@
             </a>
           {% endif %}
 
+          {% comment %} print/app/epub/pdf take an optional external `link` that makes the whole card a link. Omit it when the description contains links (nested links are invalid HTML). {% endcomment %}
+
           <!-- ITEM -->
           {% if data.formats.print.label and data.formats.print.label != "" %}
-            <div class="landing-page-flex-section-item">
+            {% if data.formats.print.link and data.formats.print.link != "" %}<a href="{{ data.formats.print.link }}" class="landing-page-flex-section-item">{% else %}<div class="landing-page-flex-section-item">{% endif %}
               {% include icons/landing-page/buy-the-print-textbook.svg %}
               <h3>{{ data.formats.print.label }}</h3>
               <p class="p4">{{ data.formats.print.description }}</p>
-            </div>
+            {% if data.formats.print.link and data.formats.print.link != "" %}</a>{% else %}</div>{% endif %}
           {% endif %}
 
           <!-- ITEM -->
           {% if data.formats.app.label and data.formats.app.label != "" and site.output != "app" %}
-            <div class="landing-page-flex-section-item">
+            {% if data.formats.app.link and data.formats.app.link != "" %}<a href="{{ data.formats.app.link }}" class="landing-page-flex-section-item">{% else %}<div class="landing-page-flex-section-item">{% endif %}
               {% include icons/landing-page/install-the-app.svg %}
               <h3>{{ data.formats.app.label }}</h3>
               <p class="p4">{{ data.formats.app.description }}</p>
-            </div>
+            {% if data.formats.app.link and data.formats.app.link != "" %}</a>{% else %}</div>{% endif %}
           {% endif %}
 
           <!-- ITEM -->
           {% if data.formats.epub.label and data.formats.epub.label != "" %}
-            <div class="landing-page-flex-section-item">
+            {% if data.formats.epub.link and data.formats.epub.link != "" %}<a href="{{ data.formats.epub.link }}" class="landing-page-flex-section-item">{% else %}<div class="landing-page-flex-section-item">{% endif %}
               {% include icons/landing-page/download-the-free-ebook.svg %}
               <h3>{{ data.formats.epub.label }}</h3>
               <p class="p4">{{ data.formats.epub.description }}</p>
-            </div>
+            {% if data.formats.epub.link and data.formats.epub.link != "" %}</a>{% else %}</div>{% endif %}
           {% endif %}
 
           <!-- ITEM -->
           {% if data.formats.pdf.label and data.formats.pdf.label != "" %}
-            <div class="landing-page-flex-section-item">
+            {% if data.formats.pdf.link and data.formats.pdf.link != "" %}<a href="{{ data.formats.pdf.link }}" class="landing-page-flex-section-item">{% else %}<div class="landing-page-flex-section-item">{% endif %}
               {% include icons/landing-page/download-the-pdf-online.svg %}
               <h3>{{ data.formats.pdf.label }}</h3>
               <p class="p4">{{ data.formats.pdf.description }}</p>
-            </div>
+            {% if data.formats.pdf.link and data.formats.pdf.link != "" %}</a>{% else %}</div>{% endif %}
           {% endif %}
 
         </div>
