@@ -36,7 +36,7 @@ import ebMoveBelowFootnotes from '../move-below-footnotes'
 import ebNav from '../nav'
 import ebNewTab from '../new-tab'
 import ebNotifications from '../notifications'
-import ebOwidUI from '../owid/ui'
+import ebOwidIframes from '../owid/owid-iframes-legacy'
 import ebPageReference from '../page-reference'
 import ebPdfSlides from '../pdf-slides'
 import ebPrinceBoxInfo from '../prince-box-info'
@@ -119,7 +119,7 @@ if (process.env.output === 'web' || process.env.output === 'app') {
   ebNewTab()
   ebDefinitions()
   ebSidenotes()
-  ebOwidUI()
+  ebOwidIframes()
   ebDarkMode()
   ebNotifications()
   ebLanguageSelect()
