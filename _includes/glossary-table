@@ -22,7 +22,7 @@ get the translation glossary{% endcomment %}
 {% comment %}Create a map of terms to their slugified equivalents{% endcomment %}
 {% capture slug-map %}
   {% for entry in glossary %}
-{{ entry.term | slugify }},{{ entry.term }}|
+{{ entry.term | replace: "&shy;", "" | replace: "&nbsp;", " " | strip_html | slugify }},{{ entry.term }}|
   {% endfor %}
 {% endcapture %}
 
@@ -44,7 +44,7 @@ get the translation glossary{% endcomment %}
 {% comment %}If it does, then output the glossary HTML tr and dd.
 Don't indent this, or kramdown thinks its a code block{% endcomment %}
 <tr>
-  <td class="glossary-term" id="glossary-{{ entry.term | slugify }}">{{ entry.term | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</td>
+  <td class="glossary-term" id="glossary-{% if entry.id %}{{ entry.id }}{% else %}{{ entry.term | slugify }}{% endif %}">{{ entry.term | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</td>
   <td class="glossary-definition">{{ entry.definition | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</td>
   <td class="glossary-example">{{ entry.example | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</td>
   <td class="glossary-cross-reference">{{ entry.cross-reference | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</td>

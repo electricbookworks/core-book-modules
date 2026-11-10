@@ -68,6 +68,13 @@ because https://github.com/jekyll/jekyll/issues/2248. {% endcomment %}
     {% comment %}Get a selection of definitions from the glossary{% endcomment %}
     {% assign definitions = glossary | where: "term", t %}
 
+    {% comment %}If the displayed term has been changed (e.g. by glossary-override.yml),
+    fall back to looking it up by id.{% endcomment %}
+    {% if definitions.size == 0 %}
+        {% assign t-id = t | slugify %}
+        {% assign definitions = glossary | where: "id", t-id %}
+    {% endif %}
+
     {% comment %}Check if all our terms are defined, and if not,
     output some warning HTML.{% endcomment %}
     {% capture defs %}{{ definitions | size }}{% endcapture %}
