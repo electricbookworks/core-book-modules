@@ -8,12 +8,12 @@ Files in this folder without file extensions are intended for use in markdown. T
 {% include metadata %}
 ```
 
-Files in this folder with file extensions tend to be customised per project, or are code templates used in rendering processes. The file extension makes it easier for code editors to apply useful syntax highlighting.
-
-E.g. `end-elements.html` and `footer.html` are often customised. And `head.html` is rarely customised, and is used in building the `<head>` element of almost all pages.
+Files in this folder with file extensions tend to be code templates used in rendering processes. The file extension makes it easier for code editors to apply useful syntax highlighting.
 
 Subfolders can be used to organise groups of files, such as `icons`. When including a file from a subfolder, include the subfolder in the include tag, e.g.
 
 ``` liquid
 {% include icons/email.svg %}
 ```
+
+Do not include book content in `_includes`. If there is a good reason to use an include as repeatable, template book content, use the relevant content repo's `_includes-custom` directory.
