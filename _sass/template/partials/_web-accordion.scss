@@ -46,6 +46,12 @@ $web-accordion: true !default;
         display: none;
     }
 
+    // Override the browser default (centre) for accordion toggles.
+    // Without this, long, multi-line headings will appear centered.
+    button[aria-expanded] {
+        text-align: inherit;
+    }
+
     .accordion-show-all-button-wrapper {
         margin-top: $line-height-default;
         text-align: right;
