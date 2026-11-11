@@ -30,6 +30,13 @@ h2, header {
     margin-top: $line-height-default;
   }
 
+  // An empty question list collapses its margins through,
+  // so the counter sits higher than a following text-sub-question.
+  // Matching top and bottom margins puts both at the same height.
+  &:has(> li:empty:only-child) {
+    margin-top: $line-height-default;
+  }
+
   li ol, li ul {
     margin-bottom: $line-height-default;
     margin-top: 0;
@@ -61,7 +68,7 @@ h2, header {
 }
 
 // Solutions pages get extra treatment
-body.solutions {
+.wrapper.solutions {
   // This is a fragile hack to use the .text-question class
   // for the first para in solutions. It indents everything,
   // except h2s and h3s, after a solution's first para (if it's
