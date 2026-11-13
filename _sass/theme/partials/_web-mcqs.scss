@@ -51,6 +51,12 @@
     gap: 0.5rem;
     align-items: first baseline;
     justify-content: flex-start;
+
+    // Fill the label when an option contains a table, so option tables have equal widths
+    .option-text:has(table) {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
   }
 
   [type="checkbox"] {
