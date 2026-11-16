@@ -51,6 +51,14 @@
     &[aria-expanded="false"] {
       @include h2($factor: 0.7);
     }
+
+    &[aria-expanded="true"] {
+
+      // Clear floats from previous accordion sections when this heading is expanded.
+      // The section-level clear (below) handles the section container;
+      // this button-level clear ensures the heading itself clears.
+      clear: both;
+    }
   }
   
   // Don't let floating elements from previous section
