@@ -9,6 +9,11 @@
   page-break-inside: avoid;
   padding: ($line-height-default / 2);
   
+  // Prevent tables from bleeding to edges of question box
+  .table-wrapper {
+    @extend .table-wrapper-no-bleed;
+  }
+  
   h2, h3, h4, h5, h6 {
     @include h3exercise($factor: $font-serif-sans-ratio);
     font-family: $font-text-secondary;
