@@ -60,7 +60,7 @@ function showStaticGraph (button) {
   button.setAttribute('tabindex', '-1')
 
   // Remove OWID interactive graph(s)
-  const figure = button.closest('.figure')
+  const figure = button.closest('.figure') ? button.closest('.figure') : button.closest('.slides')
   const owidContainers = figure.querySelectorAll('.owid-container')
   owidContainers.forEach(function (owidContainer) {
     owidContainer.remove()
@@ -102,8 +102,8 @@ function showStaticGraph (button) {
   }
 }
 
-function ebIframeSwitcher () {
-  const iframeSwitcherButtons = document.querySelectorAll('.load-iframe-button')
+function ebIframeSwitcher (parent = document) {
+  const iframeSwitcherButtons = parent.querySelectorAll('.load-iframe-button')
 
   // For figures with the 'start-interactive' class, automatically load the
   // iframe, and hide the "View static graph" button
@@ -124,6 +124,9 @@ function ebIframeSwitcher () {
 }
 
 ebIframeSwitcher()
+window.addEventListener('eb-slides-summary-meta-moved', function () {
+  ebIframeSwitcher(document.querySelector('.figure-summary-meta'))
+})
 
 function ebGraphOptionsDropdown () {
   const graphOptionsButtons = document.querySelectorAll('button.graph-options')

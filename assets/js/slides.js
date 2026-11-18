@@ -54,6 +54,8 @@ const ebSlidesMoveSummaryMeta = function (slidelines) {
     // remove the summary figure
     slideline.removeChild(summary)
   })
+
+  window.dispatchEvent(new CustomEvent('eb-slides-summary-meta-moved'))
 }
 
 function ebTruncateText (text, maxLength) {
