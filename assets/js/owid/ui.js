@@ -102,8 +102,8 @@ function showStaticGraph (button) {
   }
 }
 
-function ebIframeSwitcher (parent = document) {
-  const iframeSwitcherButtons = parent.querySelectorAll('.load-iframe-button')
+function ebIframeSwitcher (parent = '') {
+  const iframeSwitcherButtons = document.querySelectorAll(`${parent} .load-iframe-button`)
 
   // For figures with the 'start-interactive' class, automatically load the
   // iframe, and hide the "View static graph" button
@@ -125,7 +125,7 @@ function ebIframeSwitcher (parent = document) {
 
 ebIframeSwitcher()
 window.addEventListener('eb-slides-summary-meta-moved', function () {
-  ebIframeSwitcher(document.querySelector('.figure-summary-meta'))
+  ebIframeSwitcher('.figure-summary-meta')
 })
 
 function ebGraphOptionsDropdown () {
