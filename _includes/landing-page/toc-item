@@ -46,7 +46,12 @@
 {% assign toc-coming-soon = include.coming-soon | default: item.coming-soon | append: "" | downcase %}
 {% assign media-base = external-media | default: path-to-root-directory %}
 {% assign toc-directory = include.directory | default: include.volume %}
-{% capture toc-href %}{{ path-to-root-directory }}{% if toc-directory %}{{ toc-directory }}{{ link-directory }}/{% endif %}{{ include.link }}{% endcapture %}
+{% comment %} Absolute URLs (e.g. https://…) are used as-is {% endcomment %}
+{% if include.link contains "://" %}
+  {% assign toc-href = include.link %}
+{% else %}
+  {% capture toc-href %}{{ path-to-root-directory }}{% if toc-directory %}{{ toc-directory }}{{ link-directory }}/{% endif %}{{ include.link }}{% endcapture %}
+{% endif %}
 {% if include.buttons %}{% assign toc-has-buttons = true %}{% else %}{% assign toc-has-buttons = false %}{% endif %}
 {% comment %} When buttons carry navigation (e.g. EE), the image and heading are left unlinked {% endcomment %}
 {% if include.link and include.link != "" and toc-coming-soon != "true" and toc-has-buttons == false %}{% assign toc-linked = true %}{% else %}{% assign toc-linked = false %}{% endif %}
