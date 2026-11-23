@@ -61,8 +61,10 @@ filter the glossary accordingly. {% endcomment %}
         First create a version of the term with non-ascii characters
         replaced by ascii versions, for accurate sorting.
         {% endcomment %}
+        {% comment %}Ignore display-only markup (e.g. from glossary-override.yml) when sorting.{% endcomment %}
+        {% assign sort-term = entry.term | replace: "&shy;", "" | replace: "&nbsp;", " " | strip_html %}
         {% capture ascii-term %}
-            {% include ascii-version string=entry.term %}
+            {% include ascii-version string=sort-term %}
         {% endcapture %}
         {{ ascii-term | slugify | replace: "-", "" }}^splithere^{{ entry.term }}|
     {% endfor %}
@@ -85,7 +87,7 @@ filter the glossary accordingly. {% endcomment %}
 
 {% comment %}If it does, then output the glossary HTML dt and dd.
 Don't indent this, or kramdown thinks its a code block{% endcomment %}
-<dt class="glossary-term" id="glossary-{{ entry.term | slugify }}">{{ entry.term | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</dt> <dd class="glossary-definition">{{ entry.definition | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}{% if entry.example and entry.example != "" %} <span class="glossary-example">{{ entry.example | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</span>{% endif %}{% if entry.cross-reference and entry.cross-reference != "" %} <em class="glossary-cross-reference">{{ entry.cross-reference | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</em>{% endif %}</dd>
+<dt class="glossary-term" id="glossary-{% if entry.id %}{{ entry.id }}{% else %}{{ entry.term | slugify }}{% endif %}">{{ entry.term | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</dt> <dd class="glossary-definition">{{ entry.definition | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}{% if entry.example and entry.example != "" %} <span class="glossary-example">{{ entry.example | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</span>{% endif %}{% if entry.cross-reference and entry.cross-reference != "" %} <em class="glossary-cross-reference">{{ entry.cross-reference | markdownify | remove: '<p>' | remove: '</p>' | strip_newlines }}</em>{% endif %}</dd>
 
         {% endif %}
 
