@@ -105,9 +105,11 @@
 
     .check-answer-button {
       background-color: $color !important;
+      border-color: $color !important;
 
       &:focus, &:hover {
         background-color: darken($color, 20%) !important;
+        border-color: darken($color, 20%) !important;
       }
     }
   }
@@ -312,9 +314,11 @@
 
   .figure button.load-iframe-button {
     background-color: $color;
+    border-color: $color;
 
     &:focus, &:hover {
       background-color: darken($color, 20%);
+      border-color: darken($color, 20%);
     }
   }
 
@@ -361,9 +365,11 @@
   .video .video-options {
     .video-options-button {
       background-color: $color;
+      border-color: $color;
 
-      &:hover {
+      &:focus, &:hover {
         background-color: darken($color, 20%);
+        border-color: darken($color, 20%);
       }
     }
 
