@@ -70,6 +70,16 @@
 	@include outside-right();	
 }
 
+// Paragraph sidenotes in boxes need more specificity
+// to override box paragraph sizes in _web-boxes.scss
+.info,
+.exercise,
+.box.citation {
+	p.sidenote {
+		@include p5($factor: $font-serif-sans-ratio);
+	}
+}
+
 .expandable-box {
 	.sidenote {
 		@media (min-width: $break-point-m) {

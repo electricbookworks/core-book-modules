@@ -141,6 +141,12 @@ blockquote {
   p {
     @include p3($factor: $font-serif-sans-ratio);
   }
+
+  // Match figure captions to box text size,
+  // as main-text captions match body text size
+  .figure .figure-body .caption {
+    @include p3($factor: $font-serif-sans-ratio);
+  }
   
   h2, h3, h4, h5, h6 {
     @include h3($factor: $font-serif-sans-ratio);
