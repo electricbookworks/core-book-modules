@@ -88,6 +88,14 @@ blockquote {
   pre, code, .highlight, .highlighter-rouge {
     background-color: white;
   }
+
+  // Below $break-point-xl, sidenotes sit inside the box with no side padding,
+  // so let the box background show through
+  .sidenote {
+    @media (max-width: $break-point-xl) {
+      background-color: transparent;
+    }
+  }
   
   .exercise, .question {
     h3 {
