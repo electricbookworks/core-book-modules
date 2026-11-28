@@ -313,6 +313,14 @@ body.dark-mode {
       background-color: $color-shadow;
     }
 
+    // Override the dark-mode sidenote background inside boxes,
+    // as in _web-boxes.scss
+    .sidenote {
+      @media (max-width: $break-point-xl) {
+        background-color: transparent;
+      }
+    }
+
     .slides {
       .figure-summary-meta {
         background-color: $color-shadow;

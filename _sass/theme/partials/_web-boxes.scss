@@ -88,6 +88,14 @@ blockquote {
   pre, code, .highlight, .highlighter-rouge {
     background-color: white;
   }
+
+  // Below $break-point-xl, sidenotes sit inside the box with no side padding,
+  // so let the box background show through
+  .sidenote {
+    @media (max-width: $break-point-xl) {
+      background-color: transparent;
+    }
+  }
   
   .exercise, .question {
     h3 {
@@ -141,6 +149,12 @@ blockquote {
   p {
     @include p3($factor: $font-serif-sans-ratio);
   }
+
+  // Match figure captions to box text size,
+  // as main-text captions match body text size
+  .figure .figure-body .caption {
+    @include p3($factor: $font-serif-sans-ratio);
+  }
   
   h2, h3, h4, h5, h6 {
     @include h3($factor: $font-serif-sans-ratio);
@@ -149,10 +163,8 @@ blockquote {
     color: $color-accent;
     margin-top: 0;
 
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    flex-wrap: wrap;
+    // Block, not flex, so long titles wrap as text and the link button follows the last word
+    display: block;
 
     strong {
       text-transform: uppercase;

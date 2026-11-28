@@ -14,4 +14,20 @@
   .intro {
     font-family: $font-text-secondary;
   }
+
+  // Extra space above the first intro paragraph
+  .intro:not(.intro + .intro) {
+    margin-top: 4rem;
+  }
+
+  // Extra space below the last intro paragraph.
+  // Ruby Sass 3.7 drops `:not(:has(...))`, so we set space below
+  // every intro, then reset it on any intro followed by another,
+  // to the 0.75rem paragraph spacing in _web-base-typography.scss.
+  .intro {
+    margin-bottom: 2rem;
+  }
+  .intro:has(+ .intro) {
+    margin-bottom: 0.75rem;
+  }
 }
